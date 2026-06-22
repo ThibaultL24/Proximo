@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# bin/dev — lance backend + frontend en parallele
+set -e
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+# Charger rbenv / nvm si disponibles (souvent absents du PATH dans un nouveau terminal WSL)
+if [[ -d "$HOME/.rbenv/bin" ]]; then
+  export PATH="$HOME/.rbenv/bin:$HOME/.rbenv/shims:$PATH"
+  eval "$(rbenv init - bash 2>/dev/null || true)"
+fi
+
+if [[ -s "$HOME/.nvm/nvm.sh" ]]; then
+  # shellcheck disable=SC1091
+  source "$HOME/.nvm/nvm.sh"
+fi
+
+require_cmd() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "Erreur: '$1' introuvable dans le PATH." >&2
+    exit 1
+  fi
+}
+
+wait_for_rails() {
+  local port=$1
+  local max_attempts=60
+  local attempt=0
+
+  echo "En attente de Rails sur :${port}..."
+  while ! curl -sf "http://127.0.0.1:${port}/api/v1/health" >/dev/null 2>&1; do
+    attempt=$((attempt + 1))
+    if [[ $attempt -ge $max_attempts ]]; then
+      echo "Erreur: Rails n'a pas demarre sur :${port} apres $((max_attempts / 2))s." >&2
+      exit 1
+    fi
+    sleep 0.5
+  done
+  echo "Rails pret."
+}
+
+RUBY_VERSION="$(ruby -e 'print RUBY_VERSION' 2>/dev/null || true)"
+EXPECTED_RUBY="$(cat "$ROOT/backend/.ruby-version" 2>/dev/null || echo "3.4.1")"
+
+if [[ "$RUBY_VERSION" != "$EXPECTED_RUBY" ]]; then
+  echo "Erreur: Ruby $EXPECTED_RUBY requis, mais $(command -v ruby) = ${RUBY_VERSION:-inconnu}." >&2
+  echo "Installez rbenv puis: cd $ROOT/backend && rbenv install $EXPECTED_RUBY && rbenv local $EXPECTED_RUBY && bundle install" >&2
+  exit 1
+fi
+
+require_cmd bundle
+require_cmd npm
+require_cmd curl
+
+cleanup() { kill 0 2>/dev/null || true; }
+trap cleanup EXIT
+
+echo "Starting Rails API on :3000..."
+(cd "$ROOT/backend" && bundle exec rails server -p 3000) &
+wait_for_rails 3000
+
+echo "Starting Vite on :5173..."
+(cd "$ROOT/frontend" && npm run dev) &
+wait
