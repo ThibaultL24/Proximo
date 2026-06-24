@@ -8,6 +8,7 @@ import {
 } from "../../api/merchant-profile";
 import { IconNewspaper } from "../../components/admin/admin-icons";
 import { MerchantQrCodeAccess } from "../../components/admin/merchant-qr-code-access";
+import { MerchantStripeConnectCard } from "../../components/merchant/merchant-stripe-connect-card";
 import { AdminPanelCard } from "../../components/admin/admin-panel-card";
 import {
   AdminActionLink,
@@ -160,6 +161,8 @@ export function MerchantShopPage() {
           </div>
         }
       />
+
+      <MerchantStripeConnectCard />
 
       <AdminFormShell onSubmit={handleSubmit}>
         <AdminFieldset legend="Presentation">

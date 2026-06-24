@@ -84,6 +84,15 @@ export interface MerchantArticleSummary {
   published_at?: string;
 }
 
+export interface StripeConnectStatus {
+  connected: boolean;
+  account_id: string | null;
+  charges_enabled: boolean;
+  payouts_enabled: boolean;
+  details_submitted: boolean;
+  ready_for_payouts: boolean;
+}
+
 export interface MerchantProfile extends Merchant {
   qr_token: string;
   qr_url: string;
@@ -92,6 +101,7 @@ export interface MerchantProfile extends Merchant {
   logo?: MerchantPhotoAsset | null;
   photos: MerchantPhotoAsset[];
   articles: MerchantArticleSummary[];
+  stripe_connect?: StripeConnectStatus;
 }
 
 export interface MerchantProfileInput {
@@ -232,6 +242,8 @@ export interface Commission {
   status: string;
   approved_at?: string | null;
   paid_at?: string | null;
+  stripe_checkout_session_id?: string | null;
+  stripe_transfer_id?: string | null;
   created_at: string;
   updated_at?: string;
   lead: {
@@ -244,6 +256,7 @@ export interface Commission {
     id: number;
     name: string;
     slug: string;
+    stripe_ready?: boolean;
   };
 }
 

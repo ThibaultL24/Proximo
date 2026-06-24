@@ -323,6 +323,9 @@ GEM
       net-ssh (>= 2.8.0)
       ostruct
     stringio (3.2.0)
+    stripe (19.2.1)
+      bigdecimal
+      logger
     thor (1.5.0)
     thruster (0.1.21)
     thruster (0.1.21-aarch64-linux)
@@ -375,6 +378,7 @@ DEPENDENCIES
   solid_cache
   solid_queue
   sqlite3 (>= 2.1)
+  stripe (~> 19.2)
   thruster
   tzinfo-data
 

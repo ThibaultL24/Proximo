@@ -60,3 +60,5 @@ end
 gem "prawn", "~> 2.4"
 gem "ruby-vips", "~> 2.3"
 gem "matrix"
+
+gem "stripe", "~> 19.2"

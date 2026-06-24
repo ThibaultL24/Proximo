@@ -16,6 +16,10 @@ class CommissionPolicy < ApplicationPolicy
     user&.admin?
   end
 
+  def pay?
+    user&.admin?
+  end
+
   class Scope < Scope
     def resolve
       user&.admin? ? scope.all : scope.none

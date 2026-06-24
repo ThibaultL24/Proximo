@@ -41,4 +41,8 @@ class MerchantProfileSerializer < MerchantSerializer
       }
     end
   end
+
+  attribute :stripe_connect do |merchant|
+    StripeConnectService.for(merchant).status
+  end
 end

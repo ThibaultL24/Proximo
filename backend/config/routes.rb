@@ -24,6 +24,9 @@ Rails.application.routes.draw do
         get "stats", to: "stats#show"
         resource :profile, only: %i[show update], controller: "profiles"
         resource :qr, only: :show, controller: "qr"
+        resource :stripe_connect, only: %i[show create], controller: "stripe_connect" do
+          get :dashboard
+        end
         delete "profile/photos", to: "photos#destroy"
         resources :leads, only: %i[index create]
       end
@@ -44,8 +47,13 @@ Rails.application.routes.draw do
           collection do
             get :export
           end
+          resource :checkout, only: :create, controller: "commission_checkouts"
         end
         resource :stats, only: :show, controller: "stats"
+      end
+
+      namespace :webhooks do
+        post "stripe", to: "stripe#create"
       end
     end
   end

@@ -70,7 +70,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.datetime "paid_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "stripe_checkout_session_id"
     t.index ["lead_id"], name: "index_commissions_on_lead_id", unique: true
+    t.index ["stripe_checkout_session_id"], name: "index_commissions_on_stripe_checkout_session_id", unique: true, where: "stripe_checkout_session_id IS NOT NULL"
   end
 
   create_table "lead_status_events", force: :cascade do |t|
@@ -133,11 +135,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.string "qr_token", null: false
     t.integer "qr_scan_count", default: 0, null: false
     t.integer "place_id"
+    t.string "stripe_account_id"
+    t.boolean "stripe_onboarding_completed", default: false, null: false
     t.index ["place_id"], name: "index_merchants_on_place_id"
     t.index ["qr_token"], name: "index_merchants_on_qr_token", unique: true
     t.index ["sector_id"], name: "index_merchants_on_sector_id"
     t.index ["slug"], name: "index_merchants_on_slug", unique: true
     t.index ["status"], name: "index_merchants_on_status"
+    t.index ["stripe_account_id"], name: "index_merchants_on_stripe_account_id", unique: true, where: "stripe_account_id IS NOT NULL"
   end
 
   create_table "places", force: :cascade do |t|

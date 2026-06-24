@@ -1,5 +1,7 @@
 // src/pages/admin/admin-commissions-page.tsx
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { createCommissionCheckout } from "../../api/admin-commission-payments";
 import {
   exportAdminCommissions,
   fetchAdminCommissions,
@@ -19,6 +21,7 @@ import {
   AdminTableRow,
 } from "../../components/admin/admin-ui";
 import { linkButtonClass } from "../../components/ui/button";
+import { Card } from "../../components/ui/card";
 import {
   COMMISSION_STATUS_COLORS,
   COMMISSION_STATUS_LABELS,
@@ -45,9 +48,11 @@ function formatDate(iso?: string | null) {
 }
 
 export function AdminCommissionsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [statusFilter, setStatusFilter] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [actionId, setActionId] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -68,6 +73,23 @@ export function AdminCommissionsPage() {
   useEffect(() => {
     loadCommissions();
   }, [loadCommissions]);
+
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    if (!payment) return;
+
+    if (payment === "success") {
+      setSuccess("Paiement Stripe confirme. La commission sera marquee payee apres verification.");
+      loadCommissions();
+    } else if (payment === "cancelled") {
+      setError("Paiement Stripe annule.");
+    }
+
+    const next = new URLSearchParams(searchParams);
+    next.delete("payment");
+    next.delete("commission_id");
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams, loadCommissions]);
 
   async function handleApprove(commission: Commission) {
     const amountStr = window.prompt(
@@ -92,6 +114,19 @@ export function AdminCommissionsPage() {
     } catch {
       setError("Action impossible");
     } finally {
+      setActionId(null);
+    }
+  }
+
+  async function handlePayViaStripe(commission: Commission) {
+    setActionId(commission.id);
+    setError("");
+    try {
+      const url = await createCommissionCheckout(commission.id);
+      window.location.href = url;
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      setError(message || "Impossible d'ouvrir le paiement Stripe");
       setActionId(null);
     }
   }
@@ -140,7 +175,7 @@ export function AdminCommissionsPage() {
       <AdminPageHeader
         eyebrow="Finance"
         title="Commissions commercants"
-        description="Commissions creees a la conversion d'un lead. Paiement manuel pour l'instant."
+        description="Commissions creees a la conversion d'un lead. Paiement Stripe ou manuel."
         backLabel="Vue d'ensemble"
       />
 
@@ -161,6 +196,9 @@ export function AdminCommissionsPage() {
       </AdminFilters>
 
       {error && <AdminAlert>{error}</AdminAlert>}
+      {success && (
+        <Card className="border-success/30 bg-success/5 p-4 text-sm text-success">{success}</Card>
+      )}
       {isLoading && <AdminLoading />}
 
       {!isLoading && commissions.length === 0 && (
@@ -213,14 +251,32 @@ export function AdminCommissionsPage() {
                       </button>
                     )}
                     {commission.status === "approved" && (
-                      <button
-                        type="button"
-                        disabled={actionId === commission.id}
-                        onClick={() => handleMarkPaid(commission.id)}
-                        className="rounded-lg bg-success px-2.5 py-1 text-xs text-white disabled:opacity-50"
-                      >
-                        Marquer payee
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          disabled={actionId === commission.id || !commission.merchant.stripe_ready}
+                          onClick={() => handlePayViaStripe(commission)}
+                          className={linkButtonClass("primary", "px-2.5 py-1 text-xs disabled:opacity-50")}
+                          title={
+                            commission.merchant.stripe_ready
+                              ? undefined
+                              : "Le commercant doit configurer Stripe"
+                          }
+                        >
+                          {actionId === commission.id ? "Redirection..." : "Payer via Stripe"}
+                        </button>
+                        {!commission.merchant.stripe_ready && (
+                          <span className="text-xs text-ink-muted">Stripe non configure</span>
+                        )}
+                        <button
+                          type="button"
+                          disabled={actionId === commission.id}
+                          onClick={() => handleMarkPaid(commission.id)}
+                          className="rounded-lg bg-success px-2.5 py-1 text-xs text-white disabled:opacity-50"
+                        >
+                          Marquer payee
+                        </button>
+                      </>
                     )}
                     {(commission.status === "eligible" || commission.status === "approved") && (
                       <button

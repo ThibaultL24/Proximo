@@ -32,6 +32,10 @@ class MerchantPolicy < ApplicationPolicy
     user&.admin? || owns_merchant?
   end
 
+  def manage_stripe?
+    user&.merchant? && owns_merchant?
+  end
+
   def stats?
     user&.merchant? && owns_merchant?
   end
