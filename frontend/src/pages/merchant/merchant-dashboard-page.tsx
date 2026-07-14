@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { fetchMerchantLeads } from "../../api/leads";
 import { fetchMerchantStats } from "../../api/merchant-stats";
 import { IconQr, IconUsers } from "../../components/admin/admin-icons";
+import { MerchantSubscriptionCard } from "../../components/merchant/merchant-subscription-card";
 import { AdminPanelCard } from "../../components/admin/admin-panel-card";
 import { AdminStatCard } from "../../components/admin/admin-stat-card";
 import {
@@ -68,6 +69,8 @@ export function MerchantDashboardPage() {
           </div>
         }
       />
+
+      <MerchantSubscriptionCard />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {scanCount !== null && (

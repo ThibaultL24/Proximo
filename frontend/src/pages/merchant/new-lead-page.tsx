@@ -1,7 +1,9 @@
 // src/pages/merchant/new-lead-page.tsx
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { createMerchantLead } from "../../api/leads";
+import { fetchMerchantSubscription } from "../../api/merchant-billing";
+import { MerchantSubscriptionCard } from "../../components/merchant/merchant-subscription-card";
 import {
   AdminAlert,
   AdminFieldset,
@@ -37,6 +39,13 @@ export function NewLeadPage() {
   const [form, setForm] = useState<LeadInput>(emptyForm);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [subscriptionActive, setSubscriptionActive] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    fetchMerchantSubscription()
+      .then((sub) => setSubscriptionActive(sub.active))
+      .catch(() => setSubscriptionActive(false));
+  }, []);
 
   function updateField<K extends keyof LeadInput>(key: K, value: LeadInput[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -77,6 +86,9 @@ export function NewLeadPage() {
         backLabel="Tableau de bord"
       />
 
+      {subscriptionActive === false && <MerchantSubscriptionCard />}
+
+      {subscriptionActive !== false && (
       <AdminFormShell onSubmit={handleSubmit}>
         <AdminFieldset legend="Contact client">
           <input
@@ -185,6 +197,7 @@ export function NewLeadPage() {
           </button>
         </div>
       </AdminFormShell>
+      )}
     </section>
   );
 }

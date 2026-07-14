@@ -1,6 +1,7 @@
 # app/controllers/application_controller.rb
 class ApplicationController < ActionController::API
   include Pundit::Authorization
+  include TenantScoped
 
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
   rescue_from Pundit::NotAuthorizedError, with: :forbidden
@@ -31,7 +32,21 @@ class ApplicationController < ActionController::API
     authenticate_user!
     return if performed?
 
-    forbidden unless current_user&.admin?
+    forbidden unless current_user&.admin? && !current_user.super_admin?
+  end
+
+  def authenticate_super_admin!
+    authenticate_user!
+    return if performed?
+
+    forbidden unless current_user&.super_admin?
+  end
+
+  def authenticate_platform_admin!
+    authenticate_user!
+    return if performed?
+
+    forbidden unless current_user&.admin? || current_user&.super_admin?
   end
 
   def not_found

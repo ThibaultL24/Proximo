@@ -1,6 +1,6 @@
 // src/hooks/use-auth.tsx
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { fetchMe, login as apiLogin, logout as apiLogout } from "../api/auth";
+import { fetchMe, login as apiLogin, logout as apiLogout, register as apiRegister } from "../api/auth";
 import { getToken } from "../api/client";
 import type { User } from "../types";
 
@@ -8,6 +8,7 @@ interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<User>;
+  register: (input: { email: string; password: string; first_name?: string; last_name?: string; phone?: string }) => Promise<User>;
   logout: () => void;
 }
 
@@ -34,13 +35,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return loggedIn;
   }
 
+  async function register(input: { email: string; password: string; first_name?: string; last_name?: string; phone?: string }) {
+    const registered = await apiRegister(input);
+    setUser(registered);
+    return registered;
+  }
+
   function logout() {
     apiLogout();
     setUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

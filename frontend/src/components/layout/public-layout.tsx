@@ -4,6 +4,7 @@ import { useTerritory } from "../../context/territory-context";
 import { gazetteTitle } from "../../lib/gazette-labels";
 import { linkButtonClass } from "../ui/button";
 import { useAuth } from "../../hooks/use-auth";
+import { homePathForRole } from "../../lib/auth-redirect";
 
 export function PublicLayout() {
   const { user, logout } = useAuth();
@@ -33,10 +34,7 @@ export function PublicLayout() {
             <Link to="/annuaire" className="transition hover:text-petrol">Commercants</Link>
             {user ? (
               <>
-                <Link
-                  to={user.role === "admin" ? "/admin" : "/espace-commercant"}
-                  className="transition hover:text-petrol"
-                >
+                <Link to={homePathForRole(user.role)} className="transition hover:text-petrol">
                   Mon espace
                 </Link>
                 <button type="button" onClick={logout} className="transition hover:text-petrol">
@@ -46,7 +44,7 @@ export function PublicLayout() {
             ) : (
               <Link to="/connexion" className="transition hover:text-petrol">Connexion</Link>
             )}
-            <Link to="/connexion" className={linkButtonClass("accent", "hidden lg:inline-flex")}>
+            <Link to="/inscription" className={linkButtonClass("accent", "hidden lg:inline-flex")}>
               J&apos;ai un projet immobilier
             </Link>
           </nav>

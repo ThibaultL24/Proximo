@@ -5,6 +5,8 @@ Rails.application.routes.draw do
 
       namespace :auth do
         post "login", to: "sessions#create"
+        post "register", to: "registrations#create"
+        post "agency_register", to: "agency_registrations#create"
         delete "logout", to: "sessions#destroy"
         get "me", to: "sessions#show"
       end
@@ -27,11 +29,29 @@ Rails.application.routes.draw do
         resource :stripe_connect, only: %i[show create], controller: "stripe_connect" do
           get :dashboard
         end
+        resource :billing, only: %i[show create], controller: "billing" do
+          get :portal, on: :member
+        end
         delete "profile/photos", to: "photos#destroy"
         resources :leads, only: %i[index create]
       end
 
+      namespace :client do
+        resource :billing, only: %i[show create], controller: "billing" do
+          get :portal, on: :member
+        end
+        resources :leads, only: %i[index create]
+      end
+
+      namespace :platform do
+        resource :stats, only: :show, controller: "stats"
+        resources :agencies, only: %i[index show]
+      end
+
       namespace :admin do
+        resource :billing, only: %i[show create], controller: "billing" do
+          get :portal, on: :member
+        end
         resources :merchants do
           resource :qr, only: :show, controller: "merchant_qr"
         end

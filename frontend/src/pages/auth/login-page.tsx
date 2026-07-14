@@ -1,10 +1,11 @@
 // src/pages/auth/login-page.tsx
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AdminAlert, adminInputClass } from "../../components/admin/admin-ui";
 import { buttonClass } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
 import { useAuth } from "../../hooks/use-auth";
+import { homePathForRole } from "../../lib/auth-redirect";
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -18,7 +19,7 @@ export function LoginPage() {
     setError("");
     try {
       const user = await login(email, password);
-      navigate(user.role === "admin" ? "/admin" : "/espace-commercant");
+      navigate(homePathForRole(user.role));
     } catch {
       setError("Identifiants invalides");
     }
@@ -29,7 +30,7 @@ export function LoginPage() {
       <div className="mb-6 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">Espace pro</p>
         <h1 className="mt-2 font-serif text-3xl font-semibold text-petrol">Connexion</h1>
-        <p className="mt-2 text-sm text-ink-muted">Commercants partenaires et equipe agence</p>
+        <p className="mt-2 text-sm text-ink-muted">Commercants, citoyens et equipe agence</p>
       </div>
 
       <Card className="overflow-hidden p-0">
@@ -55,8 +56,18 @@ export function LoginPage() {
             Se connecter
           </button>
         </form>
-        <p className="border-t border-sand-dark/40 px-6 py-4 text-center text-xs text-ink-muted">
-          Demo : admin@codeimmo.fr ou martin@boulangerie.fr / password123
+        <p className="border-t border-sand-dark/40 px-6 py-4 text-center text-sm text-ink-muted">
+          Pas encore de compte ?{" "}
+          <Link to="/inscription" className="font-medium text-petrol hover:text-brass">
+            S&apos;inscrire
+          </Link>
+        </p>
+        <p className="border-t border-sand-dark/40 px-6 py-3 text-center text-xs text-ink-muted">
+          Demo : super@proximmo.fr · admin@codeimmo.fr · martin@boulangerie.fr · client@demo.fr / password123
+          {" · "}
+          <Link to="/agence/inscription" className="font-medium text-petrol hover:text-brass">
+            Licence agence
+          </Link>
         </p>
       </Card>
     </div>

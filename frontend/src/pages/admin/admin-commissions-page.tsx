@@ -223,7 +223,9 @@ export function AdminCommissionsPage() {
             {commissions.map((commission) => (
               <AdminTableRow key={commission.id}>
                 <AdminTableCell className="text-ink-muted">{formatDate(commission.created_at)}</AdminTableCell>
-                <AdminTableCell className="font-medium text-petrol">{commission.merchant.name}</AdminTableCell>
+                <AdminTableCell className="font-medium text-petrol">
+                  {commission.merchant?.name || "—"}
+                </AdminTableCell>
                 <AdminTableCell>
                   <p>{commission.lead.contact_name}</p>
                   <p className="text-xs text-ink-muted">
@@ -252,21 +254,25 @@ export function AdminCommissionsPage() {
                     )}
                     {commission.status === "approved" && (
                       <>
-                        <button
-                          type="button"
-                          disabled={actionId === commission.id || !commission.merchant.stripe_ready}
-                          onClick={() => handlePayViaStripe(commission)}
-                          className={linkButtonClass("primary", "px-2.5 py-1 text-xs disabled:opacity-50")}
-                          title={
-                            commission.merchant.stripe_ready
-                              ? undefined
-                              : "Le commercant doit configurer Stripe"
-                          }
-                        >
-                          {actionId === commission.id ? "Redirection..." : "Payer via Stripe"}
-                        </button>
-                        {!commission.merchant.stripe_ready && (
-                          <span className="text-xs text-ink-muted">Stripe non configure</span>
+                        {commission.merchant && (
+                          <>
+                            <button
+                              type="button"
+                              disabled={actionId === commission.id || !commission.merchant.stripe_ready}
+                              onClick={() => handlePayViaStripe(commission)}
+                              className={linkButtonClass("primary", "px-2.5 py-1 text-xs disabled:opacity-50")}
+                              title={
+                                commission.merchant.stripe_ready
+                                  ? undefined
+                                  : "Le commercant doit configurer Stripe"
+                              }
+                            >
+                              {actionId === commission.id ? "Redirection..." : "Payer via Stripe"}
+                            </button>
+                            {!commission.merchant.stripe_ready && (
+                              <span className="text-xs text-ink-muted">Stripe non configure</span>
+                            )}
+                          </>
                         )}
                         <button
                           type="button"

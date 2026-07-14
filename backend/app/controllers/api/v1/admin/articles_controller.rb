@@ -22,7 +22,7 @@ module Api
 
         def create
           authorize ::Article
-          article = ::Article.new(article_params.merge(author: current_user))
+          article = ::Article.new(article_params.merge(author: current_user, agency: current_agency))
           apply_published_at(article)
 
           if article.save

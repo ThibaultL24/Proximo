@@ -1,6 +1,7 @@
 // src/pages/public/merchant-profile-page.tsx
 import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useAuth } from "../../hooks/use-auth";
 import { ArticleCard } from "../../components/public/article-card";
 import { Badge } from "../../components/ui/badge";
 import { Card } from "../../components/ui/card";
@@ -11,6 +12,7 @@ import type { MerchantDetail } from "../../types";
 
 export function MerchantProfilePage() {
   const { slug } = useParams<{ slug: string }>();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const fromQr = searchParams.get("source") === "qr";
   const [merchant, setMerchant] = useState<MerchantDetail | null>(null);
@@ -170,8 +172,17 @@ export function MerchantProfilePage() {
             <p className="mt-1 text-sm text-ink-muted">
               Vente, achat ou estimation — nos equipes accompagnent les habitants du secteur.
             </p>
-            <Link to="/connexion" className={`${linkButtonClass("accent")} mt-4`}>
-              Contacter l&apos;agence
+            <Link
+              to={
+                user?.role === "client"
+                  ? `/espace-client/leads/nouveau?merchant=${merchant.slug}`
+                  : user
+                    ? "/espace-client"
+                    : `/inscription?merchant=${merchant.slug}`
+              }
+              className={`${linkButtonClass("accent")} mt-4`}
+            >
+              {user?.role === "client" ? "Transmettre mon projet" : "Contacter l'agence"}
             </Link>
           </Card>
 

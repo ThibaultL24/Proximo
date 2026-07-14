@@ -4,18 +4,25 @@ module Api
     module Public
       class ArticlesController < ApplicationController
         def index
-          articles = ::Article.published.includes(:merchant, :place).order(published_at: :desc)
+          articles = scope_public_agency(::Article.published.includes(:merchant, :place)).order(published_at: :desc)
           articles = filter_by_place(articles)
           articles = filter_by_scope(articles)
           render json: ArticleSerializer.new(articles).serializable_hash
         end
 
         def show
-          article = ::Article.published.find_by!(slug: params[:slug])
+          article = scope_public_agency(::Article.published).find_by!(slug: params[:slug])
           render json: ArticleSerializer.new(article).serializable_hash
         end
 
         private
+
+        def scope_public_agency(relation)
+          agency = default_agency
+          return relation.none unless agency
+
+          relation.where(agency_id: agency.id)
+        end
 
         def filter_by_place(articles)
           return articles unless params[:place_path].present?

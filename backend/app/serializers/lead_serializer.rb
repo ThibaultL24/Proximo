@@ -5,7 +5,13 @@ class LeadSerializer < AlbaResource
              :budget_min, :budget_max, :status, :admin_notes, :consent_given, :created_at
 
   attribute :merchant do |lead|
+    next unless lead.merchant
+
     { id: lead.merchant.id, name: lead.merchant.name, slug: lead.merchant.slug }
+  end
+
+  attribute :direct_to_agency do |lead|
+    lead.merchant.nil?
   end
 
   attribute :submitted_by do |lead|

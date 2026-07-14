@@ -12,7 +12,7 @@ import {
 import { useAuth } from "../../hooks/use-auth";
 
 interface DashboardLayoutProps {
-  kind: "admin" | "merchant";
+  kind: "admin" | "merchant" | "client" | "super_admin";
 }
 
 const adminLinks = [
@@ -40,11 +40,35 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
   ].join(" ");
 }
 
+const clientLinks = [
+  { to: "/espace-client", label: "Tableau de bord", icon: IconGrid, end: true },
+  { to: "/espace-client/leads/nouveau", label: "Nouveau projet immo", icon: IconUsers },
+];
+
+const platformLinks = [
+  { to: "/plateforme", label: "Vue plateforme", icon: IconGrid, end: true },
+];
+
 export function DashboardLayout({ kind }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
-  const links = kind === "admin" ? adminLinks : merchantLinks;
-  const title = kind === "admin" ? "Back-office" : "Espace commercant";
-  const homePath = kind === "admin" ? "/admin" : "/espace-commercant";
+  const links =
+    kind === "super_admin" ? platformLinks : kind === "admin" ? adminLinks : kind === "merchant" ? merchantLinks : clientLinks;
+  const title =
+    kind === "super_admin"
+      ? "Plateforme"
+      : kind === "admin"
+        ? "Back-office"
+        : kind === "merchant"
+          ? "Espace commercant"
+          : "Espace citoyen";
+  const homePath =
+    kind === "super_admin"
+      ? "/plateforme"
+      : kind === "admin"
+        ? "/admin"
+        : kind === "merchant"
+          ? "/espace-commercant"
+          : "/espace-client";
 
   const initials = (user?.full_name || user?.email || "?")
     .split(/\s+/)

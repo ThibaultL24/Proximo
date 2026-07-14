@@ -74,7 +74,13 @@ function LeadCard({
       {budget && <p className="text-sm font-medium text-ink">{budget}</p>}
 
       <p className="text-xs text-ink-muted">
-        Apporteur : <span className="font-medium text-ink">{lead.merchant.name}</span>
+        Apporteur :{" "}
+        <span className="font-medium text-ink">
+          {lead.merchant?.name || (lead.direct_to_agency ? "Direct agence" : "—")}
+        </span>
+        {lead.submitted_by && (
+          <span className="text-ink-muted"> · par {lead.submitted_by.full_name}</span>
+        )}
       </p>
 
       {lead.status_events && lead.status_events.length > 0 && (

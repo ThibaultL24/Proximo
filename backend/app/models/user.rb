@@ -6,7 +6,9 @@ class User < ApplicationRecord
   has_many :articles, foreign_key: :author_id, dependent: :nullify
   has_many :submitted_leads, class_name: "Lead", foreign_key: :submitted_by_id, dependent: :restrict_with_error
 
-  enum :role, { merchant: 0, admin: 1 }
+  enum :role, { merchant: 0, admin: 1, client: 2, super_admin: 3 }
+
+  belongs_to :agency, optional: true
 
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :password, length: { minimum: 8 }, if: -> { password.present? }
@@ -17,5 +19,19 @@ class User < ApplicationRecord
 
   def admin?
     role == "admin"
+  end
+
+  def super_admin?
+    role == "super_admin"
+  end
+
+  def client?
+    role == "client"
+  end
+
+  def subscription_active?
+    return false unless client?
+
+    ClientSubscriptionService.for(self).active?
   end
 end

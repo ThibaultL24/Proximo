@@ -3,7 +3,15 @@ require_relative "seeds/demo_content"
 
 PlacesImporter.call unless Place.exists?(kind: :country)
 
-sector = Sector.find_or_create_by!(slug: "centre-ville") do |s|
+agency = Agency.find_or_create_by!(slug: "code-immo") do |a|
+  a.name = "Code Immo"
+  a.city = "Montpellier"
+  a.status = :active
+  a.subscription_status = "active"
+end
+agency.update!(name: "Code Immo", city: "Montpellier", status: :active, subscription_status: "active")
+
+sector = agency.sectors.find_or_create_by!(slug: "centre-ville") do |s|
   s.name = "Centre historique"
   s.city = "Montpellier"
   s.position = 1
@@ -33,17 +41,27 @@ merchant = sector.merchants.find_or_create_by!(slug: "boulangerie-martin") do |m
   m.status = :published
   m.featured = true
   m.place = district
+  m.agency = agency
 end
 
 DemoContent.enrich_boulangerie_martin!(merchant)
-merchant.update!(place: district, sector: sector)
+merchant.update!(place: district, sector: sector, agency: agency)
+
+User.find_or_create_by!(email: "super@proximmo.fr") do |u|
+  u.password = "password123"
+  u.role = :super_admin
+  u.first_name = "Super"
+  u.last_name = "Admin"
+end
 
 admin = User.find_or_create_by!(email: "admin@codeimmo.fr") do |u|
   u.password = "password123"
   u.role = :admin
   u.first_name = "Admin"
   u.last_name = "Immo"
+  u.agency = agency
 end
+admin.update!(agency: agency)
 
 User.find_or_create_by!(email: "martin@boulangerie.fr") do |u|
   u.password = "password123"
@@ -53,9 +71,18 @@ User.find_or_create_by!(email: "martin@boulangerie.fr") do |u|
   u.merchant = merchant
 end
 
+User.find_or_create_by!(email: "client@demo.fr") do |u|
+  u.password = "password123"
+  u.role = :client
+  u.first_name = "Marie"
+  u.last_name = "Dupont"
+  u.phone = "0612345678"
+  u.agency = agency
+end
+
 occitanie = Place.regions.find_by(insee_code: "76") || Place.find_by(slug: "occitanie", kind: :region)
 
-Article.find_or_create_by!(slug: "bienvenue-code-immobilier") do |a|
+Article.find_or_create_by!(agency: agency, slug: "bienvenue-code-immobilier") do |a|
   a.title = "Bienvenue sur Proxi Immo"
   a.excerpt = "La gazette locale qui connecte commercants et immobilier."
   a.body = "Decouvrez les commercants partenaires et le reseau Proxi Immo."
@@ -66,7 +93,7 @@ Article.find_or_create_by!(slug: "bienvenue-code-immobilier") do |a|
   a.place = occitanie
 end
 
-portrait = Article.find_or_initialize_by(slug: "portrait-boulangerie-martin")
+portrait = Article.find_or_initialize_by(agency: agency, slug: "portrait-boulangerie-martin")
 portrait.assign_attributes(
   title: "Portrait : la Boulangerie Martin, institution du centre de Montpellier",
   excerpt: "Depuis 1987, Jean Martin et son levain naturel rythment les matins du quartier. Couronne martin, croissants primés et fournil chaleureux : rencontre avec un artisan apprécié de toute la ville.",
@@ -80,7 +107,7 @@ portrait.assign_attributes(
 )
 portrait.save!
 
-Article.find_or_initialize_by(slug: "diagnostic-dpe-2026").tap do |a|
+Article.find_or_initialize_by(agency: agency, slug: "diagnostic-dpe-2026").tap do |a|
   a.title = "Diagnostic DPE : ce qui change pour les vendeurs en 2026"
   a.excerpt = "Performance energetique, audit obligatoire, impact sur la valorisation : le point technique pour preparer une mise en vente sereine."
   a.body = <<~TEXT.strip
@@ -109,7 +136,10 @@ Article.find_or_initialize_by(slug: "diagnostic-dpe-2026").tap do |a|
 end
 
 puts "Seeds OK"
+puts "Agency: #{agency.name} (#{agency.slug})"
 puts "Places: #{Place.count} (regions: #{Place.regions.count}, departments: #{Place.departments.count})"
 puts "Boulangerie Martin: #{merchant.photos.count} photos, article gazette publie"
-puts "Admin: admin@codeimmo.fr / password123"
+puts "Super admin: super@proximmo.fr / password123"
+puts "Admin agence: admin@codeimmo.fr / password123"
 puts "Commercant: martin@boulangerie.fr / password123"
+puts "Client demo: client@demo.fr / password123 (sans abonnement)"

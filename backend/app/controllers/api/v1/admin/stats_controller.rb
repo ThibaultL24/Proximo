@@ -7,7 +7,9 @@ module Api
 
         def show
           authorize :admin_stats, :show?, policy_class: AdminStatsPolicy
-          render json: AdminStatsBuilder.call
+          return forbidden unless current_agency
+
+          render json: AdminStatsBuilder.call(agency: current_agency)
         end
       end
     end

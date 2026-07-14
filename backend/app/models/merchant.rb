@@ -1,6 +1,7 @@
 # app/models/merchant.rb
 class Merchant < ApplicationRecord
   belongs_to :sector
+  belongs_to :agency
   belongs_to :place, optional: true
   has_one :user, dependent: :nullify
   has_many :leads, dependent: :restrict_with_error
@@ -12,8 +13,9 @@ class Merchant < ApplicationRecord
 
   enum :status, { draft: 0, published: 1, archived: 2 }
 
-  validates :name, :slug, :sector, presence: true
-  validates :slug, :qr_token, uniqueness: true
+  validates :name, :slug, :sector, :agency, presence: true
+  validates :slug, uniqueness: { scope: :agency_id }
+  validates :qr_token, uniqueness: true
 
   before_validation :generate_slug, if: -> { slug.blank? && name.present? }
   before_validation :generate_qr_token, on: :create
@@ -23,6 +25,10 @@ class Merchant < ApplicationRecord
 
   def qr_url
     QrCodeService.merchant_qr_url(self)
+  end
+
+  def subscription_active?
+    MerchantSubscriptionService.for(self).active?
   end
 
   private

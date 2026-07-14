@@ -39,6 +39,27 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "agencies", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.string "city"
+    t.string "email"
+    t.string "phone"
+    t.integer "status", default: 0, null: false
+    t.string "stripe_customer_id"
+    t.string "stripe_subscription_id"
+    t.string "subscription_status"
+    t.datetime "subscription_current_period_end"
+    t.datetime "subscription_trial_ends_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_agencies_on_slug", unique: true
+    t.index ["status"], name: "index_agencies_on_status"
+    t.index ["stripe_customer_id"], name: "index_agencies_on_stripe_customer_id", unique: true, where: "stripe_customer_id IS NOT NULL"
+    t.index ["stripe_subscription_id"], name: "index_agencies_on_stripe_subscription_id", unique: true, where: "stripe_subscription_id IS NOT NULL"
+    t.index ["subscription_status"], name: "index_agencies_on_subscription_status"
+  end
+
   create_table "articles", force: :cascade do |t|
     t.integer "author_id", null: false
     t.integer "merchant_id"
@@ -52,10 +73,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "place_id"
+    t.integer "agency_id", null: false
+    t.index ["agency_id", "slug"], name: "index_articles_on_agency_id_and_slug", unique: true
+    t.index ["agency_id"], name: "index_articles_on_agency_id"
     t.index ["author_id"], name: "index_articles_on_author_id"
     t.index ["merchant_id"], name: "index_articles_on_merchant_id"
     t.index ["place_id"], name: "index_articles_on_place_id"
-    t.index ["slug"], name: "index_articles_on_slug", unique: true
     t.index ["status"], name: "index_articles_on_status"
   end
 
@@ -88,7 +111,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
   end
 
   create_table "leads", force: :cascade do |t|
-    t.integer "merchant_id", null: false
+    t.integer "merchant_id"
     t.integer "submitted_by_id", null: false
     t.string "contact_name", null: false
     t.string "contact_email"
@@ -108,6 +131,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "consent_given", default: false, null: false
+    t.integer "agency_id", null: false
+    t.index ["agency_id"], name: "index_leads_on_agency_id"
     t.index ["merchant_id"], name: "index_leads_on_merchant_id"
     t.index ["status"], name: "index_leads_on_status"
     t.index ["submitted_by_id"], name: "index_leads_on_submitted_by_id"
@@ -137,12 +162,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.integer "place_id"
     t.string "stripe_account_id"
     t.boolean "stripe_onboarding_completed", default: false, null: false
+    t.string "stripe_customer_id"
+    t.string "stripe_subscription_id"
+    t.string "subscription_status"
+    t.datetime "subscription_current_period_end"
+    t.datetime "subscription_trial_ends_at"
+    t.integer "agency_id", null: false
+    t.index ["agency_id", "slug"], name: "index_merchants_on_agency_id_and_slug", unique: true
+    t.index ["agency_id"], name: "index_merchants_on_agency_id"
     t.index ["place_id"], name: "index_merchants_on_place_id"
     t.index ["qr_token"], name: "index_merchants_on_qr_token", unique: true
     t.index ["sector_id"], name: "index_merchants_on_sector_id"
-    t.index ["slug"], name: "index_merchants_on_slug", unique: true
     t.index ["status"], name: "index_merchants_on_status"
     t.index ["stripe_account_id"], name: "index_merchants_on_stripe_account_id", unique: true, where: "stripe_account_id IS NOT NULL"
+    t.index ["stripe_customer_id"], name: "index_merchants_on_stripe_customer_id", unique: true, where: "stripe_customer_id IS NOT NULL"
+    t.index ["stripe_subscription_id"], name: "index_merchants_on_stripe_subscription_id", unique: true, where: "stripe_subscription_id IS NOT NULL"
+    t.index ["subscription_status"], name: "index_merchants_on_subscription_status"
   end
 
   create_table "places", force: :cascade do |t|
@@ -181,7 +216,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.integer "position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["slug"], name: "index_sectors_on_slug", unique: true
+    t.integer "agency_id", null: false
+    t.index ["agency_id", "slug"], name: "index_sectors_on_agency_id_and_slug", unique: true
+    t.index ["agency_id"], name: "index_sectors_on_agency_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -194,23 +231,38 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.integer "merchant_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "stripe_customer_id"
+    t.string "stripe_subscription_id"
+    t.string "subscription_status"
+    t.datetime "subscription_current_period_end"
+    t.datetime "subscription_trial_ends_at"
+    t.integer "agency_id"
+    t.index ["agency_id"], name: "index_users_on_agency_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["merchant_id"], name: "index_users_on_merchant_id"
+    t.index ["stripe_customer_id"], name: "index_users_on_stripe_customer_id", unique: true, where: "stripe_customer_id IS NOT NULL"
+    t.index ["stripe_subscription_id"], name: "index_users_on_stripe_subscription_id", unique: true, where: "stripe_subscription_id IS NOT NULL"
+    t.index ["subscription_status"], name: "index_users_on_subscription_status"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "articles", "agencies"
   add_foreign_key "articles", "merchants"
   add_foreign_key "articles", "places"
   add_foreign_key "articles", "users", column: "author_id"
   add_foreign_key "commissions", "leads"
   add_foreign_key "lead_status_events", "leads"
   add_foreign_key "lead_status_events", "users"
+  add_foreign_key "leads", "agencies"
   add_foreign_key "leads", "merchants"
   add_foreign_key "leads", "users", column: "submitted_by_id"
+  add_foreign_key "merchants", "agencies"
   add_foreign_key "merchants", "places"
   add_foreign_key "merchants", "sectors"
   add_foreign_key "places", "places", column: "parent_id"
   add_foreign_key "qr_scans", "merchants"
+  add_foreign_key "sectors", "agencies"
+  add_foreign_key "users", "agencies"
   add_foreign_key "users", "merchants"
 end

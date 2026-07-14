@@ -3,7 +3,12 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { DashboardLayout } from "../components/layout/dashboard-layout";
 import { PublicLayout } from "../components/layout/public-layout";
 import { useAuth } from "../hooks/use-auth";
+import { ClientDashboardPage } from "../pages/client/client-dashboard-page";
+import { ClientNewLeadPage } from "../pages/client/client-new-lead-page";
+import { SignupPage } from "../pages/auth/signup-page";
 import { LoginPage } from "../pages/auth/login-page";
+import { AgencySignupPage } from "../pages/auth/agency-signup-page";
+import { PlatformDashboardPage } from "../pages/platform/platform-dashboard-page";
 import { AdminAnalyticsPage } from "../pages/admin/admin-analytics-page";
 import { AdminArticleFormPage } from "../pages/admin/admin-article-form-page";
 import { AdminArticlesPage } from "../pages/admin/admin-articles-page";
@@ -24,7 +29,7 @@ import { ImmoArticlesPage } from "../pages/public/immo-articles-page";
 import { MerchantProfilePage } from "../pages/public/merchant-profile-page";
 import { QrMerchantPage } from "../pages/public/qr-merchant-page";
 
-function ProtectedLayout({ role }: { role: "admin" | "merchant" }) {
+function ProtectedLayout({ role }: { role: "admin" | "merchant" | "client" | "super_admin" }) {
   const { user, isLoading } = useAuth();
   if (isLoading) return <p className="p-8 text-ink-muted">Chargement...</p>;
   if (!user) return <Navigate to="/connexion" replace />;
@@ -53,6 +58,17 @@ export function AppRouter() {
           <Route path="gazette" element={<GazettePage />} />
           <Route path="gazette/:slug" element={<ArticlePage />} />
           <Route path="connexion" element={<LoginPage />} />
+          <Route path="inscription" element={<SignupPage />} />
+          <Route path="agence/inscription" element={<AgencySignupPage />} />
+        </Route>
+
+        <Route element={<ProtectedLayout role="super_admin" />}>
+          <Route path="plateforme" element={<PlatformDashboardPage />} />
+        </Route>
+
+        <Route element={<ProtectedLayout role="client" />}>
+          <Route path="espace-client" element={<ClientDashboardPage />} />
+          <Route path="espace-client/leads/nouveau" element={<ClientNewLeadPage />} />
         </Route>
 
         <Route element={<ProtectedLayout role="merchant" />}>

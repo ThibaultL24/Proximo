@@ -3,6 +3,7 @@ class Article < ApplicationRecord
   belongs_to :author, class_name: "User"
   belongs_to :merchant, optional: true
   belongs_to :place, optional: true
+  belongs_to :agency
 
   has_one_attached :cover_image
 
@@ -15,8 +16,8 @@ class Article < ApplicationRecord
 
   enum :status, { draft: 0, published: 1, archived: 2 }
 
-  validates :title, :slug, :author, presence: true
-  validates :slug, uniqueness: true
+  validates :title, :slug, :author, :agency, presence: true
+  validates :slug, uniqueness: { scope: :agency_id }
 
   before_validation :generate_slug, if: -> { slug.blank? && title.present? }
 

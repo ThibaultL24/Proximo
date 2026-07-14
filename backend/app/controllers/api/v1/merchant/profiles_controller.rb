@@ -7,7 +7,7 @@ module Api
         before_action :set_merchant
 
         def show
-          authorize @merchant, :update_profile?
+          authorize @merchant, :view_profile?
           render json: MerchantProfileSerializer.new(@merchant).serializable_hash
         end
 

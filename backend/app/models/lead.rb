@@ -1,6 +1,7 @@
 # app/models/lead.rb
 class Lead < ApplicationRecord
-  belongs_to :merchant
+  belongs_to :merchant, optional: true
+  belongs_to :agency
   belongs_to :submitted_by, class_name: "User"
   has_one :commission, dependent: :destroy
   has_many :lead_status_events, dependent: :destroy
@@ -17,6 +18,7 @@ class Lead < ApplicationRecord
 
   validates :contact_name, :contact_phone, :lead_type, presence: true
   validates :consent_given, acceptance: { message: "doit etre confirme" }
+  validate :merchant_must_be_published, if: -> { merchant.present? }
   validates :budget_min, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :budget_max, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validate :budget_max_must_be_greater_than_budget_min
@@ -28,5 +30,11 @@ class Lead < ApplicationRecord
     return if budget_max >= budget_min
 
     errors.add(:budget_max, "doit etre superieur ou egal au budget minimum")
+  end
+
+  def merchant_must_be_published
+    return if merchant.published?
+
+    errors.add(:merchant, "doit etre publie")
   end
 end

@@ -15,6 +15,8 @@ class CommissionSerializer < AlbaResource
 
   attribute :merchant do |commission|
     merchant = commission.lead.merchant
+    next unless merchant
+
     connect = StripeConnectService.for(merchant).status
     {
       id: merchant.id,

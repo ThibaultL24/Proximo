@@ -13,6 +13,20 @@ export async function login(email: string, password: string) {
   return data.user;
 }
 
+interface RegisterInput {
+  email: string;
+  password: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+}
+
+export async function register(input: RegisterInput) {
+  const { data } = await api.post<LoginResponse>("/auth/register", { user: input });
+  setToken(data.token);
+  return data.user;
+}
+
 export async function fetchMe() {
   const { data } = await api.get<User>("/auth/me");
   return data;

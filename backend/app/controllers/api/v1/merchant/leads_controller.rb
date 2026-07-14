@@ -15,7 +15,9 @@ module Api
           authorize ::Lead
           return forbidden unless current_user.merchant
 
-          lead = current_user.submitted_leads.build(lead_params.merge(merchant: current_user.merchant))
+          lead = current_user.submitted_leads.build(
+            lead_params.merge(merchant: current_user.merchant, agency: current_user.merchant.agency)
+          )
 
           if lead.save
             LeadStatusRecorder.record!(

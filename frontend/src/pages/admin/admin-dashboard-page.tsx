@@ -12,6 +12,7 @@ import {
   IconShop,
   IconUsers,
 } from "../../components/admin/admin-icons";
+import { AgencySubscriptionCard } from "../../components/admin/agency-subscription-card";
 import { AdminNavTile } from "../../components/admin/admin-nav-tile";
 import { AdminStatCard } from "../../components/admin/admin-stat-card";
 import { Card } from "../../components/ui/card";
@@ -94,6 +95,8 @@ export function AdminDashboardPage() {
           </div>
         </div>
       </Card>
+
+      <AgencySubscriptionCard />
 
       {stats && (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

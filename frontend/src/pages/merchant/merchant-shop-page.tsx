@@ -9,6 +9,7 @@ import {
 import { IconNewspaper } from "../../components/admin/admin-icons";
 import { MerchantQrCodeAccess } from "../../components/admin/merchant-qr-code-access";
 import { MerchantStripeConnectCard } from "../../components/merchant/merchant-stripe-connect-card";
+import { MerchantSubscriptionCard } from "../../components/merchant/merchant-subscription-card";
 import { AdminPanelCard } from "../../components/admin/admin-panel-card";
 import {
   AdminActionLink,
@@ -162,6 +163,14 @@ export function MerchantShopPage() {
         }
       />
 
+      {profile.subscription && !profile.subscription.active && (
+        <AdminAlert>
+          Abonnement requis pour modifier votre fiche et exporter le QR code.
+        </AdminAlert>
+      )}
+
+      <MerchantSubscriptionCard />
+
       <MerchantStripeConnectCard />
 
       <AdminFormShell onSubmit={handleSubmit}>
@@ -300,7 +309,11 @@ export function MerchantShopPage() {
         )}
 
         <div className="border-t border-sand-dark/40 pt-5">
-          <button type="submit" disabled={isSubmitting} className={buttonClass("primary")}>
+          <button
+            type="submit"
+            disabled={isSubmitting || profile.subscription?.features_locked}
+            className={buttonClass("primary")}
+          >
             {isSubmitting ? "Enregistrement..." : "Enregistrer ma fiche"}
           </button>
         </div>

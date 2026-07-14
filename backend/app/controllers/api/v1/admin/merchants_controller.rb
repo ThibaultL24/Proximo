@@ -22,6 +22,7 @@ module Api
         def create
           authorize ::Merchant
           merchant = ::Merchant.new(merchant_params)
+          merchant.agency = current_agency
 
           if merchant.save
             render json: AdminMerchantSerializer.new(merchant).serializable_hash, status: :created

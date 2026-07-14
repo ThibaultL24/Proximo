@@ -93,6 +93,16 @@ export interface StripeConnectStatus {
   ready_for_payouts: boolean;
 }
 
+export interface MerchantSubscriptionStatus {
+  plan: "merchant";
+  status: string | null;
+  active: boolean;
+  trial_ends_at?: string | null;
+  current_period_end?: string | null;
+  price_label: string;
+  features_locked: boolean;
+}
+
 export interface MerchantProfile extends Merchant {
   qr_token: string;
   qr_url: string;
@@ -102,6 +112,7 @@ export interface MerchantProfile extends Merchant {
   photos: MerchantPhotoAsset[];
   articles: MerchantArticleSummary[];
   stripe_connect?: StripeConnectStatus;
+  subscription?: MerchantSubscriptionStatus;
 }
 
 export interface MerchantProfileInput {
@@ -182,6 +193,10 @@ export interface AdminStats {
     this_week: number;
     top_merchants: { name: string; scan_count: number }[];
   };
+  agency?: {
+    name: string;
+    subscription: AgencySubscriptionStatus;
+  };
 }
 
 export interface Lead {
@@ -200,7 +215,8 @@ export interface Lead {
   consent_given?: boolean;
   status_events?: LeadStatusEvent[];
   created_at: string;
-  merchant: { id: number; name: string; slug: string };
+  merchant: { id: number; name: string; slug: string } | null;
+  direct_to_agency?: boolean;
   submitted_by?: { id: number; full_name: string; email: string };
 }
 
@@ -217,6 +233,8 @@ export interface LeadInput {
   consent_given: boolean;
 }
 
+export interface ClientLeadInput extends LeadInput {}
+
 export interface LeadStatusEvent {
   id: number;
   from_status: string | null;
@@ -229,10 +247,88 @@ export interface LeadStatusEvent {
 export interface User {
   id: number;
   email: string;
-  role: "admin" | "merchant";
+  role: "admin" | "merchant" | "client" | "super_admin";
   first_name?: string;
   last_name?: string;
   full_name?: string;
+  phone?: string;
+  subscription?: ClientSubscriptionStatus;
+  agency?: UserAgency;
+}
+
+export interface ClientSubscriptionStatus {
+  plan: "client";
+  status: string | null;
+  active: boolean;
+  trial_ends_at?: string | null;
+  current_period_end?: string | null;
+  price_label: string;
+  features_locked: boolean;
+}
+
+export interface AgencySubscriptionStatus {
+  plan: "agency";
+  status: string | null;
+  active: boolean;
+  trial_ends_at?: string | null;
+  current_period_end?: string | null;
+  price_label: string;
+  features_locked: boolean;
+}
+
+export interface UserAgency {
+  id: number;
+  name: string;
+  slug: string;
+  subscription?: AgencySubscriptionStatus;
+}
+
+export interface PlatformStats {
+  agencies: {
+    total: number;
+    active: number;
+    draft: number;
+    subscribed: number;
+  };
+  clients: {
+    total: number;
+    subscribed: number;
+    this_month: number;
+  };
+  merchants: {
+    total: number;
+    published: number;
+    subscribed: number;
+  };
+  leads: {
+    total: number;
+    this_month: number;
+    direct_agency: number;
+  };
+  visitors: {
+    qr_scans_total: number;
+    qr_scans_unique: number;
+    qr_scans_this_week: number;
+  };
+  subscriptions: {
+    agency_mrr_cents: number;
+    client_mrr_cents: number;
+    merchant_mrr_cents: number;
+  };
+  agencies_list: PlatformAgencySummary[];
+}
+
+export interface PlatformAgencySummary {
+  id: number;
+  name: string;
+  slug: string;
+  city?: string;
+  status: string;
+  subscription_status?: string | null;
+  merchants_count: number;
+  clients_count: number;
+  leads_count: number;
+  created_at: string;
 }
 
 export interface Commission {
@@ -257,7 +353,7 @@ export interface Commission {
     name: string;
     slug: string;
     stripe_ready?: boolean;
-  };
+  } | null;
 }
 
 export interface CommissionInput {
