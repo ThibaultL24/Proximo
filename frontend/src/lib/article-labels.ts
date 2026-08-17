@@ -1,15 +1,15 @@
 // src/lib/article-labels.ts
 export const ARTICLE_CATEGORY_LABELS: Record<string, string> = {
-  local_news: "Actu locale",
-  merchant_spotlight: "Portrait commercant",
-  real_estate: "Immobilier",
+  local_news: "Vie locale",
+  merchant_spotlight: "Portrait",
+  real_estate: "Actu immo",
   agency_news: "Agence",
 };
 
 export const ARTICLE_STATUS_LABELS: Record<string, string> = {
   draft: "Brouillon",
-  published: "Publie",
-  archived: "Archive",
+  published: "Publié",
+  archived: "Archivé",
 };
 
 export const ARTICLE_STATUS_COLORS: Record<string, string> = {

@@ -3,12 +3,19 @@ interface CardProps {
   children: React.ReactNode;
   className?: string;
   hover?: boolean;
+  /** `panel` : coins un peu plus marqués pour les dashboards métier */
+  tone?: "public" | "panel";
 }
 
-export function Card({ children, className = "", hover = false }: CardProps) {
+export function Card({ children, className = "", hover = false, tone = "public" }: CardProps) {
   return (
     <div
-      className={`rounded-2xl border border-sand-dark/60 bg-surface p-5 shadow-sm ${hover ? "transition-all hover:-translate-y-0.5 hover:border-petrol/30 hover:shadow-md" : ""} ${className}`}
+      className={[
+        "border border-line bg-surface p-5",
+        tone === "panel" ? "rounded-xl shadow-soft" : "rounded-lg",
+        hover ? "transition-colors hover:border-ink/25" : "",
+        className,
+      ].join(" ")}
     >
       {children}
     </div>

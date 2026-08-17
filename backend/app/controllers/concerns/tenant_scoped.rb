@@ -17,7 +17,7 @@ module TenantScoped
   end
 
   def default_agency
-    slug = ENV.fetch("DEFAULT_AGENCY_SLUG", "code-immo")
+    slug = ENV.fetch("DEFAULT_AGENCY_SLUG", "fenetre-ouverte")
     Agency.find_by(slug: slug)
   end
 

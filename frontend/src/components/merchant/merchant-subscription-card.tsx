@@ -88,11 +88,11 @@ export function MerchantSubscriptionCard() {
   }
 
   return (
-    <Card className="overflow-hidden p-0">
+    <Card tone="panel" className="overflow-hidden p-0">
       <div className="border-b border-sand-dark/40 bg-paper/40 px-6 py-4">
         <h2 className="font-serif text-lg font-semibold text-petrol">Abonnement commercant</h2>
         <p className="mt-1 text-sm text-ink-muted">
-          12 € / mois — fiche vitrine, QR code, contenu et transmission de leads. Essai gratuit 7 jours.
+          19 € / mois — fil Fenêtre Ouverte, diffusion réseaux (bientôt), QR code et apport d&apos;affaires. Essai gratuit 7 jours.
         </p>
       </div>
 
@@ -113,7 +113,7 @@ export function MerchantSubscriptionCard() {
                 )}
                 {status.current_period_end && status.status !== "trialing" && (
                   <p className="mt-1 text-sm text-ink-muted">
-                    Prochaine echeance le {formatDate(status.current_period_end)}
+                    Prochaine échéance le {formatDate(status.current_period_end)}
                   </p>
                 )}
               </div>
@@ -131,7 +131,7 @@ export function MerchantSubscriptionCard() {
                   onClick={handleSubscribe}
                   className={linkButtonClass("primary", "text-sm")}
                 >
-                  {isSubmitting ? "Redirection..." : "S'abonner — essai 7 jours"}
+                  {isSubmitting ? "Redirection…" : "S'abonner — essai 7 jours"}
                 </button>
               ) : (
                 <button
@@ -140,7 +140,7 @@ export function MerchantSubscriptionCard() {
                   onClick={handlePortal}
                   className={linkButtonClass("outline", "text-sm")}
                 >
-                  Gerer mon abonnement
+                  Gérer mon abonnement
                 </button>
               )}
             </div>

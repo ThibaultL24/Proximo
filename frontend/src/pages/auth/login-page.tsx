@@ -63,7 +63,7 @@ export function LoginPage() {
           </Link>
         </p>
         <p className="border-t border-sand-dark/40 px-6 py-3 text-center text-xs text-ink-muted">
-          Demo : super@proximmo.fr · admin@codeimmo.fr · martin@boulangerie.fr · client@demo.fr / password123
+          Demo : super@fenetreouverte.fr · admin@fenetreouverte.fr · martin@boulangerie.fr · client@demo.fr / password123
           {" · "}
           <Link to="/agence/inscription" className="font-medium text-petrol hover:text-brass">
             Licence agence

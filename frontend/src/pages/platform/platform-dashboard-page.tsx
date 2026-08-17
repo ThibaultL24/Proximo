@@ -41,8 +41,8 @@ export function PlatformDashboardPage() {
     <section className="space-y-8">
       <AdminPageHeader
         eyebrow="Super admin"
-        title="Vue plateforme Proxi Immo"
-        description="Suivi global des agences, citoyens, commercants et visiteurs."
+        title="Vue plateforme"
+        description="Suivi global des agences, citoyens, commerçants et visiteurs."
         backTo=""
       />
 
@@ -55,21 +55,21 @@ export function PlatformDashboardPage() {
             <AdminStatCard
               label="Agences immo"
               value={stats.agencies.total}
-              hint={`${stats.agencies.subscribed} abonnees · ${stats.agencies.active} actives`}
+              hint={`${stats.agencies.subscribed} abonnées · ${stats.agencies.active} actives`}
               icon={<IconBuilding />}
               accent="petrol"
             />
             <AdminStatCard
               label="Citoyens"
               value={stats.clients.total}
-              hint={`${stats.clients.subscribed} abonnes · ${stats.clients.this_month} ce mois`}
+              hint={`${stats.clients.subscribed} abonnés · ${stats.clients.this_month} ce mois`}
               icon={<IconUsers />}
               accent="alert"
             />
             <AdminStatCard
-              label="Commercants"
+              label="Commerçants"
               value={stats.merchants.total}
-              hint={`${stats.merchants.published} publies · ${stats.merchants.subscribed} abonnes`}
+              hint={`${stats.merchants.published} publiés · ${stats.merchants.subscribed} abonnés`}
               icon={<IconShop />}
               accent="success"
             />
@@ -83,26 +83,26 @@ export function PlatformDashboardPage() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-3">
-            <Card className="p-5">
-              <p className="text-xs font-semibold uppercase tracking-wider text-brass">Revenus recurrents estimes</p>
+            <Card tone="panel" className="p-5">
+              <p className="text-xs font-semibold uppercase tracking-wider text-brass">Revenus récurrents estimés</p>
               <p className="mt-2 font-serif text-3xl font-semibold text-petrol">{formatEuros(totalMrr)}</p>
-              <p className="mt-2 text-sm text-ink-muted">/ mois (agences + citoyens + commercants)</p>
+              <p className="mt-2 text-sm text-ink-muted">/ mois (agences + citoyens + commerçants)</p>
             </Card>
-            <Card className="p-5">
+            <Card tone="panel" className="p-5">
               <p className="text-xs font-semibold uppercase tracking-wider text-brass">Leads plateforme</p>
               <p className="mt-2 font-serif text-3xl font-semibold text-petrol">{stats.leads.total}</p>
               <p className="mt-2 text-sm text-ink-muted">
                 {stats.leads.this_month} ce mois · {stats.leads.direct_agency} directs agence
               </p>
             </Card>
-            <Card className="p-5">
+            <Card tone="panel" className="p-5">
               <p className="text-xs font-semibold uppercase tracking-wider text-brass">Agences en essai / brouillon</p>
               <p className="mt-2 font-serif text-3xl font-semibold text-petrol">{stats.agencies.draft}</p>
               <p className="mt-2 text-sm text-ink-muted">En attente d&apos;activation licence</p>
             </Card>
           </div>
 
-          <Card className="overflow-hidden p-0">
+          <Card tone="panel" className="overflow-hidden p-0">
             <div className="border-b border-sand-dark/40 px-6 py-4">
               <h2 className="font-serif text-xl font-semibold text-petrol">Agences sur la plateforme</h2>
             </div>
@@ -111,11 +111,11 @@ export function PlatformDashboardPage() {
                 <tr>
                   <th className="px-4 py-3 font-medium">Agence</th>
                   <th className="px-4 py-3 font-medium">Ville</th>
-                  <th className="px-4 py-3 font-medium">Commercants</th>
+                  <th className="px-4 py-3 font-medium">Commerçants</th>
                   <th className="px-4 py-3 font-medium">Citoyens</th>
                   <th className="px-4 py-3 font-medium">Leads</th>
                   <th className="px-4 py-3 font-medium">Licence</th>
-                  <th className="px-4 py-3 font-medium">Creee le</th>
+                  <th className="px-4 py-3 font-medium">Créée le</th>
                 </tr>
               </AdminTableHead>
               <tbody>

@@ -89,7 +89,7 @@ export function AdminArticlesPage() {
         description="Publiez actus de quartier et portraits de commercants. Chaque article est rattache a un territoire pour alimenter la gazette publique."
         icon={<IconNewspaper className="h-6 w-6 text-white" />}
         primaryAction={{ to: "/admin/articles/nouveau", label: "Nouvel article" }}
-        secondaryAction={{ to: "/gazette", label: "Voir la gazette publique" }}
+        secondaryAction={{ to: "/fil", label: "Voir le fil public" }}
       />
 
       {!isLoading && articles.length > 0 && (

@@ -19,28 +19,21 @@ module DemoContent
   def enrich_boulangerie_martin!(merchant)
     merchant.update!(
       name: "Boulangerie Martin",
-      short_description: "Artisan boulanger-patissier depuis 1987 — pain au levain, fougasse au romarin et tradition montpellieraine.",
+      short_description: "Artisan boulanger-pâtissier — pain au levain, fouace ardéchoise et viennoiseries.",
       description: <<~TEXT.strip,
-        Installée en 1987 au cœur du centre historique, la Boulangerie Martin est devenue une adresse incontournable
-        de Montpellier. Jean Martin, formé chez un maître boulanger de Provence, a repris la boutique familiale
-        après des années passées à perfectionner son savoir-faire sur les fournées au levain naturel.
+        Installée au centre de Bourg-Saint-Andéol, la Boulangerie Martin est une adresse du quotidien
+        pour les habitants du 07700. Jean Martin travaille au levain naturel et propose pain de campagne,
+        fouace et viennoiseries.
 
-        Chaque matin, des fournées sortent du four des 6 h : baguette tradition, pain de campagne au seigle,
-        fougasse aux olives et aux herbes du Languedoc. Les habitants du quartier — familles, étudiants,
-        commerçants voisins — s'y retrouvent pour le petit-déjeuner et le goûter du samedi.
+        Chaque matin, les fournées sortent dès 6 h 30 : baguette, pain au seigle, fouace aux figues.
+        On y croise voisins, artisans et familles du village.
 
-        Appréciée de tous, la maison est surtout connue pour sa spécialité signature : la « couronne martin »,
-        un pain couronne croustillant garni de graines de sésame et de lin, et ses croissants au beurre AOP
-        Charentes-Poitou, élu meilleur croissant du quartier lors de la Fête du Commerce de proximité en 2023.
-
-        Derrière le comptoir, Jean et son équipe de trois artisans partagent la même exigence : des farines
-        sélectionnées, un levain entretenu depuis quarante ans, et le plaisir simple d'un bon pain chaud
-        à partager entre voisins.
+        Derrière le comptoir, l'équipe mise sur des farines soignées et le plaisir simple d'un bon pain chaud.
       TEXT
       address: "12 rue de la République",
-      postal_code: "34000",
-      city: "Montpellier",
-      phone: "04 67 55 12 34",
+      postal_code: "07700",
+      city: "Bourg-Saint-Andéol",
+      phone: "04 75 00 00 00",
       email: "contact@boulangerie-martin.fr",
       website: "https://boulangerie-martin.fr",
       featured: true,
@@ -78,39 +71,29 @@ module DemoContent
 
   def portrait_article_body
     <<~TEXT.strip
-      ## Une institution du centre historique
+      ## Une adresse du centre de Bourg
 
-      Quand Jean Martin ouvre sa boulangerie en **1987**, la rue de la République n'a pas encore
-      retrouvé tout son animation. Il arrive avec une certitude : un quartier vit mieux quand
-      il sent le pain chaud au petit matin. Quarante ans plus tard, personne ne contredit cette intuition.
+      Quand Jean Martin ouvre sa boulangerie, la rue de la République retrouve vite l'odeur du pain chaud
+      au petit matin. Quarante ans plus tard, l'adresse reste un passage obligé pour beaucoup d'habitants
+      de Bourg-Saint-Andéol.
 
-      ## Le levain, un héritage familial
+      ## Le levain, un travail de patience
 
-      Formé auprès de son oncle boulanger à Carpentras, Jean a rapporté de Provence l'amour du levain
-      naturel — le même levain que l'on retrouve aujourd'hui dans chaque fournée. « On ne triche pas
-      avec le temps », résume-t-il avec un sourire. « Un bon pain, ça ne s'improvise pas. »
+      Formé auprès d'un oncle boulanger, Jean a gardé l'habitude du levain naturel.
+      « On ne triche pas avec le temps », résume-t-il. « Un bon pain, ça ne s'improvise pas. »
 
-      ## La spécialité qui fait parler d'elle
+      ## Ce qu'on y trouve
 
-      La **couronne martin** est devenue la signature de la maison : une couronne dorée aux graines
-      de sésame et de lin, croustillante dehors, moelleuse dedans. Les croissants au beurre AOP
-      ne sont pas en reste — en 2023, ils ont remporté le prix du public lors de la Fête du
-      Commerce de proximité de Montpellier.
+      Pain au levain, fouace ardéchoise, croissants et brioches. Les voisins se saluent à la sortie
+      du fournil ; les enfants s'arrêtent pour une brioche au chocolat.
 
-      ## Un commerce où l'on se retrouve
-
-      Ici, on vient pour le pain, mais on reste pour l'ambiance. Les voisins se saluent à la sortie
-      du fournil, les enfants du lycée voisin s'arrêtent pour une brioche au chocolat, et les
-      commerçants du réseau Proxi Immo recommandent volontiers l'adresse aux nouveaux arrivants
-      du quartier.
-
-      > « Une boulangerie, ce n'est pas seulement un commerce. C'est le cœur qui bat d'un quartier. »
+      > « Une boulangerie, ce n'est pas seulement un commerce. C'est un endroit où l'on se retrouve. »
       > — Jean Martin
 
       ## Horaires
 
       Du lundi au samedi : 6 h 30 – 19 h 30 · Dimanche : 7 h – 13 h
-      12 rue de la République, 34000 Montpellier · 04 67 55 12 34
+      12 rue de la République, 07700 Bourg-Saint-Andéol
     TEXT
   end
 end

@@ -204,7 +204,7 @@ export function ClientNewLeadPage() {
           {!merchantSlug && (
             <p className="text-center text-sm text-ink-muted">
               Vous venez d&apos;un commercant ?{" "}
-              <Link to="/annuaire" className="font-medium text-petrol">
+              <Link to="/commerces" className="font-medium text-petrol">
                 Retrouvez-le dans l&apos;annuaire
               </Link>
             </p>

@@ -62,7 +62,8 @@ export function MerchantDashboardPage() {
         backTo=""
         action={
           <div className="flex flex-wrap gap-3">
-            <AdminPrimaryLink to="/espace-commercant/ma-fiche">Gerer ma fiche</AdminPrimaryLink>
+            <AdminPrimaryLink to="/espace-commercant/publier">Publier une actu</AdminPrimaryLink>
+            <AdminPrimaryLink to="/espace-commercant/ma-fiche">Gérer ma fiche</AdminPrimaryLink>
             <Link to="/espace-commercant/leads/nouveau" className={linkButtonClass("accent")}>
               Transmettre un contact
             </Link>

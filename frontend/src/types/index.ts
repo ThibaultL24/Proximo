@@ -40,6 +40,7 @@ export interface Merchant {
   opening_hours?: Record<string, string>;
   featured: boolean;
   status: string;
+  partner_category?: FeedCategory;
   sector: Sector;
   sector_id?: number;
   place?: Place;
@@ -360,4 +361,87 @@ export interface CommissionInput {
   status?: string;
   amount_cents?: number;
   currency?: string;
+}
+
+export type FeedCategory = "vie_locale" | "commerces" | "loisirs" | "immo" | "bien_etre";
+
+export type SocialProvider = "facebook" | "instagram" | "linkedin" | "twitter" | "tiktok";
+
+export interface FeedMerchantSummary {
+  id: number;
+  name: string;
+  slug: string;
+  partner_category?: FeedCategory;
+  logo_url?: string | null;
+}
+
+export interface FeedSocialPostSummary {
+  provider: SocialProvider;
+  status: string;
+  published_at?: string;
+}
+
+export interface FeedPublicationItem {
+  type: "publication";
+  id: number;
+  body: string;
+  category: FeedCategory;
+  published_at: string;
+  syndicated: boolean;
+  image_url?: string | null;
+  merchant: FeedMerchantSummary;
+  social_posts?: FeedSocialPostSummary[];
+}
+
+export interface FeedArticleItem {
+  type: "article";
+  id: number;
+  slug: string;
+  title: string;
+  excerpt?: string;
+  body?: string;
+  category: FeedCategory;
+  article_category?: string;
+  published_at: string;
+  merchant?: FeedMerchantSummary | null;
+  place?: Place;
+}
+
+export type FeedItem = FeedPublicationItem | FeedArticleItem;
+
+export interface Publication {
+  id: number;
+  body: string;
+  category: FeedCategory;
+  status: string;
+  published_at?: string;
+  syndicated: boolean;
+  image_url?: string | null;
+  created_at: string;
+  merchant: FeedMerchantSummary;
+  social_posts: {
+    id: number;
+    provider: SocialProvider;
+    status: string;
+    external_post_id?: string | null;
+    error_message?: string | null;
+    published_at?: string | null;
+  }[];
+}
+
+export interface PublicationInput {
+  body: string;
+  category?: FeedCategory;
+  image?: File;
+  syndicate?: boolean;
+  providers?: SocialProvider[];
+}
+
+export interface SocialAccount {
+  id: number;
+  provider: SocialProvider;
+  account_name: string;
+  status: string;
+  connected_at?: string;
+  demo?: boolean;
 }

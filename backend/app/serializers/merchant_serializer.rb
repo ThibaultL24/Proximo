@@ -2,7 +2,7 @@
 class MerchantSerializer < AlbaResource
   attributes :id, :name, :slug, :short_description, :description,
              :address, :postal_code, :city, :phone, :email, :website,
-             :opening_hours, :featured, :status
+             :opening_hours, :featured, :status, :partner_category
 
   attribute :sector do |merchant|
     SectorSerializer.new(merchant.sector).serializable_hash

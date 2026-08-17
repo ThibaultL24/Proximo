@@ -10,6 +10,7 @@ module Api
             merchants = merchants.where(sector_id: sector.id)
           end
           merchants = merchants.featured if params[:featured] == "true"
+          merchants = merchants.where(partner_category: params[:partner_category]) if params[:partner_category].present?
           render json: MerchantSerializer.new(merchants).serializable_hash
         end
 

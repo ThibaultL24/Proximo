@@ -114,7 +114,7 @@ export function MerchantBrandedQrPanel({
         <div className="border-b border-sand-dark/40 bg-paper/40 px-6 py-4">
           <h2 className="font-serif text-lg font-semibold text-petrol">QR code vitrine</h2>
           <p className="mt-1 text-sm text-ink-muted">
-            Les visiteurs en magasin scannent ce code pour acceder a la fiche du commerce dans Proxi Immo.
+            Les visiteurs en magasin scannent ce code pour acceder a la fiche du commerce sur Fenêtre Ouverte.
           </p>
         </div>
       )}

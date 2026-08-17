@@ -2,8 +2,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ARTICLE_CATEGORY_LABELS, IMMO_CATEGORIES } from "../../lib/article-labels";
-import { Badge } from "../../components/ui/badge";
-import { Card } from "../../components/ui/card";
 import { fetchArticle } from "../../api/public";
 import { ArticleBody } from "../../lib/article-body";
 import { territoryBadge } from "../../lib/gazette-labels";
@@ -18,7 +16,7 @@ export function ArticlePage() {
     fetchArticle(slug).then(setArticle).catch(console.error);
   }, [slug]);
 
-  if (!article) return <p className="text-ink-muted">Chargement...</p>;
+  if (!article) return <p className="text-ink-muted">Chargement…</p>;
 
   const date = article.published_at
     ? new Date(article.published_at).toLocaleDateString("fr-FR", {
@@ -28,39 +26,57 @@ export function ArticlePage() {
       })
     : null;
 
-  const isImmo = IMMO_CATEGORIES.includes(article.category as typeof IMMO_CATEGORIES[number]);
+  const isImmo = IMMO_CATEGORIES.includes(article.category as (typeof IMMO_CATEGORIES)[number]);
+  const backHref = isImmo ? "/immo" : "/fil";
+  const backLabel = isImmo ? "Retour à l'actu immo" : "Retour au fil";
+  const placeLabel = article.place?.name || territoryBadge(article.place, article.territory_label);
+  const categoryLabel =
+    (article.category && ARTICLE_CATEGORY_LABELS[article.category]) || "Actu";
 
   return (
-    <article className="mx-auto max-w-3xl">
-      <Link
-        to={isImmo ? "/gazette/immo" : "/gazette"}
-        className="text-sm font-medium text-brass hover:text-petrol"
-      >
-        &larr; {isImmo ? "Retour aux articles immo" : "Retour a la gazette"}
+    <article className="mx-auto max-w-3xl pb-16">
+      <Link to={backHref} className="text-sm font-semibold text-tile hover:underline">
+        &larr; {backLabel}
       </Link>
 
-      <Card className="mt-4 p-6 sm:p-10">
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <Badge variant="category" className="mb-0">
-            {(article.category && ARTICLE_CATEGORY_LABELS[article.category]) || "Gazette"}
-          </Badge>
-          {(article.gazette_label || article.territory_label || article.place) && (
-            <Badge variant="partner">
-              {article.gazette_label || territoryBadge(article.place, article.territory_label)}
-            </Badge>
-          )}
+      <header className="mt-6 border-b border-line pb-8">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.12em]">
+          <span className="text-tile">{categoryLabel}</span>
+          {placeLabel && <span className="text-ink-muted">{placeLabel}</span>}
         </div>
-        <h1 className="font-serif text-3xl font-semibold leading-tight text-petrol sm:text-4xl">
+        <h1 className="mt-3 font-serif text-3xl font-semibold leading-[1.15] tracking-tight text-ink sm:text-4xl">
           {article.title}
         </h1>
-        {date && <p className="mt-3 text-sm text-ink-muted">Publié le {date}</p>}
+        {date && (
+          <p className="mt-4 text-sm text-ink-muted">
+            Publié le <time dateTime={article.published_at}>{date}</time>
+          </p>
+        )}
         {article.excerpt && (
-          <p className="mt-6 border-l-2 border-brass pl-4 font-serif text-xl italic text-ink-muted">
+          <p className="mt-6 border-l-2 border-tile pl-4 text-lg leading-relaxed text-ink-muted sm:text-xl">
             {article.excerpt}
           </p>
         )}
-        {article.body && <ArticleBody body={article.body} />}
-      </Card>
+      </header>
+
+      {article.body && <ArticleBody body={article.body} />}
+
+      <footer className="mt-12 flex flex-wrap gap-4 border-t border-line pt-6 text-sm">
+        <Link to={backHref} className="font-semibold text-tile hover:underline">
+          {backLabel}
+        </Link>
+        <Link to="/" className="font-semibold text-ink-muted hover:text-ink">
+          Accueil
+        </Link>
+        {article.merchant?.slug && (
+          <Link
+            to={`/commercants/${article.merchant.slug}`}
+            className="font-semibold text-ink-muted hover:text-ink"
+          >
+            Voir le partenaire
+          </Link>
+        )}
+      </footer>
     </article>
   );
 }

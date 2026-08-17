@@ -28,7 +28,7 @@ export function ArticleBody({ body }: ArticleBodyProps) {
 
         if (trimmed.startsWith("## ")) {
           return (
-            <h2 key={index} className="font-serif text-2xl font-semibold text-petrol">
+            <h2 key={index} className="font-serif text-2xl font-semibold text-ink">
               {trimmed.slice(3)}
             </h2>
           );

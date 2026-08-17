@@ -49,7 +49,7 @@ export function SignupPage() {
     <div className="mx-auto max-w-md">
       <div className="mb-6 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">Espace citoyen</p>
-        <h1 className="mt-2 font-serif text-3xl font-semibold text-petrol">Creer un compte</h1>
+        <h1 className="mt-2 font-serif text-3xl font-semibold text-petrol">Créer un compte</h1>
         <p className="mt-2 text-sm text-ink-muted">
           Gratuit pour consulter l&apos;annuaire — 2 €/mois pour transmettre un projet immo
         </p>
@@ -60,7 +60,7 @@ export function SignupPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             <input
               type="text"
-              placeholder="Prenom"
+              placeholder="Prénom"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               className={adminInputClass}
@@ -83,27 +83,27 @@ export function SignupPage() {
           />
           <input
             type="tel"
-            placeholder="Telephone"
+              placeholder="Téléphone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             className={adminInputClass}
           />
           <input
             type="password"
-            placeholder="Mot de passe (8 caracteres min.) *"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={adminInputClass}
-            minLength={8}
-            required
-          />
-          {error && <AdminAlert>{error}</AdminAlert>}
-          <button type="submit" disabled={isSubmitting} className={`${buttonClass("primary")} w-full`}>
-            {isSubmitting ? "Creation..." : "Creer mon compte"}
-          </button>
-        </form>
-        <p className="border-t border-sand-dark/40 px-6 py-4 text-center text-sm text-ink-muted">
-          Deja inscrit ?{" "}
+              placeholder="Mot de passe (8 caractères min.) *"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={adminInputClass}
+              minLength={8}
+              required
+            />
+            {error && <AdminAlert>{error}</AdminAlert>}
+            <button type="submit" disabled={isSubmitting} className={`${buttonClass("primary")} w-full`}>
+              {isSubmitting ? "Création…" : "Créer mon compte"}
+            </button>
+          </form>
+          <p className="border-t border-sand-dark/40 px-6 py-4 text-center text-sm text-ink-muted">
+            Déjà inscrit ?{" "}
           <Link to="/connexion" className="font-medium text-petrol hover:text-brass">
             Se connecter
           </Link>
@@ -117,7 +117,7 @@ export function SignupPage() {
       )}
 
       <div className="mt-6 text-center">
-        <Link to="/annuaire" className={linkButtonClass("ghost", "text-sm")}>
+        <Link to="/commerces" className={linkButtonClass("ghost", "text-sm")}>
           Continuer sans compte
         </Link>
       </div>

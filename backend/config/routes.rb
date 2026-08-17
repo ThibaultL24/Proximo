@@ -12,6 +12,7 @@ Rails.application.routes.draw do
       end
 
       namespace :public do
+        get "feed", to: "feed#index"
         resources :sectors, only: %i[index show], param: :slug
         get "places", to: "places#index"
         get "places/lookup", to: "places#lookup"
@@ -34,6 +35,16 @@ Rails.application.routes.draw do
         end
         delete "profile/photos", to: "photos#destroy"
         resources :leads, only: %i[index create]
+        resources :publications, only: %i[index create]
+        resources :social_accounts, only: %i[index create destroy], param: :provider do
+          member do
+            post :connect
+          end
+        end
+      end
+
+      namespace :oauth do
+        get "social/:provider/callback", to: "social#callback"
       end
 
       namespace :client do

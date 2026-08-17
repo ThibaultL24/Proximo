@@ -86,7 +86,7 @@ export function ClientSubscriptionCard() {
   }
 
   return (
-    <Card className="overflow-hidden p-0">
+    <Card tone="panel" className="overflow-hidden p-0">
       <div className="border-b border-sand-dark/40 bg-paper/40 px-6 py-4">
         <h2 className="font-serif text-lg font-semibold text-petrol">Abonnement citoyen</h2>
         <p className="mt-1 text-sm text-ink-muted">
@@ -133,7 +133,7 @@ export function ClientSubscriptionCard() {
                   onClick={handlePortal}
                   className={linkButtonClass("outline", "text-sm")}
                 >
-                  Gerer mon abonnement
+                  Gérer mon abonnement
                 </button>
               )}
             </div>

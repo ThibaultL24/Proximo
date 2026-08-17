@@ -1,180 +1,152 @@
 // src/pages/public/home-page.tsx
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ArticleCard } from "../../components/public/article-card";
-import { MerchantCard } from "../../components/public/merchant-card";
-import { PlaceGrid } from "../../components/public/place-grid";
-import { RegionalMerchantsSection } from "../../components/public/regional-merchants-section";
+import { Link } from "react-router-dom";
+import { TerritoryHeroBand } from "../../components/public/territory-hero-band";
 import { linkButtonClass } from "../../components/ui/button";
-import { Card } from "../../components/ui/card";
-import { useTerritory } from "../../context/territory-context";
-import { fetchArticles, fetchMerchants, fetchPlaces } from "../../api/public";
-import { gazetteTitle } from "../../lib/gazette-labels";
-import { PLACE_KIND_PLURAL } from "../../lib/place-labels";
-import type { Article, Merchant, Place } from "../../types";
+import { BRAND } from "../../lib/brand";
+import { OFFER_TIERS, PUBLIC_NAV } from "../../lib/public-nav";
+
+const PILLARS = [
+  {
+    title: "Commerçants du 07700",
+    text: "Fiches vitrine, publications et bonnes adresses — une fenêtre ouverte sur les acteurs locaux.",
+    href: "/commerces",
+    cta: "Voir les commerces",
+  },
+  {
+    title: "Fil d'actualités",
+    text: "Articles et posts partenaires, filtrables par rubrique et par commune.",
+    href: "/fil",
+    cta: "Lire le fil",
+  },
+  {
+    title: "Actu immobilière",
+    text: "Conseils et projets immo dans le territoire — une rubrique claire, pas toute la plateforme.",
+    href: "/immo",
+    cta: "Rubrique Immo",
+  },
+] as const;
 
 export function HomePage() {
-  const navigate = useNavigate();
-  const { territory, gazetteHref: territoryGazetteHref } = useTerritory();
-  const [featured, setFeatured] = useState<Merchant[]>([]);
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [territoryArticles, setTerritoryArticles] = useState<Article[]>([]);
-  const [regions, setRegions] = useState<Place[]>([]);
-
-  useEffect(() => {
-    fetchMerchants({ featured: true }).then(setFeatured).catch(() => {});
-    fetchArticles().then((data) => setArticles(data.slice(0, 6))).catch(() => {});
-    fetchPlaces().then(setRegions).catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    if (!territory?.path) {
-      setTerritoryArticles([]);
-      return;
-    }
-
-    fetchArticles(territory.path, "gazette")
-      .then((data) => setTerritoryArticles(data.slice(0, 3)))
-      .catch(() => setTerritoryArticles([]));
-  }, [territory?.path]);
-
   return (
-    <div className="space-y-16">
-      <section className="relative overflow-hidden rounded-3xl border border-sand-dark/50 bg-surface px-6 py-12 sm:px-10 sm:py-16">
-        <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-sand/40 blur-3xl" />
-        <div className="absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-petrol/5 blur-2xl" />
+    <div className="space-y-14 pb-16 md:pb-10">
+      <section className="space-y-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
+          {BRAND.territoryLabel}
+        </p>
+        <h1 className="max-w-3xl font-serif text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
+          {BRAND.name}
+        </h1>
+        <p className="max-w-2xl text-base leading-relaxed text-ink-muted sm:text-lg">
+          {BRAND.tagline} Une fenêtre ouverte sur les commerçants, la vie locale et l&apos;immobilier
+          du 07700.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Link to="/fil" className={linkButtonClass("accent")}>
+            Voir le fil
+          </Link>
+          <Link to="/commerces" className={linkButtonClass("outline")}>
+            Les commerces
+          </Link>
+        </div>
+        <TerritoryHeroBand />
+      </section>
 
-        <div className="relative max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-brass">Gazettes locales</p>
-          <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight text-petrol sm:text-5xl">
-            Une gazette pour chaque territoire
-          </h1>
-          <p className="mt-5 text-lg leading-relaxed text-ink-muted">
-            Region, departement, ville ou quartier : chaque territoire peut publier sa propre gazette
-            avec portraits de commercants, actualites locales et conseils immobiliers.
+      <section aria-labelledby="quoi-heading" className="space-y-6">
+        <div className="max-w-2xl">
+          <h2 id="quoi-heading" className="font-serif text-2xl font-semibold text-ink sm:text-3xl">
+            Ce que vous trouvez ici
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+            Trois entrées simples — sans empiler toute l&apos;actu sur la page d&apos;accueil.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/annuaire" className={linkButtonClass("primary")}>
-              Choisir mon territoire
-            </Link>
-            {territoryGazetteHref ? (
-              <Link to={territoryGazetteHref} className={linkButtonClass("outline")}>
-                {gazetteTitle(territory?.name)}
+        </div>
+        <div className="grid gap-5 md:grid-cols-3">
+          {PILLARS.map((pillar) => (
+            <article
+              key={pillar.href}
+              className="flex flex-col border border-line bg-surface p-5"
+            >
+              <h3 className="font-serif text-xl font-semibold text-ink">{pillar.title}</h3>
+              <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-muted">{pillar.text}</p>
+              <Link
+                to={pillar.href}
+                className="mt-4 text-sm font-semibold text-tile hover:underline"
+              >
+                {pillar.cta} →
               </Link>
-            ) : (
-              <Link to="/gazette" className={linkButtonClass("outline")}>
-                Parcourir les gazettes
-              </Link>
-            )}
-            <Link to="/connexion" className={linkButtonClass("accent")}>
-              J&apos;ai un projet immobilier
-            </Link>
-          </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      {territory && territoryArticles.length > 0 && (
-        <section className="space-y-6">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-brass">Votre territoire</p>
-              <h2 className="font-serif text-2xl font-semibold text-petrol">{gazetteTitle(territory.name)}</h2>
-            </div>
-            <Link to={territoryGazetteHref || "/gazette"} className="text-sm font-medium text-brass hover:text-petrol">
-              Toute la gazette →
-            </Link>
-          </div>
-          <div className="grid gap-5 lg:grid-cols-3">
-            {territoryArticles.map((article, index) => (
-              <ArticleCard key={article.id} article={article} featured={index === 0} showTerritory={false} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {regions.length > 0 && (
-        <section className="space-y-4">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-brass">Territoires</p>
-              <h2 className="font-serif text-2xl font-semibold text-petrol">Choisir une region</h2>
-            </div>
-            <Link to="/annuaire" className="text-sm font-medium text-brass hover:text-petrol">
-              Toutes les regions →
-            </Link>
-          </div>
-          <PlaceGrid places={regions.slice(0, 6)} basePath="" title={PLACE_KIND_PLURAL.region} />
-          {regions.length > 6 && (
-            <button
-              type="button"
-              onClick={() => navigate("/annuaire")}
-              className="text-sm font-medium text-brass hover:text-petrol"
-            >
-              Voir les {regions.length} regions
-            </button>
-          )}
-        </section>
-      )}
-
-      {territory?.regionPath ? (
-        <RegionalMerchantsSection previewLimit={6} annuaireHref={`/annuaire/${territory.regionPath}`} />
-      ) : (
-        featured.length > 0 && (
-          <section className="space-y-6">
-            <div className="flex items-end justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-brass">Carnet de quartier</p>
-                <h2 className="font-serif text-2xl font-semibold text-petrol">Commercants mis en avant</h2>
-              </div>
-              <Link to="/annuaire" className="text-sm font-medium text-brass hover:text-petrol">
-                Tout voir →
+      <section aria-labelledby="nav-heading" className="border border-line bg-paper px-5 py-6 sm:px-8">
+        <h2 id="nav-heading" className="font-serif text-2xl font-semibold text-ink">
+          Parcourir
+        </h2>
+        <p className="mt-1 text-sm text-ink-muted">
+          Fil, commerces, communes et rubriques — toujours dans la barre de navigation.
+        </p>
+        <ul className="mt-5 flex flex-wrap gap-2">
+          {PUBLIC_NAV.map((item) => (
+            <li key={item.id}>
+              <Link
+                to={item.href}
+                className="inline-block border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink transition hover:border-ink/40"
+              >
+                {item.label}
               </Link>
-            </div>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {featured.map((merchant) => (
-                <MerchantCard key={merchant.id} merchant={merchant} />
-              ))}
-            </div>
-          </section>
-        )
-      )}
+            </li>
+          ))}
+        </ul>
+      </section>
 
-      {articles.length > 0 && (
-        <section className="space-y-6">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-brass">A la une</p>
-              <h2 className="font-serif text-2xl font-semibold text-petrol">Dernieres parutions</h2>
-              <p className="mt-1 text-sm text-ink-muted">
-                Articles recents avec leur gazette d&apos;origine.
-              </p>
-            </div>
-            <Link to="/gazette" className="text-sm font-medium text-brass hover:text-petrol">
-              Toutes les gazettes →
+      <section aria-labelledby="offres-heading" className="space-y-6">
+        <div className="max-w-2xl">
+          <h2 id="offres-heading" className="font-serif text-2xl font-semibold text-ink sm:text-3xl">
+            Services & modèles
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+            Habitants, commerçants partenaires ou simple lecture — choisissez comment vous utilisez
+            Fenêtre Ouverte. Les tarifs d&apos;abonnement se précisent à l&apos;inscription.
+          </p>
+        </div>
+        <div className="grid gap-5 md:grid-cols-3">
+          {OFFER_TIERS.map((tier) => (
+            <article key={tier.id} className="flex flex-col border border-line bg-surface p-5">
+              <h3 className="font-serif text-xl font-semibold text-ink">{tier.title}</h3>
+              <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-muted">{tier.description}</p>
+              <Link to={tier.cta.href} className={`${linkButtonClass("outline")} mt-5 self-start`}>
+                {tier.cta.label}
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="grid gap-6 border-t-2 border-ink pt-8 sm:grid-cols-[1.3fr_1fr]">
+        <div>
+          <h2 className="font-serif text-2xl font-semibold text-ink">Vous êtes commerçant ?</h2>
+          <p className="mt-2 max-w-lg text-sm leading-relaxed text-ink-muted">
+            Publiez dans le fil, soyez visible dans votre commune, partagez votre fiche et votre QR
+            code. La republication Facebook arrivera bientôt.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link to="/connexion" className={linkButtonClass("accent")}>
+              Espace partenaire
+            </Link>
+            <Link to="/communes" className={linkButtonClass("outline")}>
+              Voir les communes
             </Link>
           </div>
-          <div className="grid gap-5 lg:grid-cols-3">
-            {articles.map((article, index) => (
-              <ArticleCard key={article.id} article={article} featured={index === 0} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section>
-        <Card className="border-petrol/15 bg-gradient-to-br from-petrol to-petrol-light p-8 text-surface sm:p-10">
-          <p className="text-xs font-semibold uppercase tracking-wider text-sand">Reseau local</p>
-          <h2 className="mt-2 font-serif text-2xl font-semibold sm:text-3xl">
-            Vous avez un projet immobilier ?
-          </h2>
-          <p className="mt-3 max-w-xl text-sand/90">
-            Nos commercants partenaires transmettent les opportunites de proximite.
-            L&apos;equipe Proxi Immo qualifie chaque recommandation avec soin.
+        </div>
+        <aside className="border border-line bg-surface p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted">Territoire</p>
+          <p className="mt-2 font-serif text-xl font-semibold text-ink">7 communes · 07700</p>
+          <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+            Bourg-Saint-Andéol et ses voisines — un seul média local pour l&apos;info, les adresses et
+            l&apos;immo.
           </p>
-          <Link to="/connexion" className={`${linkButtonClass("accent")} mt-6`}>
-            Echanger avec l&apos;agence
-          </Link>
-        </Card>
+        </aside>
       </section>
     </div>
   );

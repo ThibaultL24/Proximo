@@ -9,6 +9,8 @@ import {
   IconShop,
   IconUsers,
 } from "../admin/admin-icons";
+import { BrandMark } from "../brand/brand-mark";
+import { BRAND } from "../../lib/brand";
 import { useAuth } from "../../hooks/use-auth";
 
 interface DashboardLayoutProps {
@@ -18,8 +20,8 @@ interface DashboardLayoutProps {
 const adminLinks = [
   { to: "/admin", label: "Vue d'ensemble", icon: IconGrid, end: true },
   { to: "/admin/analytics", label: "Analytics", icon: IconChart },
-  { to: "/admin/commercants", label: "Commercants", icon: IconShop },
-  { to: "/admin/articles", label: "Gazette locale", icon: IconNewspaper },
+  { to: "/admin/commercants", label: "Commerçants", icon: IconShop },
+  { to: "/admin/articles", label: "Gazette", icon: IconNewspaper },
   { to: "/admin/immo", label: "Articles immo", icon: IconBuilding },
   { to: "/admin/leads", label: "Recommandations", icon: IconUsers },
   { to: "/admin/commissions", label: "Commissions", icon: IconEuro },
@@ -27,16 +29,17 @@ const adminLinks = [
 
 const merchantLinks = [
   { to: "/espace-commercant", label: "Tableau de bord", icon: IconGrid, end: true },
+  { to: "/espace-commercant/publier", label: "Publier", icon: IconNewspaper },
   { to: "/espace-commercant/ma-fiche", label: "Ma fiche vitrine", icon: IconShop },
   { to: "/espace-commercant/leads/nouveau", label: "Transmettre un contact", icon: IconUsers },
 ];
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return [
-    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all",
     isActive
-      ? "bg-petrol text-white shadow-sm"
-      : "text-ink-muted hover:bg-surface hover:text-petrol",
+      ? "bg-ink text-white"
+      : "text-ink-muted hover:bg-surface hover:text-ink",
   ].join(" ");
 }
 
@@ -59,7 +62,7 @@ export function DashboardLayout({ kind }: DashboardLayoutProps) {
       : kind === "admin"
         ? "Back-office"
         : kind === "merchant"
-          ? "Espace commercant"
+          ? "Espace commerçant"
           : "Espace citoyen";
   const homePath =
     kind === "super_admin"
@@ -78,33 +81,31 @@ export function DashboardLayout({ kind }: DashboardLayoutProps) {
     .toUpperCase();
 
   return (
-    <div className="flex min-h-screen flex-col bg-linear-to-b from-paper via-paper-dark/20 to-paper">
-      <header className="border-b border-sand-dark/50 bg-surface/90 backdrop-blur-sm">
+    <div className="flex min-h-screen flex-col bg-[#f0eee9]">
+      <header className="border-b border-line bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-          <Link to={homePath} className="group flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-petrol font-serif text-sm font-semibold text-white">
-              P
-            </span>
+          <Link to={homePath} className="group flex items-center gap-3 text-ink">
+            <BrandMark className="h-8 w-8" />
             <span>
-              <span className="block font-serif text-lg font-semibold leading-tight text-petrol">Proxi Immo</span>
-              <span className="block text-[10px] uppercase tracking-[0.2em] text-brass">{title}</span>
+              <span className="block font-serif text-lg font-semibold leading-tight">{BRAND.name}</span>
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-muted">{title}</span>
             </span>
           </Link>
 
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="hidden items-center gap-2 rounded-full border border-sand-dark/50 bg-paper/60 py-1 pl-1 pr-3 sm:flex">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brass/20 text-xs font-semibold text-petrol">
+            <div className="hidden items-center gap-2 rounded-lg border border-line bg-[#f7f5f1] py-1 pl-1 pr-3 sm:flex">
+              <span className="flex h-7 w-7 items-center justify-center rounded-md bg-navy-soft text-xs font-semibold text-ink">
                 {initials}
               </span>
               <span className="max-w-[140px] truncate text-sm text-ink-muted">
                 {user?.full_name || user?.email}
               </span>
             </div>
-            <Link to="/" className="text-sm text-ink-muted transition hover:text-petrol">
+            <Link to="/" className="text-sm text-ink-muted transition hover:text-ink">
               Site public
             </Link>
-            <button type="button" onClick={logout} className="text-sm text-ink-muted transition hover:text-petrol">
-              Deconnexion
+            <button type="button" onClick={logout} className="text-sm text-ink-muted transition hover:text-ink">
+              Déconnexion
             </button>
           </div>
         </div>
@@ -112,7 +113,7 @@ export function DashboardLayout({ kind }: DashboardLayoutProps) {
 
       <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 md:flex-row md:gap-8 md:py-8">
         <aside className="md:w-56 md:shrink-0">
-          <nav className="flex gap-1 overflow-x-auto pb-1 md:flex-col md:overflow-visible md:rounded-2xl md:border md:border-sand-dark/50 md:bg-surface md:p-2 md:shadow-sm">
+          <nav className="flex gap-1 overflow-x-auto pb-1 md:flex-col md:overflow-visible md:rounded-xl md:border md:border-line md:bg-white md:p-2">
             {links.map((link) => {
               const Icon = link.icon;
               return (

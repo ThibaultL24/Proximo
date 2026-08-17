@@ -79,16 +79,16 @@ export function AgencySubscriptionCard() {
   }
 
   return (
-    <Card className="overflow-hidden p-0">
+    <Card tone="panel" className="overflow-hidden p-0">
       <div className="border-b border-sand-dark/40 bg-paper/40 px-6 py-4">
-        <h2 className="font-serif text-lg font-semibold text-petrol">Licence agence Proxi Immo</h2>
+        <h2 className="font-serif text-lg font-semibold text-petrol">Licence agence</h2>
         <p className="mt-1 text-sm text-ink-muted">
-          125 € / mois — votre annuaire, gazette, pipeline leads et reseau commercants. Essai gratuit 14 jours.
+          125 € / mois — annuaire, gazette, pipeline leads et réseau commerçants. Essai gratuit 14 jours.
         </p>
       </div>
 
       <div className="space-y-4 p-6">
-        {isLoading && <p className="text-sm text-ink-muted">Chargement...</p>}
+        {isLoading && <p className="text-sm text-ink-muted">Chargement…</p>}
 
         {!isLoading && status && (
           <>
@@ -97,13 +97,13 @@ export function AgencySubscriptionCard() {
                 <p className="text-sm font-medium text-success">Licence active</p>
                 {status.current_period_end && (
                   <p className="mt-1 text-sm text-ink-muted">
-                    Prochaine echeance le {formatDate(status.current_period_end)}
+                    Prochaine échéance le {formatDate(status.current_period_end)}
                   </p>
                 )}
               </div>
             ) : (
               <AdminHint>
-                Sans licence active, vous ne pouvez pas gerer commercants, contenus ni leads.
+                Sans licence active, vous ne pouvez pas gérer commerçants, contenus ni leads.
               </AdminHint>
             )}
 
@@ -115,7 +115,7 @@ export function AgencySubscriptionCard() {
                   onClick={handleSubscribe}
                   className={linkButtonClass("primary", "text-sm")}
                 >
-                  {isSubmitting ? "Redirection..." : "Activer la licence — essai 14 jours"}
+                  {isSubmitting ? "Redirection…" : "Activer la licence — essai 14 jours"}
                 </button>
               ) : (
                 <button
@@ -124,7 +124,7 @@ export function AgencySubscriptionCard() {
                   onClick={handlePortal}
                   className={linkButtonClass("outline", "text-sm")}
                 >
-                  Gerer la facturation
+                  Gérer la facturation
                 </button>
               )}
             </div>

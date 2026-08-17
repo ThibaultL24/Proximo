@@ -15,20 +15,20 @@ export function AdminPanelCard({ title, icon, children, action, actions }: Admin
   const links = actions || (action ? [action] : []);
 
   return (
-    <Card className="flex h-full flex-col p-0">
-      <div className="flex items-center gap-3 border-b border-sand-dark/40 px-6 py-4">
+    <Card tone="panel" className="flex h-full flex-col p-0">
+      <div className="flex items-center gap-3 border-b border-line px-6 py-4">
         {icon && (
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-petrol/8 text-petrol">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-navy-soft text-ink">
             {icon}
           </div>
         )}
-        <h2 className="font-serif text-lg font-semibold text-petrol">{title}</h2>
+        <h2 className="font-serif text-lg font-semibold text-ink">{title}</h2>
       </div>
       <div className="flex-1 px-6 py-5">{children}</div>
       {links.length > 0 && (
-        <div className="flex flex-wrap gap-4 border-t border-sand-dark/40 px-6 py-4">
+        <div className="flex flex-wrap gap-4 border-t border-line px-6 py-4">
           {links.map((link) => (
-            <Link key={link.to} to={link.to} className="text-sm font-medium text-brass hover:text-petrol">
+            <Link key={link.to} to={link.to} className="text-sm font-medium text-tile hover:text-ink">
               {link.label} →
             </Link>
           ))}

@@ -168,8 +168,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.datetime "subscription_current_period_end"
     t.datetime "subscription_trial_ends_at"
     t.integer "agency_id", null: false
+    t.integer "partner_category", default: 1, null: false
     t.index ["agency_id", "slug"], name: "index_merchants_on_agency_id_and_slug", unique: true
     t.index ["agency_id"], name: "index_merchants_on_agency_id"
+    t.index ["partner_category"], name: "index_merchants_on_partner_category"
     t.index ["place_id"], name: "index_merchants_on_place_id"
     t.index ["qr_token"], name: "index_merchants_on_qr_token", unique: true
     t.index ["sector_id"], name: "index_merchants_on_sector_id"
@@ -193,6 +195,23 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.index ["kind"], name: "index_places_on_kind"
     t.index ["parent_id", "slug"], name: "index_places_on_parent_id_and_slug", unique: true
     t.index ["parent_id"], name: "index_places_on_parent_id"
+  end
+
+  create_table "publications", force: :cascade do |t|
+    t.integer "merchant_id", null: false
+    t.integer "agency_id", null: false
+    t.text "body", null: false
+    t.integer "category", default: 1, null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "published_at"
+    t.boolean "syndicated", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agency_id"], name: "index_publications_on_agency_id"
+    t.index ["category"], name: "index_publications_on_category"
+    t.index ["merchant_id"], name: "index_publications_on_merchant_id"
+    t.index ["published_at"], name: "index_publications_on_published_at"
+    t.index ["status"], name: "index_publications_on_status"
   end
 
   create_table "qr_scans", force: :cascade do |t|
@@ -219,6 +238,34 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.integer "agency_id", null: false
     t.index ["agency_id", "slug"], name: "index_sectors_on_agency_id_and_slug", unique: true
     t.index ["agency_id"], name: "index_sectors_on_agency_id"
+  end
+
+  create_table "social_accounts", force: :cascade do |t|
+    t.integer "merchant_id", null: false
+    t.integer "provider", null: false
+    t.string "account_name", null: false
+    t.string "external_id"
+    t.text "access_token"
+    t.text "refresh_token"
+    t.integer "status", default: 0, null: false
+    t.datetime "connected_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["merchant_id", "provider"], name: "index_social_accounts_on_merchant_id_and_provider", unique: true
+    t.index ["merchant_id"], name: "index_social_accounts_on_merchant_id"
+  end
+
+  create_table "social_posts", force: :cascade do |t|
+    t.integer "publication_id", null: false
+    t.integer "provider", null: false
+    t.integer "status", default: 0, null: false
+    t.string "external_post_id"
+    t.text "error_message"
+    t.datetime "published_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["publication_id", "provider"], name: "index_social_posts_on_publication_id_and_provider", unique: true
+    t.index ["publication_id"], name: "index_social_posts_on_publication_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -261,8 +308,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
   add_foreign_key "merchants", "places"
   add_foreign_key "merchants", "sectors"
   add_foreign_key "places", "places", column: "parent_id"
+  add_foreign_key "publications", "agencies"
+  add_foreign_key "publications", "merchants"
   add_foreign_key "qr_scans", "merchants"
   add_foreign_key "sectors", "agencies"
+  add_foreign_key "social_accounts", "merchants"
+  add_foreign_key "social_posts", "publications"
   add_foreign_key "users", "agencies"
   add_foreign_key "users", "merchants"
 end

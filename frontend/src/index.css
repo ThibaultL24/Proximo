@@ -1,21 +1,64 @@
+/* src/index.css */
 @import "tailwindcss";
 
+/*
+  Fenêtre Ouverte — système graphique
+  Journal local contemporain · Sud Ardèche 07700
+
+  paper   — ivoire chaud (fond page)
+  ink     — bleu nuit (texte & structure)
+  tile    — rouge tuile (accent action / une)
+  sun     — soleil sec (rare, badges secondaires)
+  line    — gris chaud (séparateurs)
+
+  Alias hérités (petrol, brass, lagune, sky…) remappés
+  pour ne pas casser les écrans admin existants.
+*/
 @theme {
-  --color-paper: #f7f3ea;
-  --color-paper-dark: #f0ebe0;
-  --color-ink: #1f2933;
-  --color-ink-muted: #5c6b7a;
-  --color-petrol: #123c3a;
-  --color-petrol-light: #1a524f;
-  --color-brass: #b88a44;
-  --color-brass-light: #c9a05a;
-  --color-sand: #e8d8bd;
-  --color-sand-dark: #d9c4a3;
-  --color-success: #2f7d5c;
-  --color-alert: #c26b3a;
-  --color-surface: #fffcf7;
-  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
-  --font-sans: "DM Sans", system-ui, sans-serif;
+  --color-paper: #f6f1e8;
+  --color-paper-dark: #ebe4d6;
+  --color-surface: #fffdf9;
+  --color-ink: #1a2332;
+  --color-ink-muted: #6a645c;
+
+  --color-navy: #1a2332;
+  --color-navy-soft: #e8ebf0;
+
+  --color-tile: #c14d32;
+  --color-tile-light: #d46248;
+  --color-tile-soft: #f8ebe6;
+
+  --color-sun: #d9a441;
+  --color-sun-light: #e4b65c;
+  --color-sun-soft: #faf3e3;
+
+  --color-line: #ddd5c8;
+  --color-line-strong: #c9bfae;
+
+  /* Alias legacy → nouvelle direction */
+  --color-petrol: #1a2332;
+  --color-petrol-light: #2a3648;
+  --color-lagune: #1a2332;
+  --color-lagune-light: #2a3648;
+  --color-lagune-soft: #e8ebf0;
+  --color-sky: #1a2332;
+  --color-sky-light: #2a3648;
+  --color-brass: #c14d32;
+  --color-brass-light: #d46248;
+  --color-ocre: #d9a441;
+  --color-ocre-light: #e4b65c;
+  --color-garrigue: #4a6b52;
+  --color-sand: #ebe4d6;
+  --color-sand-dark: #ddd5c8;
+
+  --color-success: #3d6b4f;
+  --color-alert: #b33b3b;
+
+  --font-sans: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+
+  --shadow-soft: 0 1px 0 rgb(26 35 50 / 0.04), 0 2px 8px rgb(26 35 50 / 0.04);
+  --shadow-raised: 0 2px 4px rgb(26 35 50 / 0.04), 0 12px 28px rgb(26 35 50 / 0.08);
 }
 
 body {
@@ -27,8 +70,37 @@ h2,
 h3,
 .font-serif {
   font-family: var(--font-serif);
+  font-optical-sizing: auto;
+  letter-spacing: -0.018em;
 }
 
 ::selection {
-  background-color: color-mix(in srgb, var(--color-brass) 35%, white);
+  background-color: color-mix(in srgb, var(--color-tile) 22%, white);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Trait éditorial type journal */
+.rule {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.rule-strong {
+  border: 0;
+  border-top: 2px solid var(--color-ink);
+}
+
+a:focus-visible,
+button:focus-visible,
+[role="tab"]:focus-visible {
+  outline: 2px solid var(--color-tile);
+  outline-offset: 2px;
 }

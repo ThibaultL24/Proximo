@@ -49,7 +49,7 @@ export function ClientDashboardPage() {
       <AdminPageHeader
         eyebrow="Espace citoyen"
         title={`Bonjour, ${user?.full_name || user?.email}`}
-        description="Consultez l'annuaire gratuitement et transmettez vos projets immobiliers a l'agence."
+        description="Consultez l'annuaire gratuitement et transmettez vos projets immobiliers à l'agence."
         backTo=""
         action={
           subscriptionActive ? (

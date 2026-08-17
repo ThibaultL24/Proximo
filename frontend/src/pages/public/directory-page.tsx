@@ -30,7 +30,7 @@ export function DirectoryPage() {
 
     fetchPlaces()
       .then(setRootPlaces)
-      .catch(() => setError("Impossible de charger les regions"));
+      .catch(() => setError("Impossible de charger les régions"));
   }, [placePath]);
 
   useEffect(() => {
@@ -85,13 +85,13 @@ export function DirectoryPage() {
     <section className="space-y-8">
       <PageHeader
         eyebrow="Explorer la France"
-        title={currentPlace?.name || "Commercants partenaires"}
+        title={currentPlace?.name || "Commerçants partenaires"}
         description={
           currentPlace
-            ? `Commercants et ${localGazetteTitle.toLowerCase()} pour ${currentPlace.name} et ses sous-zones.`
+            ? `Commerçants et ${localGazetteTitle.toLowerCase()} pour ${currentPlace.name} et ses sous-zones.`
             : territory?.regionName
-              ? `Commercants prioritaires en ${territory.regionName}, puis le reste de la France si vous le souhaitez.`
-              : "Choisissez une region pour decouvrir les commercants et la gazette de votre territoire."
+              ? `Commerçants prioritaires en ${territory.regionName}, puis le reste de la France si vous le souhaitez.`
+              : "Choisissez une région pour découvrir les commerçants et la gazette de votre zone."
         }
       />
 
@@ -117,16 +117,16 @@ export function DirectoryPage() {
           <section className="space-y-4">
             <div className="flex items-end justify-between gap-4">
               <h2 className="font-serif text-xl font-semibold text-petrol">
-                Commercants {currentPlace ? `· ${currentPlace.name}` : "· France"}
+                Commerçants {currentPlace ? `· ${currentPlace.name}` : "· France"}
               </h2>
               <p className="text-sm text-ink-muted">
-                {merchants.length} resultat{merchants.length > 1 ? "s" : ""}
+                {merchants.length} résultat{merchants.length > 1 ? "s" : ""}
               </p>
             </div>
 
             {merchants.length === 0 ? (
               <p className="rounded-2xl border border-dashed border-sand-dark bg-surface/50 px-6 py-10 text-center text-ink-muted">
-                Aucun commercant dans cette zone pour le moment.
+                Aucun commerçant dans cette zone pour le moment.
               </p>
             ) : (
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -141,7 +141,7 @@ export function DirectoryPage() {
             <section className="space-y-4">
               <div className="flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-brass">Editorial local</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-brass">Éditorial</p>
                   <h2 className="font-serif text-xl font-semibold text-petrol">{localGazetteTitle}</h2>
                 </div>
                 <Link to={gazetteHref(placePath)} className="text-sm font-medium text-brass hover:text-petrol">
@@ -151,7 +151,7 @@ export function DirectoryPage() {
 
               {articles.length === 0 ? (
                 <p className="rounded-2xl border border-dashed border-sand-dark bg-surface/50 px-6 py-10 text-center text-ink-muted">
-                  Aucun article publie pour {currentPlace?.name} pour le moment.
+                  Aucun article publié pour {currentPlace?.name} pour le moment.
                 </p>
               ) : (
                 <div className="grid gap-5 lg:grid-cols-2">

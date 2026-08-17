@@ -48,7 +48,7 @@ export function AgencySignupPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">Licence agence</p>
         <h1 className="mt-2 font-serif text-3xl font-semibold text-petrol">Deployer Proxi Immo</h1>
         <p className="mt-2 text-sm text-ink-muted">
-          125 € / mois — annuaire, gazette locale, pipeline leads et reseau commercants pour votre agence
+          125 € / mois — annuaire, gazette, pipeline leads et réseau commerçants pour votre agence
         </p>
       </div>
 
@@ -111,11 +111,11 @@ export function AgencySignupPage() {
           />
           {error && <AdminAlert>{error}</AdminAlert>}
           <button type="submit" disabled={isSubmitting} className={`${buttonClass("primary")} w-full`}>
-            {isSubmitting ? "Creation..." : "Creer mon agence — essai 14 jours"}
+            {isSubmitting ? "Création…" : "Créer mon agence — essai 14 jours"}
           </button>
         </form>
         <p className="border-t border-sand-dark/40 px-6 py-4 text-center text-sm text-ink-muted">
-          Deja partenaire ?{" "}
+          Déjà partenaire ?{" "}
           <Link to="/connexion" className="font-medium text-petrol hover:text-brass">
             Se connecter
           </Link>

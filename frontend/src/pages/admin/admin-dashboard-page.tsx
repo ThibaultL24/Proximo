@@ -23,42 +23,42 @@ const tiles = [
   {
     to: "/admin/analytics",
     title: "Analytics",
-    description: "KPIs reseau : scans QR, leads, commissions et contenus publies.",
+    description: "Indicateurs : scans QR, leads, commissions et contenus publiés.",
     icon: <IconChart />,
     accent: "petrol" as const,
   },
   {
     to: "/admin/leads",
     title: "Recommandations",
-    description: "Qualifier, refuser et convertir les contacts transmis par les commercants.",
+    description: "Qualifier, refuser et convertir les contacts transmis par les commerçants.",
     icon: <IconUsers />,
     accent: "alert" as const,
   },
   {
     to: "/admin/commercants",
-    title: "Commercants",
-    description: "Creer, modifier et publier les fiches de l'annuaire partenaire.",
+    title: "Commerçants",
+    description: "Créer, modifier et publier les fiches de l'annuaire partenaire.",
     icon: <IconShop />,
     accent: "success" as const,
   },
   {
     to: "/admin/articles",
-    title: "Gazette locale",
-    description: "Publier actus locales et portraits de commercants par territoire.",
+    title: "Gazette",
+    description: "Publier actus de quartier et portraits de commerçants.",
     icon: <IconNewspaper />,
     accent: "brass" as const,
   },
   {
     to: "/admin/immo",
     title: "Articles immo",
-    description: "Contenus techniques et editoriaux agence — reserve au detenteur de l'app.",
+    description: "Contenus techniques et éditoriaux agence — réservé au détenteur de l'app.",
     icon: <IconBuilding />,
     accent: "petrol" as const,
   },
   {
     to: "/admin/commissions",
     title: "Commissions",
-    description: "Suivre, approuver et marquer les commissions dues aux commercants.",
+    description: "Suivre, approuver et marquer les commissions dues aux commerçants.",
     icon: <IconEuro />,
     accent: "sand" as const,
   },
@@ -80,7 +80,7 @@ export function AdminDashboardPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-brass-light">Back-office</p>
           <h1 className="mt-2 font-serif text-3xl font-semibold sm:text-4xl">Vue d&apos;ensemble</h1>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-sand/90 sm:text-base">
-            Pilotez le reseau local, la gazette territoriale et le pipeline immobilier depuis un seul espace.
+            Pilotez l&apos;annuaire, la gazette et le pipeline immobilier depuis un seul espace.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link to="/admin/analytics" className={linkButtonClass("accent")}>
@@ -101,7 +101,7 @@ export function AdminDashboardPage() {
       {stats && (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <AdminStatCard
-            label="Commercants"
+            label="Commerçants"
             value={stats.merchants.published}
             hint={`${stats.merchants.total} au total · ${stats.merchants.featured} mis en avant`}
             icon={<IconShop />}
@@ -122,7 +122,7 @@ export function AdminDashboardPage() {
             accent="alert"
           />
           <AdminStatCard
-            label="Contenus publies"
+            label="Contenus publiés"
             value={stats.articles.gazette + stats.articles.immo}
             hint={`${stats.articles.gazette} gazette · ${stats.articles.immo} immo`}
             icon={<IconFile />}

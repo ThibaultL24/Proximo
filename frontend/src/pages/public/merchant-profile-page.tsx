@@ -22,21 +22,21 @@ export function MerchantProfilePage() {
     if (!slug) return;
     fetchMerchant(slug)
       .then(setMerchant)
-      .catch(() => setError("Commercant introuvable ou non publie"));
+      .catch(() => setError("Commerçant introuvable ou non publié"));
   }, [slug]);
 
   if (error) {
     return (
       <Card className="text-center">
         <p className="text-alert">{error}</p>
-        <Link to="/annuaire" className="mt-4 inline-block text-sm font-medium text-petrol">
-          Voir l&apos;annuaire
+        <Link to="/commerces" className="mt-4 inline-block text-sm font-medium text-petrol">
+          Voir les commerces
         </Link>
       </Card>
     );
   }
 
-  if (!merchant) return <p className="text-ink-muted">Chargement...</p>;
+  if (!merchant) return <p className="text-ink-muted">Chargement…</p>;
 
   const openingHours = merchant.opening_hours ? formatOpeningHours(merchant.opening_hours) : [];
 
@@ -50,9 +50,9 @@ export function MerchantProfilePage() {
     <article className="space-y-5">
       {fromQr && (
         <div className="rounded-2xl border border-petrol/15 bg-petrol/5 px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-brass">Bienvenue sur Proxi Immo</p>
-          <p className="mt-1 text-sm text-petrol">
-            Vous visitez <strong>{merchant.name}</strong> — retrouvez ici sa fiche, ses horaires et les actualites du quartier.
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-tile">Bienvenue sur Fenêtre Ouverte</p>
+          <p className="mt-1 text-sm text-ink">
+            Vous visitez <strong>{merchant.name}</strong> — fiche, horaires et actus du 07700.
           </p>
         </div>
       )}
@@ -81,8 +81,8 @@ export function MerchantProfilePage() {
 
         <div className="space-y-6 p-6 sm:p-8">
           {!fromQr && (
-            <Link to="/annuaire" className="text-sm font-medium text-brass hover:text-petrol">
-              &larr; Retour a l&apos;annuaire
+            <Link to="/commerces" className="text-sm font-medium text-brass hover:text-petrol">
+              &larr; Retour aux commerces
             </Link>
           )}
 
@@ -111,7 +111,7 @@ export function MerchantProfilePage() {
 
           {merchant.articles && merchant.articles.length > 0 && (
             <div>
-              <h2 className="mb-4 font-serif text-xl font-semibold text-petrol">Dans la gazette</h2>
+              <h2 className="mb-4 font-serif text-xl font-semibold text-petrol">Dans le fil</h2>
               <div className="grid gap-4 lg:grid-cols-2">
                 {merchant.articles.map((article, index) => (
                   <ArticleCard key={article.id} article={article} featured={index === 0} />
@@ -158,19 +158,19 @@ export function MerchantProfilePage() {
             )}
             {mapsUrl && (
               <a href={mapsUrl} target="_blank" rel="noreferrer" className={linkButtonClass("outline", "text-center sm:flex-1")}>
-                Itineraire
+                Itinéraire
               </a>
             )}
-            <Link to="/gazette" className={linkButtonClass("ghost", "text-center sm:flex-1")}>
-              Lire la gazette
+            <Link to="/fil" className={linkButtonClass("ghost", "text-center sm:flex-1")}>
+              Lire le fil
             </Link>
           </div>
 
           <Card className="border-brass/20 bg-gradient-to-r from-sand/30 to-paper p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-brass">Immobilier local</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-brass">Immobilier</p>
             <p className="mt-1 font-serif text-lg text-petrol">Vous avez un projet immobilier ?</p>
             <p className="mt-1 text-sm text-ink-muted">
-              Vente, achat ou estimation — nos equipes accompagnent les habitants du secteur.
+              Vente, achat ou estimation — nos équipes accompagnent les habitants du secteur.
             </p>
             <Link
               to={
@@ -188,8 +188,8 @@ export function MerchantProfilePage() {
 
           {fromQr && (
             <div className="border-t border-sand-dark/50 pt-4">
-              <Link to="/annuaire" className="text-sm text-ink-muted hover:text-petrol">
-                Decouvrir les autres commercants du quartier →
+              <Link to="/commerces" className="text-sm text-ink-muted hover:text-petrol">
+                Découvrir les autres commerçants du quartier →
               </Link>
             </div>
           )}

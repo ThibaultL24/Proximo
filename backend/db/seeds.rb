@@ -3,73 +3,79 @@ require_relative "seeds/demo_content"
 
 PlacesImporter.call unless Place.exists?(kind: :country)
 
-agency = Agency.find_or_create_by!(slug: "code-immo") do |a|
-  a.name = "Code Immo"
-  a.city = "Montpellier"
+agency = Agency.find_or_create_by!(slug: "fenetre-ouverte") do |a|
+  a.name = "Fenêtre Ouverte"
+  a.city = "Bourg-Saint-Andéol"
   a.status = :active
   a.subscription_status = "active"
 end
-agency.update!(name: "Code Immo", city: "Montpellier", status: :active, subscription_status: "active")
+agency.update!(name: "Fenêtre Ouverte", city: "Bourg-Saint-Andéol", status: :active, subscription_status: "active")
 
-sector = agency.sectors.find_or_create_by!(slug: "centre-ville") do |s|
-  s.name = "Centre historique"
-  s.city = "Montpellier"
-  s.position = 1
-  s.description = "Commerces du coeur de ville montpellierain"
-end
-sector.update!(name: "Centre historique", city: "Montpellier")
+auvergne = Place.regions.find_by(insee_code: "84") || Place.find_by(slug: "auvergne-rhone-alpes", kind: :region)
+ardeche = Place.departments.find_by(insee_code: "07") || Place.find_by(slug: "ardeche", kind: :department)
 
-herault = Place.departments.find_by(insee_code: "34") || Place.find_by(slug: "herault", kind: :department)
-demo_city = Place.find_or_create_by!(parent: herault, slug: "montpellier") do |p|
-  p.name = "Montpellier"
+bourg = Place.find_or_create_by!(parent: ardeche, slug: "bourg-saint-andeol") do |p|
+  p.name = "Bourg-Saint-Andéol"
   p.kind = :city
-  p.insee_code = "34172"
+  p.insee_code = "07042"
   p.position = 0
 end
-demo_city.update!(name: "Montpellier", insee_code: "34172")
+bourg.update!(name: "Bourg-Saint-Andéol", insee_code: "07042")
 
-district = Place.find_or_create_by!(parent: demo_city, slug: "centre-historique") do |p|
-  p.name = "Centre historique"
-  p.kind = :district
-  p.insee_code = "3417201"
-  p.position = 0
+sector = agency.sectors.find_or_create_by!(slug: "bourg-centre") do |s|
+  s.name = "Centre-ville"
+  s.city = "Bourg-Saint-Andéol"
+  s.position = 1
+  s.description = "Commerces et services du coeur de Bourg-Saint-Andéol"
 end
-district.update!(name: "Centre historique")
+sector.update!(name: "Centre-ville", city: "Bourg-Saint-Andéol")
 
 merchant = sector.merchants.find_or_create_by!(slug: "boulangerie-martin") do |m|
   m.name = "Boulangerie Martin"
   m.status = :published
   m.featured = true
-  m.place = district
+  m.place = bourg
   m.agency = agency
+  m.partner_category = :commerces
+  m.city = "Bourg-Saint-Andéol"
+  m.postal_code = "07700"
 end
 
 DemoContent.enrich_boulangerie_martin!(merchant)
-merchant.update!(place: district, sector: sector, agency: agency)
+merchant.update!(
+  place: bourg,
+  sector: sector,
+  agency: agency,
+  partner_category: :commerces,
+  city: "Bourg-Saint-Andéol",
+  postal_code: "07700",
+  subscription_status: "active"
+)
 
-User.find_or_create_by!(email: "super@proximmo.fr") do |u|
+User.find_or_create_by!(email: "super@fenetreouverte.fr") do |u|
   u.password = "password123"
   u.role = :super_admin
   u.first_name = "Super"
   u.last_name = "Admin"
 end
 
-admin = User.find_or_create_by!(email: "admin@codeimmo.fr") do |u|
+admin = User.find_or_create_by!(email: "admin@fenetreouverte.fr") do |u|
   u.password = "password123"
   u.role = :admin
-  u.first_name = "Admin"
-  u.last_name = "Immo"
+  u.first_name = "Jean-Michel"
+  u.last_name = "Admin"
   u.agency = agency
 end
 admin.update!(agency: agency)
 
-User.find_or_create_by!(email: "martin@boulangerie.fr") do |u|
+merchant_user = User.find_or_create_by!(email: "martin@boulangerie.fr") do |u|
   u.password = "password123"
   u.role = :merchant
   u.first_name = "Jean"
   u.last_name = "Martin"
   u.merchant = merchant
 end
+merchant_user.update!(merchant: merchant)
 
 User.find_or_create_by!(email: "client@demo.fr") do |u|
   u.password = "password123"
@@ -80,66 +86,105 @@ User.find_or_create_by!(email: "client@demo.fr") do |u|
   u.agency = agency
 end
 
-occitanie = Place.regions.find_by(insee_code: "76") || Place.find_by(slug: "occitanie", kind: :region)
+%w[facebook instagram].each do |provider|
+  merchant.social_accounts.find_or_create_by!(provider: provider) do |account|
+    account.account_name = "Boulangerie Martin (#{provider.capitalize})"
+    account.access_token = "demo"
+    account.status = :connected
+    account.connected_at = Time.current
+  end
+end
 
-Article.find_or_create_by!(agency: agency, slug: "bienvenue-code-immobilier") do |a|
-  a.title = "Bienvenue sur Proxi Immo"
-  a.excerpt = "La gazette locale qui connecte commercants et immobilier."
-  a.body = "Decouvrez les commercants partenaires et le reseau Proxi Immo."
+Article.find_or_initialize_by(agency: agency, slug: "bienvenue-fenetre-ouverte").tap do |a|
+  a.title = "Bienvenue sur Fenêtre Ouverte"
+  a.excerpt = "L'information locale, l'immobilier et les bonnes adresses du 07700."
+  a.body = "Découvrez les commerces, associations et acteurs de Bourg-Saint-Andéol et des communes voisines."
   a.category = :agency_news
   a.status = :published
-  a.published_at = Time.current
+  a.published_at = 3.days.ago
   a.author = admin
-  a.place = occitanie
+  a.place = bourg
+  a.save!
 end
 
 portrait = Article.find_or_initialize_by(agency: agency, slug: "portrait-boulangerie-martin")
 portrait.assign_attributes(
-  title: "Portrait : la Boulangerie Martin, institution du centre de Montpellier",
-  excerpt: "Depuis 1987, Jean Martin et son levain naturel rythment les matins du quartier. Couronne martin, croissants primés et fournil chaleureux : rencontre avec un artisan apprécié de toute la ville.",
+  title: "La Boulangerie Martin, bonne adresse du centre de Bourg",
+  excerpt: "Pain au levain, fouace ardéchoise et accueil chaleureux : rencontre avec un artisan apprécié du 07700.",
   body: DemoContent.portrait_article_body,
   category: :merchant_spotlight,
   status: :published,
-  published_at: 2.weeks.ago,
+  published_at: 1.day.ago,
   author: admin,
   merchant: merchant,
-  place: district
+  place: bourg
 )
 portrait.save!
 
-Article.find_or_initialize_by(agency: agency, slug: "diagnostic-dpe-2026").tap do |a|
-  a.title = "Diagnostic DPE : ce qui change pour les vendeurs en 2026"
-  a.excerpt = "Performance energetique, audit obligatoire, impact sur la valorisation : le point technique pour preparer une mise en vente sereine."
+Article.find_or_initialize_by(agency: agency, slug: "marche-immobilier-07700").tap do |a|
+  a.title = "Immobilier : le marché du 07700 en 2026"
+  a.excerpt = "Tendances, prix au m² et conseils pour vendre ou acheter dans le sud Ardèche."
   a.body = <<~TEXT.strip
-    ## Pourquoi le DPE reste central
+    ## Un secteur attractif
 
-    Le diagnostic de performance energetique n'est plus une simple formalite administrative.
-    En 2026, il conditionne la mise en vente, la decence du logement et la perception des acheteurs.
+    Entre Rhône et Gorges de l'Ardèche, le 07700 combine cadre de vie et dynamisme économique.
 
-    ## Les seuils a connaitre
+    ## Ce qu'il faut savoir
 
-    - **Passoire thermique** : logements classes F ou G
-    - **Audit energetique** : obligatoire dans certains cas avant annonce
-    - **Travaux de renovation** : peuvent etre anticipes pour securiser la transaction
+    - **Maisons de village** : forte demande sur Bourg-Saint-Andéol
+    - **Locations saisonnières** : marché actif autour des Gorges
+    - **Diagnostics** : anticipez les travaux avant la mise en vente
 
-    ## Conseil Proxi Immo
+    ## Fenêtre Ouverte Immo
 
-    Avant toute estimation, faites auditer votre bien. Nos equipes vous orientent vers des diagnostiqueurs
-    partenaires et vous aident a lire les leviers d'optimisation avant publication.
+    Nos commerçants partenaires et l'équipe vous accompagnent dans votre projet.
   TEXT
   a.category = :real_estate
   a.status = :published
-  a.published_at = 1.week.ago
+  a.published_at = 5.days.ago
   a.author = admin
-  a.place = occitanie
+  a.place = bourg
   a.save!
 end
 
-puts "Seeds OK"
+[
+  {
+    body: "Nouvelle fouace aux figues ce week-end ! Passez nous voir dès 7h, place du Marché.",
+    category: :commerces,
+    published_at: 2.days.ago
+  },
+  {
+    body: "Merci pour vos visites lors de la fête du village. On vous attend dès demain matin !",
+    category: :commerces,
+    published_at: 5.days.ago
+  }
+].each_with_index do |attrs, index|
+  pub = merchant.publications.find_or_create_by!(body: attrs[:body]) do |p|
+    p.agency = agency
+    p.category = attrs[:category]
+    p.status = :published
+    p.published_at = attrs[:published_at]
+    p.syndicated = index.zero?
+  end
+
+  next unless pub.syndicated?
+
+  %w[facebook instagram].each do |provider|
+    pub.social_posts.find_or_create_by!(provider: provider) do |post|
+      post.status = :published
+      post.external_post_id = "demo-seed-#{provider}-#{pub.id}"
+      post.published_at = pub.published_at
+    end
+  end
+end
+
+require_relative "seeds/demo_merchants_07700"
+DemoMerchants07700.call(agency: agency, admin: admin, sector: sector)
+
+puts "Seeds OK — Fenêtre Ouverte 07700"
 puts "Agency: #{agency.name} (#{agency.slug})"
-puts "Places: #{Place.count} (regions: #{Place.regions.count}, departments: #{Place.departments.count})"
-puts "Boulangerie Martin: #{merchant.photos.count} photos, article gazette publie"
-puts "Super admin: super@proximmo.fr / password123"
-puts "Admin agence: admin@codeimmo.fr / password123"
+puts "Territoire: #{bourg.name} (#{bourg.slug})"
+puts "Super admin: super@fenetreouverte.fr / password123"
+puts "Admin: admin@fenetreouverte.fr / password123"
 puts "Commercant: martin@boulangerie.fr / password123"
-puts "Client demo: client@demo.fr / password123 (sans abonnement)"
+puts "Client: client@demo.fr / password123"

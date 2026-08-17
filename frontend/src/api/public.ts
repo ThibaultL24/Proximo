@@ -25,6 +25,7 @@ export async function fetchMerchants(params?: {
   sector_slug?: string;
   place_path?: string;
   featured?: boolean;
+  partner_category?: string;
 }) {
   const { data } = await api.get<Merchant[]>("/public/merchants", { params });
   return data;

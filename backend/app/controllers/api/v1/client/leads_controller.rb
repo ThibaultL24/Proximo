@@ -5,7 +5,7 @@ module Api
       class LeadsController < ApplicationController
         before_action :authenticate_user!
         before_action :require_client!
-        before_action :require_client_subscription!
+        before_action :require_client_subscription!, only: :create
 
         def index
           authorize ::Lead
@@ -17,7 +17,7 @@ module Api
           authorize ::Lead
           merchant = resolve_merchant
           if merchant_requested? && merchant.nil?
-            return render json: { error: "Commercant introuvable ou non publie" }, status: :unprocessable_entity
+            return render json: { error: "Commerçant introuvable ou non publié" }, status: :unprocessable_entity
           end
 
           lead = current_user.submitted_leads.build(

@@ -1,5 +1,5 @@
 // src/app/router.tsx
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
 import { DashboardLayout } from "../components/layout/dashboard-layout";
 import { PublicLayout } from "../components/layout/public-layout";
 import { useAuth } from "../hooks/use-auth";
@@ -20,14 +20,17 @@ import { AdminMerchantFormPage } from "../pages/admin/admin-merchant-form-page";
 import { AdminMerchantsPage } from "../pages/admin/admin-merchants-page";
 import { MerchantDashboardPage } from "../pages/merchant/merchant-dashboard-page";
 import { MerchantShopPage } from "../pages/merchant/merchant-shop-page";
+import { MerchantPublishPage } from "../pages/merchant/merchant-publish-page";
 import { NewLeadPage } from "../pages/merchant/new-lead-page";
 import { ArticlePage } from "../pages/public/article-page";
-import { DirectoryPage } from "../pages/public/directory-page";
-import { GazettePage } from "../pages/public/gazette-page";
+import { CommercesPage } from "../pages/public/commerces-page";
+import { CommuneDetailPage } from "../pages/public/commune-detail-page";
+import { CommunesPage } from "../pages/public/communes-page";
+import { FilPage } from "../pages/public/fil-page";
 import { HomePage } from "../pages/public/home-page";
-import { ImmoArticlesPage } from "../pages/public/immo-articles-page";
 import { MerchantProfilePage } from "../pages/public/merchant-profile-page";
 import { QrMerchantPage } from "../pages/public/qr-merchant-page";
+import { RubriquePage } from "../pages/public/rubrique-page";
 
 function ProtectedLayout({ role }: { role: "admin" | "merchant" | "client" | "super_admin" }) {
   const { user, isLoading } = useAuth();
@@ -37,26 +40,41 @@ function ProtectedLayout({ role }: { role: "admin" | "merchant" | "client" | "su
   return <DashboardLayout kind={role} />;
 }
 
+function GazetteTerritoireRedirect() {
+  const { city } = useParams();
+  if (city) return <Navigate to={`/communes/${city}`} replace />;
+  return <Navigate to="/communes" replace />;
+}
+
 export function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<PublicLayout />}>
           <Route index element={<HomePage />} />
-          <Route path="annuaire" element={<DirectoryPage />} />
-          <Route path="annuaire/:region" element={<DirectoryPage />} />
-          <Route path="annuaire/:region/:department" element={<DirectoryPage />} />
-          <Route path="annuaire/:region/:department/:city" element={<DirectoryPage />} />
-          <Route path="annuaire/:region/:department/:city/:district" element={<DirectoryPage />} />
+          <Route path="fil" element={<FilPage />} />
+          <Route path="commerces" element={<CommercesPage />} />
+          <Route path="communes" element={<CommunesPage />} />
+          <Route path="communes/:slug" element={<CommuneDetailPage />} />
+          <Route path="loisirs" element={<RubriquePage category="loisirs" />} />
+          <Route path="bien-etre" element={<RubriquePage category="bien_etre" />} />
+          <Route path="immo" element={<RubriquePage category="immo" />} />
+          <Route path="vie-locale" element={<RubriquePage category="vie_locale" />} />
+
+          <Route path="annuaire/*" element={<Navigate to="/commerces" replace />} />
+          <Route path="annuaire" element={<Navigate to="/commerces" replace />} />
+
           <Route path="commercants/:slug" element={<MerchantProfilePage />} />
           <Route path="qr/:token" element={<QrMerchantPage />} />
-          <Route path="gazette/territoire/:region/:department/:city/:district" element={<GazettePage />} />
-          <Route path="gazette/territoire/:region/:department/:city" element={<GazettePage />} />
-          <Route path="gazette/territoire/:region/:department" element={<GazettePage />} />
-          <Route path="gazette/territoire/:region" element={<GazettePage />} />
-          <Route path="gazette/immo" element={<ImmoArticlesPage />} />
-          <Route path="gazette" element={<GazettePage />} />
+
+          <Route path="gazette/territoire/:region/:department/:city/:district" element={<GazetteTerritoireRedirect />} />
+          <Route path="gazette/territoire/:region/:department/:city" element={<GazetteTerritoireRedirect />} />
+          <Route path="gazette/territoire/:region/:department" element={<Navigate to="/communes" replace />} />
+          <Route path="gazette/territoire/:region" element={<Navigate to="/communes" replace />} />
+          <Route path="gazette/immo" element={<Navigate to="/immo" replace />} />
+          <Route path="gazette" element={<Navigate to="/fil" replace />} />
           <Route path="gazette/:slug" element={<ArticlePage />} />
+
           <Route path="connexion" element={<LoginPage />} />
           <Route path="inscription" element={<SignupPage />} />
           <Route path="agence/inscription" element={<AgencySignupPage />} />
@@ -74,6 +92,7 @@ export function AppRouter() {
         <Route element={<ProtectedLayout role="merchant" />}>
           <Route path="espace-commercant" element={<MerchantDashboardPage />} />
           <Route path="espace-commercant/ma-fiche" element={<MerchantShopPage />} />
+          <Route path="espace-commercant/publier" element={<MerchantPublishPage />} />
           <Route path="espace-commercant/leads/nouveau" element={<NewLeadPage />} />
         </Route>
 

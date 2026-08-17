@@ -34,7 +34,7 @@ export function QrMerchantPage() {
     return (
       <Card className="text-center">
         <p className="text-alert">{error}</p>
-        <Link to="/annuaire" className="mt-4 inline-block text-sm font-medium text-petrol">
+        <Link to="/commerces" className="mt-4 inline-block text-sm font-medium text-petrol">
           Voir l&apos;annuaire
         </Link>
       </Card>

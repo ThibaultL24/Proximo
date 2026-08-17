@@ -12,6 +12,16 @@ class Merchant < ApplicationRecord
   has_many_attached :photos
 
   enum :status, { draft: 0, published: 1, archived: 2 }
+  enum :partner_category, {
+    vie_locale: 0,
+    commerces: 1,
+    loisirs: 2,
+    immo: 3,
+    bien_etre: 4
+  }
+
+  has_many :publications, dependent: :destroy
+  has_many :social_accounts, dependent: :destroy
 
   validates :name, :slug, :sector, :agency, presence: true
   validates :slug, uniqueness: { scope: :agency_id }

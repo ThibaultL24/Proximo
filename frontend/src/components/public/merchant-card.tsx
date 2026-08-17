@@ -1,7 +1,7 @@
 // src/components/public/merchant-card.tsx
 import { Link } from "react-router-dom";
 import { Badge } from "../ui/badge";
-import { Card } from "../ui/card";
+import { FEED_CATEGORY_LABELS } from "../../lib/feed-categories";
 import type { Merchant } from "../../types";
 
 interface MerchantCardProps {
@@ -10,35 +10,47 @@ interface MerchantCardProps {
 
 export function MerchantCard({ merchant }: MerchantCardProps) {
   const coverUrl = merchant.logo_url || merchant.photo_urls?.[0];
+  const categoryLabel = merchant.partner_category
+    ? FEED_CATEGORY_LABELS[merchant.partner_category]
+    : merchant.sector.name;
 
   return (
-    <Link to={`/commercants/${merchant.slug}`} className="group block">
-      <Card hover className="h-full">
-        <div className="mb-4 flex h-28 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-sand to-paper-dark">
-          {coverUrl ? (
-            <img src={coverUrl} alt={merchant.name} className="h-full w-full object-cover" />
-          ) : (
-            <span className="font-serif text-4xl text-petrol/20">{merchant.name.charAt(0)}</span>
-          )}
-        </div>
+    <Link
+      to={`/commercants/${merchant.slug}`}
+      className="group flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface transition-colors hover:border-ink/30"
+    >
+      <div className="relative aspect-[16/10] overflow-hidden bg-paper-dark">
+        {coverUrl ? (
+          <img
+            src={coverUrl}
+            alt=""
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+            loading="lazy"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <span className="font-serif text-4xl text-ink/15">{merchant.name.charAt(0)}</span>
+          </div>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col p-4">
         <div className="mb-2 flex flex-wrap gap-2">
-          <Badge variant="partner">Commerce partenaire</Badge>
-          {merchant.featured && <Badge variant="featured">Mis en avant</Badge>}
+          <Badge variant="category">{categoryLabel}</Badge>
+          {merchant.featured && <Badge variant="featured">Sélection</Badge>}
         </div>
-        <h2 className="font-serif text-xl font-semibold text-petrol group-hover:text-brass">
+        <h2 className="font-serif text-xl font-semibold text-ink group-hover:text-tile">
           {merchant.name}
         </h2>
         <p className="mt-1 text-sm text-ink-muted">
-          {merchant.place?.name || merchant.sector.name}
-          {merchant.city ? ` · ${merchant.city}` : ""}
+          {merchant.place?.name || merchant.city || merchant.sector.name}
         </p>
         {merchant.short_description && (
-          <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-ink/80">
+          <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-ink/80">
             {merchant.short_description}
           </p>
         )}
-        <p className="mt-4 text-sm font-medium text-brass">Voir la fiche →</p>
-      </Card>
+        <p className="mt-auto pt-4 text-sm font-semibold text-tile">Voir la fiche</p>
+      </div>
     </Link>
   );
 }
