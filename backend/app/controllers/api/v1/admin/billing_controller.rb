@@ -32,6 +32,12 @@ module Api
         rescue Stripe::StripeError => e
           render json: { error: e.message }, status: :unprocessable_entity
         end
+
+        def invoices
+          return forbidden unless current_agency
+
+          render json: { invoices: StripeInvoiceList.for_customer(current_agency.stripe_customer_id) }
+        end
       end
     end
   end

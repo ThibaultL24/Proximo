@@ -3,6 +3,7 @@ class Publication < ApplicationRecord
   belongs_to :merchant
   belongs_to :agency
   has_many :social_posts, dependent: :destroy
+  has_many :reviews, as: :reviewable, dependent: :destroy
 
   has_one_attached :image
 

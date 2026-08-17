@@ -196,23 +196,11 @@ export function AdminLeadsPage() {
   }
 
   async function handleConvert(id: number) {
-    const amountStr = window.prompt("Montant indicatif de la commission (EUR, optionnel) :");
-    if (amountStr === null) return;
-    if (!window.confirm("Marquer ce lead comme converti (vente conclue) ?")) return;
-
-    let amount_cents: number | undefined;
-    if (amountStr.trim()) {
-      const parsed = parseFloat(amountStr.replace(",", "."));
-      if (Number.isNaN(parsed) || parsed < 0) {
-        setError("Montant invalide");
-        return;
-      }
-      amount_cents = Math.round(parsed * 100);
-    }
+    if (!window.confirm("Marquer ce lead comme converti (vente conclue) ? La commission sera calculee automatiquement selon le barème.")) return;
 
     setActionId(id);
     try {
-      await convertLead(id, amount_cents);
+      await convertLead(id);
       await loadLeads();
     } catch {
       setError("Action impossible");

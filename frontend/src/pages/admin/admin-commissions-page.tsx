@@ -56,6 +56,7 @@ export function AdminCommissionsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [actionId, setActionId] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [amountDrafts, setAmountDrafts] = useState<Record<number, string>>({});
 
   const loadCommissions = useCallback(async () => {
     setIsLoading(true);
@@ -63,6 +64,14 @@ export function AdminCommissionsPage() {
     try {
       const data = await fetchAdminCommissions(statusFilter || undefined);
       setCommissions(data);
+      setAmountDrafts(
+        Object.fromEntries(
+          data.map((commission) => [
+            commission.id,
+            commission.amount_cents > 0 ? String(commission.amount_cents / 100) : "",
+          ])
+        )
+      );
     } catch {
       setError("Impossible de charger les commissions");
     } finally {
@@ -92,13 +101,8 @@ export function AdminCommissionsPage() {
   }, [searchParams, setSearchParams, loadCommissions]);
 
   async function handleApprove(commission: Commission) {
-    const amountStr = window.prompt(
-      "Montant de la commission (EUR) :",
-      commission.amount_cents > 0 ? String(commission.amount_cents / 100) : ""
-    );
-    if (amountStr === null) return;
-
-    const parsed = parseFloat(amountStr.replace(",", "."));
+    const draft = amountDrafts[commission.id] ?? String(commission.amount_cents / 100);
+    const parsed = parseFloat(draft.replace(",", "."));
     if (Number.isNaN(parsed) || parsed <= 0) {
       setError("Montant invalide");
       return;
@@ -215,6 +219,7 @@ export function AdminCommissionsPage() {
               <th className="px-4 py-3 font-medium">Commercant</th>
               <th className="px-4 py-3 font-medium">Contact / projet</th>
               <th className="px-4 py-3 font-medium">Montant</th>
+              <th className="px-4 py-3 font-medium">Split plateforme</th>
               <th className="px-4 py-3 font-medium">Statut</th>
               <th className="px-4 py-3 font-medium">Actions</th>
             </tr>
@@ -233,7 +238,27 @@ export function AdminCommissionsPage() {
                   </p>
                 </AdminTableCell>
                 <AdminTableCell className="font-medium tabular-nums text-petrol">
-                  {formatEuros(commission.amount_cents)}
+                  {commission.status === "eligible" ? (
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={amountDrafts[commission.id] ?? ""}
+                      onChange={(event) =>
+                        setAmountDrafts((current) => ({
+                          ...current,
+                          [commission.id]: event.target.value,
+                        }))
+                      }
+                      className="w-24 rounded-lg border border-line bg-paper px-2 py-1 text-sm tabular-nums"
+                      aria-label={`Montant commission ${commission.id}`}
+                    />
+                  ) : (
+                    formatEuros(commission.amount_cents)
+                  )}
+                </AdminTableCell>
+                <AdminTableCell className="text-xs text-ink-muted">
+                  <p className="tabular-nums">{formatEuros(commission.platform_fee_cents)} plateforme</p>
+                  <p className="tabular-nums">{formatEuros(commission.merchant_amount_cents)} commercant</p>
                 </AdminTableCell>
                 <AdminTableCell>
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${COMMISSION_STATUS_COLORS[commission.status] || ""}`}>

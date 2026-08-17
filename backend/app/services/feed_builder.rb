@@ -39,7 +39,7 @@ class FeedBuilder
   end
 
   def article_items
-    scope = Article.published.includes(:merchant, :place).where(agency_id: agency.id)
+    scope = Article.published.includes(:merchant, :place, cover_image_attachment: :blob).where(agency_id: agency.id)
     scope = filter_articles_by_category(scope)
     scope = filter_articles_by_place(scope) if place_path.present?
 
@@ -96,6 +96,7 @@ class FeedBuilder
       category: ARTICLE_CATEGORY_MAP.fetch(article.category, "vie_locale"),
       article_category: article.category,
       published_at: article.published_at || article.created_at,
+      cover_image_url: blob_path(article.cover_image),
       merchant: article.merchant ? merchant_summary(article.merchant) : nil,
       place: article.place ? PlaceSerializer.new(article.place).serializable_hash : nil
     }

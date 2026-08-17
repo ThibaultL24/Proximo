@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../hooks/use-auth";
 import { ArticleCard } from "../../components/public/article-card";
+import { ReviewSection } from "../../components/public/review-section";
 import { Badge } from "../../components/ui/badge";
 import { Card } from "../../components/ui/card";
 import { linkButtonClass } from "../../components/ui/button";
@@ -185,6 +186,12 @@ export function MerchantProfilePage() {
               {user?.role === "client" ? "Transmettre mon projet" : "Contacter l'agence"}
             </Link>
           </Card>
+
+          <ReviewSection
+            reviewableType="Merchant"
+            reviewableSlug={merchant.slug}
+            canReply={Boolean(user?.role === "merchant" && user.merchant_id === merchant.id)}
+          />
 
           {fromQr && (
             <div className="border-t border-sand-dark/50 pt-4">

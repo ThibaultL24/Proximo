@@ -23,14 +23,17 @@ import { MerchantShopPage } from "../pages/merchant/merchant-shop-page";
 import { MerchantPublishPage } from "../pages/merchant/merchant-publish-page";
 import { NewLeadPage } from "../pages/merchant/new-lead-page";
 import { ArticlePage } from "../pages/public/article-page";
+import { BoutiquePage } from "../pages/public/boutique-page";
 import { CommercesPage } from "../pages/public/commerces-page";
 import { CommuneDetailPage } from "../pages/public/commune-detail-page";
 import { CommunesPage } from "../pages/public/communes-page";
 import { FilPage } from "../pages/public/fil-page";
 import { HomePage } from "../pages/public/home-page";
 import { MerchantProfilePage } from "../pages/public/merchant-profile-page";
+import { PublicationPage } from "../pages/public/publication-page";
 import { QrMerchantPage } from "../pages/public/qr-merchant-page";
 import { RubriquePage } from "../pages/public/rubrique-page";
+import { TarifsPage } from "../pages/public/tarifs-page";
 
 function ProtectedLayout({ role }: { role: "admin" | "merchant" | "client" | "super_admin" }) {
   const { user, isLoading } = useAuth();
@@ -52,7 +55,10 @@ export function AppRouter() {
       <Routes>
         <Route element={<PublicLayout />}>
           <Route index element={<HomePage />} />
+          <Route path="tarifs" element={<TarifsPage />} />
+          <Route path="boutique" element={<BoutiquePage />} />
           <Route path="fil" element={<FilPage />} />
+          <Route path="fil/post/:id" element={<PublicationPage />} />
           <Route path="commerces" element={<CommercesPage />} />
           <Route path="communes" element={<CommunesPage />} />
           <Route path="communes/:slug" element={<CommuneDetailPage />} />

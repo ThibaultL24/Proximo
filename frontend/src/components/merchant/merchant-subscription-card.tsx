@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   createMerchantSubscriptionCheckout,
+  fetchMerchantInvoices,
   fetchMerchantSubscription,
   openMerchantBillingPortal,
 } from "../../api/merchant-billing";
+import { BillingInvoiceList } from "../billing/billing-invoice-list";
 import { AdminHint } from "../admin/admin-ui";
 import { linkButtonClass } from "../ui/button";
 import { Card } from "../ui/card";
@@ -92,7 +94,7 @@ export function MerchantSubscriptionCard() {
       <div className="border-b border-sand-dark/40 bg-paper/40 px-6 py-4">
         <h2 className="font-serif text-lg font-semibold text-petrol">Abonnement commercant</h2>
         <p className="mt-1 text-sm text-ink-muted">
-          19 € / mois — fil Fenêtre Ouverte, diffusion réseaux (bientôt), QR code et apport d&apos;affaires. Essai gratuit 7 jours.
+          12 € / mois — fil Fenêtre Ouverte, publication multi-reseaux, QR code et apport d&apos;affaires. Essai gratuit 7 jours.
         </p>
       </div>
 
@@ -148,6 +150,7 @@ export function MerchantSubscriptionCard() {
         )}
 
         {error && <p className="text-sm text-alert">{error}</p>}
+        {!isLoading && <BillingInvoiceList fetchInvoices={fetchMerchantInvoices} />}
       </div>
     </Card>
   );

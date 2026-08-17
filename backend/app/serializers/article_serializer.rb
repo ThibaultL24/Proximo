@@ -1,6 +1,12 @@
 # app/serializers/article_serializer.rb
 class ArticleSerializer < AlbaResource
+  include AttachmentUrls
+
   attributes :id, :title, :slug, :excerpt, :body, :category, :status, :published_at
+
+  attribute :cover_image_url do |article|
+    blob_path(article.cover_image)
+  end
 
   attribute :place do |article|
     territory = article.place || article.merchant&.place

@@ -28,22 +28,13 @@ class CommissionStripeCheckoutService
             unit_amount: commission.amount_cents,
             product_data: {
               name: "Commission Proxi Immo",
-              description: "#{merchant.name} — lead #{commission.lead.contact_name}"
+              description: "#{merchant.name} — lead #{commission.lead.contact_name} (dont #{format('%.2f', commission.platform_fee_cents / 100.0)} € plateforme)"
             }
           },
           quantity: 1
         }
       ],
-      payment_intent_data: {
-        transfer_data: {
-          destination: merchant.stripe_account_id
-        },
-        metadata: {
-          commission_id: commission.id,
-          lead_id: commission.lead_id,
-          merchant_id: merchant.id
-        }
-      },
+      payment_intent_data: payment_intent_data(merchant),
       success_url: success_url,
       cancel_url: cancel_url,
       metadata: {
@@ -67,6 +58,21 @@ class CommissionStripeCheckoutService
     raise Error, "La commission doit etre approuvee avant paiement" unless commission.approved?
     raise Error, "Montant invalide" unless commission.amount_cents.positive?
     raise Error, "Cette commission est deja payee" if commission.paid?
+  end
+
+  def payment_intent_data(merchant)
+    data = {
+      transfer_data: {
+        destination: merchant.stripe_account_id
+      },
+      metadata: {
+        commission_id: commission.id,
+        lead_id: commission.lead_id,
+        merchant_id: merchant.id
+      }
+    }
+    data[:application_fee_amount] = commission.platform_fee_cents if commission.platform_fee_cents.positive?
+    data
   end
 
   def frontend_url

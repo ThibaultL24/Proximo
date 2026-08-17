@@ -28,6 +28,10 @@ module Api
           render json: { error: e.message }, status: :unprocessable_entity
         end
 
+        def invoices
+          render json: { invoices: StripeInvoiceList.for_customer(current_user.stripe_customer_id) }
+        end
+
         private
 
         def require_client!

@@ -33,6 +33,12 @@ module Api
           render json: { error: e.message }, status: :unprocessable_entity
         end
 
+        def invoices
+          authorize @merchant, :manage_billing?
+
+          render json: { invoices: StripeInvoiceList.for_customer(@merchant.stripe_customer_id) }
+        end
+
         private
 
         def set_merchant

@@ -1,6 +1,6 @@
 // src/api/client-billing.ts
 import { api } from "./client";
-import type { ClientSubscriptionStatus } from "../types";
+import type { ClientSubscriptionStatus, BillingInvoice } from "../types";
 
 export async function fetchClientSubscription() {
   const { data } = await api.get<ClientSubscriptionStatus>("/client/billing");
@@ -15,4 +15,9 @@ export async function createClientSubscriptionCheckout() {
 export async function openClientBillingPortal() {
   const { data } = await api.get<{ url: string }>("/client/billing/portal");
   return data.url;
+}
+
+export async function fetchClientInvoices() {
+  const { data } = await api.get<{ invoices: BillingInvoice[] }>("/client/billing/invoices");
+  return data.invoices;
 }

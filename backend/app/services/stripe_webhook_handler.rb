@@ -36,6 +36,11 @@ class StripeWebhookHandler
       return handle_subscription_checkout_completed(session)
     end
 
+    shop_order_id = session.metadata&.shop_order_id
+    if shop_order_id.present?
+      return handle_boutique_order_completed(session, shop_order_id)
+    end
+
     commission_id = session.metadata&.commission_id
     return :ignored if commission_id.blank?
 
@@ -55,6 +60,20 @@ class StripeWebhookHandler
     commission.lead.update!(status: :paid) if commission.lead.converted?
 
     :paid
+  end
+
+  def handle_boutique_order_completed(session, shop_order_id)
+    order = ShopOrder.find_by(id: shop_order_id)
+    return :ignored unless order
+    return :already_paid if order.paid?
+
+    order.update!(
+      status: :paid,
+      stripe_payment_intent_id: session.payment_intent,
+      customer_email: session.customer_details&.email || order.customer_email
+    )
+
+    :boutique_paid
   end
 
   def handle_subscription_checkout_completed(session)

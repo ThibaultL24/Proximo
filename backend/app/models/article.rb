@@ -5,6 +5,8 @@ class Article < ApplicationRecord
   belongs_to :place, optional: true
   belongs_to :agency
 
+  has_many :reviews, as: :reviewable, dependent: :destroy
+
   has_one_attached :cover_image
 
   enum :category, {

@@ -181,6 +181,98 @@ end
 require_relative "seeds/demo_merchants_07700"
 DemoMerchants07700.call(agency: agency, admin: admin, sector: sector)
 
+client = User.find_by!(email: "client@demo.fr")
+merchant_user = User.find_by!(email: "martin@boulangerie.fr")
+
+merchant_review = Review.find_or_create_by!(user: client, reviewable: merchant) do |r|
+  r.body = "Pain excellent et accueil chaleureux. La fouace aux figues est un must du week-end !"
+  r.rating = 5
+end
+ReviewReply.find_or_create_by!(review: merchant_review) do |reply|
+  reply.user = merchant_user
+  reply.body = "Merci Marie ! On vous garde une fouace bien chaude samedi matin."
+end
+
+portrait_review = Review.find_or_create_by!(user: client, reviewable: portrait) do |r|
+  r.body = "Bel article, envie d'y goûter ce week-end !"
+  r.rating = 5
+end
+ReviewReply.find_or_create_by!(review: portrait_review) do |reply|
+  reply.user = admin
+  reply.body = "Merci pour votre retour — c'est un plaisir de mettre en avant les artisans du 07700."
+end
+
+first_publication = merchant.publications.published.order(:published_at).first
+if first_publication
+  Review.find_or_create_by!(user: client, reviewable: first_publication) do |r|
+    r.body = "Hâte de goûter la fouace ce week-end — merci pour l'info !"
+    r.rating = 4
+  end.tap do |review|
+    ReviewReply.find_or_create_by!(review:) do |reply|
+      reply.user = merchant_user
+      reply.body = "On vous attend dès 7 h samedi, fouace toute fraîche !"
+    end
+  end
+end
+
+[
+  [portrait, "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&h=675&q=80", "cover-portrait-martin.jpg"],
+  [Article.find_by!(agency: agency, slug: "marche-immobilier-07700"), "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&h=675&q=80", "cover-immo.jpg"]
+].each do |article, url, filename|
+  next if article.cover_image.attached?
+
+  DemoContent.attach_remote_file(article, :cover_image, url, filename)
+end
+
+[
+  {
+    slug: "guide-vendeur-07700",
+    name: "Guide vendeur 07700",
+    description: "PDF lorem : check-list mise en vente, diagnostics et conseils agence Fenêtre Ouverte.",
+    price_cents: 2500,
+    checkout_mode: :one_time,
+    merchant: nil,
+    image_url: "https://placekitten.com/600/400"
+  },
+  {
+    slug: "coffret-fouace-martin",
+    name: "Coffret fouace du samedi",
+    description: "Fouace aux figues + baguette levain — retrait en boutique Boulangerie Martin.",
+    price_cents: 1800,
+    checkout_mode: :promo,
+    merchant: merchant,
+    image_url: "https://placekitten.com/601/400"
+  },
+  {
+    slug: "panier-decouverte-martin",
+    name: "Panier decouverte Martin",
+    description: "Selection de pains et viennoiseries du jour — retrait en boutique sous 24 h.",
+    price_cents: 1200,
+    checkout_mode: :one_time,
+    merchant: merchant,
+    image_url: "https://placekitten.com/602/400"
+  },
+  {
+    slug: "audit-immo-express",
+    name: "Audit immo express",
+    description: "Visite conseil lorem : estimation, points de vigilance et plan d'action sous 48 h.",
+    price_cents: 9900,
+    checkout_mode: :installment,
+    merchant: nil,
+    image_url: "https://placekitten.com/603/400"
+  }
+].each do |attrs|
+  merchant_ref = attrs.delete(:merchant)
+  Product.find_or_initialize_by(agency: agency, slug: attrs[:slug]).tap do |product|
+    product.assign_attributes(
+      attrs.merge(status: :published, merchant: merchant_ref)
+    )
+    product.save!
+  end
+end
+
+Product.where(agency: agency, slug: "abonnement-pan-surprise").destroy_all
+
 puts "Seeds OK — Fenêtre Ouverte 07700"
 puts "Agency: #{agency.name} (#{agency.slug})"
 puts "Territoire: #{bourg.name} (#{bourg.slug})"

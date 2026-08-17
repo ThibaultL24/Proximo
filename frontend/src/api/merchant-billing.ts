@@ -1,6 +1,6 @@
 // src/api/merchant-billing.ts
 import { api } from "./client";
-import type { MerchantSubscriptionStatus } from "../types";
+import type { MerchantSubscriptionStatus, BillingInvoice } from "../types";
 
 export async function fetchMerchantSubscription() {
   const { data } = await api.get<MerchantSubscriptionStatus>("/merchant/billing");
@@ -15,4 +15,9 @@ export async function createMerchantSubscriptionCheckout() {
 export async function openMerchantBillingPortal() {
   const { data } = await api.get<{ url: string }>("/merchant/billing/portal");
   return data.url;
+}
+
+export async function fetchMerchantInvoices() {
+  const { data } = await api.get<{ invoices: BillingInvoice[] }>("/merchant/billing/invoices");
+  return data.invoices;
 }

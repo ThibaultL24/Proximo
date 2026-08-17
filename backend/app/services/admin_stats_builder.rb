@@ -60,9 +60,15 @@ class AdminStatsBuilder
 
   def commission_stats
     commissions = Commission.joins(:lead).where(leads: { agency_id: agency.id })
+    leads = agency.leads
+    converted = leads.where(status: %i[converted paid]).count
     {
       total: commissions.count,
       total_amount_cents: commissions.where.not(status: :cancelled).sum(:amount_cents),
+      payable_cents: commissions.where(status: :approved).sum(:amount_cents),
+      paid_cents: commissions.where(status: :paid).sum(:amount_cents),
+      platform_fee_cents: commissions.where.not(status: :cancelled).sum(:platform_fee_cents),
+      conversion_rate: leads.count.zero? ? 0 : (converted.to_f / leads.count).round(3),
       by_status: Commission.statuses.keys.index_with { |status| commissions.where(status: status).count }
     }
   end

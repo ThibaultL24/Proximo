@@ -131,6 +131,16 @@ export function PublicLayout() {
                 </Link>
               </li>
               <li>
+                <Link to="/boutique" className="hover:text-white">
+                  Boutique
+                </Link>
+              </li>
+              <li>
+                <Link to="/tarifs" className="hover:text-white">
+                  Tarifs
+                </Link>
+              </li>
+              <li>
                 <Link to="/connexion" className="hover:text-white">
                   Espace partenaire
                 </Link>

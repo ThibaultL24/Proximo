@@ -5,6 +5,7 @@ class Agency < ApplicationRecord
   has_many :sectors, dependent: :restrict_with_error
   has_many :articles, dependent: :restrict_with_error
   has_many :leads, dependent: :restrict_with_error
+  has_many :products, dependent: :destroy
   has_many :admin_users, -> { where(role: :admin) }, class_name: "User"
 
   enum :status, { draft: 0, active: 1, suspended: 2 }

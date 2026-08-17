@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_18_110000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -94,6 +94,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "stripe_checkout_session_id"
+    t.integer "platform_fee_cents", default: 0, null: false
     t.index ["lead_id"], name: "index_commissions_on_lead_id", unique: true
     t.index ["stripe_checkout_session_id"], name: "index_commissions_on_stripe_checkout_session_id", unique: true, where: "stripe_checkout_session_id IS NOT NULL"
   end
@@ -197,6 +198,26 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.index ["parent_id"], name: "index_places_on_parent_id"
   end
 
+  create_table "products", force: :cascade do |t|
+    t.integer "agency_id", null: false
+    t.integer "merchant_id"
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.text "description"
+    t.integer "price_cents", null: false
+    t.string "currency", default: "EUR", null: false
+    t.integer "checkout_mode", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.integer "platform_fee_bps", default: 1000, null: false
+    t.string "image_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["agency_id", "slug"], name: "index_products_on_agency_id_and_slug", unique: true
+    t.index ["agency_id"], name: "index_products_on_agency_id"
+    t.index ["merchant_id"], name: "index_products_on_merchant_id"
+    t.index ["status"], name: "index_products_on_status"
+  end
+
   create_table "publications", force: :cascade do |t|
     t.integer "merchant_id", null: false
     t.integer "agency_id", null: false
@@ -227,6 +248,31 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.index ["merchant_id"], name: "index_qr_scans_on_merchant_id"
   end
 
+  create_table "review_replies", force: :cascade do |t|
+    t.integer "review_id", null: false
+    t.integer "user_id", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["review_id"], name: "index_review_replies_on_review_id", unique: true
+    t.index ["user_id"], name: "index_review_replies_on_user_id"
+  end
+
+  create_table "reviews", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "reviewable_type", null: false
+    t.integer "reviewable_id", null: false
+    t.text "body", null: false
+    t.integer "rating"
+    t.boolean "hidden", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reviewable_type", "reviewable_id", "hidden"], name: "index_reviews_on_reviewable_type_and_reviewable_id_and_hidden"
+    t.index ["reviewable_type", "reviewable_id"], name: "index_reviews_on_reviewable"
+    t.index ["user_id", "reviewable_type", "reviewable_id"], name: "index_reviews_on_user_and_reviewable", unique: true
+    t.index ["user_id"], name: "index_reviews_on_user_id"
+  end
+
   create_table "sectors", force: :cascade do |t|
     t.string "name", null: false
     t.string "slug", null: false
@@ -238,6 +284,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
     t.integer "agency_id", null: false
     t.index ["agency_id", "slug"], name: "index_sectors_on_agency_id_and_slug", unique: true
     t.index ["agency_id"], name: "index_sectors_on_agency_id"
+  end
+
+  create_table "shop_orders", force: :cascade do |t|
+    t.integer "product_id", null: false
+    t.integer "user_id"
+    t.string "customer_email"
+    t.integer "amount_cents", null: false
+    t.string "currency", default: "EUR", null: false
+    t.integer "status", default: 0, null: false
+    t.string "stripe_checkout_session_id"
+    t.string "stripe_payment_intent_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_shop_orders_on_product_id"
+    t.index ["stripe_checkout_session_id"], name: "index_shop_orders_on_stripe_checkout_session_id", unique: true, where: "stripe_checkout_session_id IS NOT NULL"
+    t.index ["user_id"], name: "index_shop_orders_on_user_id"
   end
 
   create_table "social_accounts", force: :cascade do |t|
@@ -308,10 +370,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_18_231253) do
   add_foreign_key "merchants", "places"
   add_foreign_key "merchants", "sectors"
   add_foreign_key "places", "places", column: "parent_id"
+  add_foreign_key "products", "agencies"
+  add_foreign_key "products", "merchants"
   add_foreign_key "publications", "agencies"
   add_foreign_key "publications", "merchants"
   add_foreign_key "qr_scans", "merchants"
+  add_foreign_key "review_replies", "reviews"
+  add_foreign_key "review_replies", "users"
+  add_foreign_key "reviews", "users"
   add_foreign_key "sectors", "agencies"
+  add_foreign_key "shop_orders", "products"
+  add_foreign_key "shop_orders", "users"
   add_foreign_key "social_accounts", "merchants"
   add_foreign_key "social_posts", "publications"
   add_foreign_key "users", "agencies"

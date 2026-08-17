@@ -23,6 +23,10 @@ module Api
         def update
           authorize @commission
           attrs = commission_params.to_h
+          if attrs["amount_cents"].present?
+            amount = attrs["amount_cents"].to_i
+            attrs["platform_fee_cents"] = (amount * CommissionQuote::PLATFORM_FEE_BPS / 10_000.0).round
+          end
           attrs["approved_at"] = Time.current if attrs["status"] == "approved" && !@commission.approved_at
           attrs["paid_at"] = Time.current if attrs["status"] == "paid" && !@commission.paid_at
 

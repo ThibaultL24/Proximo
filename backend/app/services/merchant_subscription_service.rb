@@ -17,7 +17,7 @@ class MerchantSubscriptionService
       active: active?,
       trial_ends_at: merchant.subscription_trial_ends_at,
       current_period_end: merchant.subscription_current_period_end,
-      price_label: "19 € / mois — fil local + reseaux sociaux",
+      price_label: "12 € / mois — fil local + reseaux sociaux",
       features_locked: !active?
     }
   end

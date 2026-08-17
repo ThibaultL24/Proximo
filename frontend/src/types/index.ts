@@ -143,6 +143,7 @@ export interface Article {
   place?: Place;
   gazette_label?: string;
   territory_label?: string;
+  cover_image_url?: string | null;
   author_id?: number;
   merchant_id?: number | null;
   place_id?: number | null;
@@ -186,6 +187,10 @@ export interface AdminStats {
   commissions: {
     total: number;
     total_amount_cents: number;
+    payable_cents: number;
+    paid_cents: number;
+    platform_fee_cents: number;
+    conversion_rate: number;
     by_status: Record<string, number>;
   };
   qr_scans: {
@@ -253,6 +258,7 @@ export interface User {
   last_name?: string;
   full_name?: string;
   phone?: string;
+  merchant_id?: number | null;
   subscription?: ClientSubscriptionStatus;
   agency?: UserAgency;
 }
@@ -332,9 +338,24 @@ export interface PlatformAgencySummary {
   created_at: string;
 }
 
+export interface BillingInvoice {
+  id: string;
+  number?: string | null;
+  status: string;
+  amount_due_cents: number;
+  amount_paid_cents: number;
+  currency: string;
+  hosted_invoice_url?: string | null;
+  invoice_pdf?: string | null;
+  period_end?: string | null;
+  created?: string | null;
+}
+
 export interface Commission {
   id: number;
   amount_cents: number;
+  platform_fee_cents: number;
+  merchant_amount_cents: number;
   currency: string;
   status: string;
   approved_at?: string | null;
@@ -364,6 +385,74 @@ export interface CommissionInput {
 }
 
 export type FeedCategory = "vie_locale" | "commerces" | "loisirs" | "immo" | "bien_etre";
+
+export type ReviewableType = "Merchant" | "Article" | "Publication";
+
+export interface ReviewReply {
+  id: number;
+  body: string;
+  created_at: string;
+  author_name: string;
+  author_role: string;
+}
+
+export interface Review {
+  id: number;
+  body: string;
+  rating?: number | null;
+  created_at: string;
+  author_name: string;
+  author_id: number;
+  author_role: string;
+  reply?: ReviewReply | null;
+}
+
+export interface ReviewInput {
+  reviewable_type: ReviewableType;
+  reviewable_slug?: string;
+  reviewable_id?: number;
+  body: string;
+  rating?: number;
+}
+
+export interface ReviewReplyInput {
+  body: string;
+}
+
+export interface PublicationDetail {
+  id: number;
+  body: string;
+  category: FeedCategory;
+  published_at: string;
+  image_url?: string | null;
+  merchant: FeedMerchantSummary;
+}
+
+export type ProductCheckoutMode = "one_time" | "promo" | "installment";
+
+export interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  price_cents: number;
+  currency: string;
+  checkout_mode: ProductCheckoutMode;
+  checkout_label: string;
+  status: string;
+  image_url?: string | null;
+  seller_type: "agency" | "merchant";
+  platform_fee_cents: number;
+  merchant_amount_cents: number;
+  merchant?: {
+    id: number;
+    name: string;
+    slug: string;
+    logo_url?: string | null;
+    stripe_ready?: boolean;
+  } | null;
+}
+
 
 export type SocialProvider = "facebook" | "instagram" | "linkedin" | "twitter" | "tiktok";
 
@@ -403,6 +492,7 @@ export interface FeedArticleItem {
   category: FeedCategory;
   article_category?: string;
   published_at: string;
+  cover_image_url?: string | null;
   merchant?: FeedMerchantSummary | null;
   place?: Place;
 }

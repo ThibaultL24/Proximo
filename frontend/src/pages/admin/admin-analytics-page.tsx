@@ -86,8 +86,39 @@ export function AdminAnalyticsPage() {
             <AdminStatCard
               label="Commissions"
               value={formatEuros(stats.commissions.total_amount_cents)}
-              hint={`${stats.commissions.total} dossiers`}
+              hint={`${stats.commissions.total} dossiers · ${Math.round(stats.commissions.conversion_rate * 100)}% conversion`}
               icon={<IconEuro />}
+              accent="petrol"
+            />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <AdminStatCard
+              label="A payer"
+              value={formatEuros(stats.commissions.payable_cents)}
+              hint="Commissions approuvees"
+              icon={<IconEuro />}
+              accent="alert"
+            />
+            <AdminStatCard
+              label="Deja paye"
+              value={formatEuros(stats.commissions.paid_cents)}
+              hint="Commissions reglees"
+              icon={<IconEuro />}
+              accent="success"
+            />
+            <AdminStatCard
+              label="Frais plateforme"
+              value={formatEuros(stats.commissions.platform_fee_cents)}
+              hint="10% sur commissions actives"
+              icon={<IconChart />}
+              accent="brass"
+            />
+            <AdminStatCard
+              label="Taux conversion"
+              value={`${Math.round(stats.commissions.conversion_rate * 100)} %`}
+              hint="Leads convertis / total"
+              icon={<IconUsers />}
               accent="petrol"
             />
           </div>
@@ -146,6 +177,26 @@ export function AdminAnalyticsPage() {
               icon={<IconChart className="h-4 w-4" />}
               action={{ label: "Gerer les commissions", to: "/admin/commissions" }}
             >
+              <dl className="mb-4 space-y-2 text-sm">
+                <div className="flex justify-between gap-4 rounded-lg bg-paper/50 px-3 py-2">
+                  <dt className="text-ink-muted">Volume total</dt>
+                  <dd className="font-semibold tabular-nums text-petrol">
+                    {formatEuros(stats.commissions.total_amount_cents)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-4 rounded-lg bg-paper/50 px-3 py-2">
+                  <dt className="text-ink-muted">A payer</dt>
+                  <dd className="font-semibold tabular-nums text-petrol">
+                    {formatEuros(stats.commissions.payable_cents)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-4 rounded-lg bg-paper/50 px-3 py-2">
+                  <dt className="text-ink-muted">Frais plateforme</dt>
+                  <dd className="font-semibold tabular-nums text-petrol">
+                    {formatEuros(stats.commissions.platform_fee_cents)}
+                  </dd>
+                </div>
+              </dl>
               <ul className="space-y-2">
                 {Object.entries(stats.commissions.by_status).map(([status, count]) => (
                   <StatusRow

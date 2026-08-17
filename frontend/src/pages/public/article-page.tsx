@@ -4,11 +4,14 @@ import { Link, useParams } from "react-router-dom";
 import { ARTICLE_CATEGORY_LABELS, IMMO_CATEGORIES } from "../../lib/article-labels";
 import { fetchArticle } from "../../api/public";
 import { ArticleBody } from "../../lib/article-body";
+import { ReviewSection } from "../../components/public/review-section";
+import { useAuth } from "../../hooks/use-auth";
 import { territoryBadge } from "../../lib/gazette-labels";
 import type { Article } from "../../types";
 
 export function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
+  const { user } = useAuth();
   const [article, setArticle] = useState<Article | null>(null);
 
   useEffect(() => {
@@ -40,6 +43,13 @@ export function ArticlePage() {
       </Link>
 
       <header className="mt-6 border-b border-line pb-8">
+        {article.cover_image_url && (
+          <img
+            src={article.cover_image_url}
+            alt=""
+            className="mb-6 aspect-[16/10] w-full object-cover"
+          />
+        )}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.12em]">
           <span className="text-tile">{categoryLabel}</span>
           {placeLabel && <span className="text-ink-muted">{placeLabel}</span>}
@@ -60,6 +70,12 @@ export function ArticlePage() {
       </header>
 
       {article.body && <ArticleBody body={article.body} />}
+
+      <ReviewSection
+        reviewableType="Article"
+        reviewableSlug={article.slug}
+        canReply={Boolean(user?.role === "admin")}
+      />
 
       <footer className="mt-12 flex flex-wrap gap-4 border-t border-line pt-6 text-sm">
         <Link to={backHref} className="font-semibold text-tile hover:underline">

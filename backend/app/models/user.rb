@@ -5,6 +5,8 @@ class User < ApplicationRecord
   belongs_to :merchant, optional: true
   has_many :articles, foreign_key: :author_id, dependent: :nullify
   has_many :submitted_leads, class_name: "Lead", foreign_key: :submitted_by_id, dependent: :restrict_with_error
+  has_many :reviews, dependent: :destroy
+  has_many :review_replies, dependent: :destroy
 
   enum :role, { merchant: 0, admin: 1, client: 2, super_admin: 3 }
 

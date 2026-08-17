@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   createAgencySubscriptionCheckout,
+  fetchAgencyInvoices,
   fetchAgencySubscription,
   openAgencyBillingPortal,
 } from "../../api/agency-billing";
+import { BillingInvoiceList } from "../billing/billing-invoice-list";
 import { AdminHint } from "./admin-ui";
 import { linkButtonClass } from "../ui/button";
 import { Card } from "../ui/card";
@@ -132,6 +134,7 @@ export function AgencySubscriptionCard() {
         )}
 
         {error && <p className="text-sm text-alert">{error}</p>}
+        {!isLoading && <BillingInvoiceList fetchInvoices={fetchAgencyInvoices} />}
       </div>
     </Card>
   );

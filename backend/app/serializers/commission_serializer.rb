@@ -1,7 +1,11 @@
 # app/serializers/commission_serializer.rb
 class CommissionSerializer < AlbaResource
-  attributes :id, :amount_cents, :currency, :status, :approved_at, :paid_at,
+  attributes :id, :amount_cents, :platform_fee_cents, :currency, :status, :approved_at, :paid_at,
              :stripe_checkout_session_id, :stripe_transfer_id, :created_at, :updated_at
+
+  attribute :merchant_amount_cents do |commission|
+    commission.merchant_amount_cents
+  end
 
   attribute :lead do |commission|
     lead = commission.lead

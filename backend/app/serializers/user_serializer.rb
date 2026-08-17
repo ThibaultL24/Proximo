@@ -1,6 +1,6 @@
 # app/serializers/user_serializer.rb
 class UserSerializer < AlbaResource
-  attributes :id, :email, :role, :first_name, :last_name, :phone
+  attributes :id, :email, :role, :first_name, :last_name, :phone, :merchant_id
 
   attribute :full_name, &:full_name
 

@@ -50,7 +50,18 @@ export function FeedCard({ item, featured = false }: FeedCardProps) {
 
     if (featured) {
       return (
-        <article className="border border-line bg-surface p-5 sm:p-7">
+        <article className="border border-line bg-surface overflow-hidden">
+          {item.cover_image_url && (
+            <Link to={href} className="block">
+              <img
+                src={item.cover_image_url}
+                alt=""
+                className="aspect-[16/10] w-full object-cover"
+                loading="lazy"
+              />
+            </Link>
+          )}
+          <div className="p-5 sm:p-7">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.12em]">
             <span className="text-tile">À la une</span>
             <span className="text-ink-muted">{FEED_CATEGORY_LABELS[item.category]}</span>
@@ -84,12 +95,25 @@ export function FeedCard({ item, featured = false }: FeedCardProps) {
               Lire l&apos;article →
             </Link>
           </div>
+          </div>
         </article>
       );
     }
 
     return (
       <article className="border-b border-line py-6 last:border-0">
+        <div className="flex gap-4">
+          {item.cover_image_url && (
+            <Link to={href} className="shrink-0">
+              <img
+                src={item.cover_image_url}
+                alt=""
+                className="h-24 w-32 object-cover sm:h-28 sm:w-40"
+                loading="lazy"
+              />
+            </Link>
+          )}
+          <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-3">
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-tile">
             Article · {FEED_CATEGORY_LABELS[item.category]}
@@ -122,12 +146,14 @@ export function FeedCard({ item, featured = false }: FeedCardProps) {
           </p>
           <ShareButton title={item.title} url={href} />
         </div>
+          </div>
+        </div>
       </article>
     );
   }
 
   const { merchant } = item;
-  const href = `/commercants/${merchant.slug}`;
+  const href = `/fil/post/${item.id}`;
 
   return (
     <article className="border-b border-line py-6 last:border-0">
@@ -176,7 +202,7 @@ export function FeedCard({ item, featured = false }: FeedCardProps) {
 
       <footer className="mt-3 flex items-center justify-between">
         <Link to={href} className="text-xs font-semibold text-tile hover:underline">
-          Voir le partenaire →
+          Voir le post →
         </Link>
         <ShareButton title={merchant.name} url={href} />
       </footer>

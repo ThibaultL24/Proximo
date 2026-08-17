@@ -33,7 +33,18 @@ export function ArticleCard({
 
   if (variant === "card" || featured) {
     return (
-      <article className={featured ? "group" : "group border border-line bg-surface p-5"}>
+      <article className={featured ? "group overflow-hidden" : "group overflow-hidden border border-line bg-surface"}>
+        {article.cover_image_url && (
+          <Link to={`/gazette/${article.slug}`} className="block">
+            <img
+              src={article.cover_image_url}
+              alt=""
+              className="aspect-[16/10] w-full object-cover"
+              loading="lazy"
+            />
+          </Link>
+        )}
+        <div className={featured ? "" : "p-5"}>
         <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-tile">
           {categoryLabel}
           {showTerritory && provenance ? (
@@ -66,12 +77,25 @@ export function ArticleCard({
             Lire l&apos;article
           </Link>
         </div>
+        </div>
       </article>
     );
   }
 
   return (
     <article className="group border-b border-line py-5 first:pt-0 last:border-0">
+      <div className="flex gap-4">
+        {article.cover_image_url && (
+          <Link to={`/gazette/${article.slug}`} className="shrink-0">
+            <img
+              src={article.cover_image_url}
+              alt=""
+              className="h-20 w-28 object-cover sm:h-24 sm:w-32"
+              loading="lazy"
+            />
+          </Link>
+        )}
+        <div className="min-w-0 flex-1">
       <div className="flex items-start justify-between gap-3">
         <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-tile">
           {categoryLabel}
@@ -93,6 +117,8 @@ export function ArticleCard({
       {showTerritory && provenance && (
         <p className="mt-3 text-xs text-ink-muted">{provenance}</p>
       )}
+        </div>
+      </div>
     </article>
   );
 }
