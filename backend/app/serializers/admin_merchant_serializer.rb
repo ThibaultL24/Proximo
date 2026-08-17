@@ -2,6 +2,7 @@
 class AdminMerchantSerializer < AlbaResource
   attributes :id, :name, :slug, :short_description, :description,
              :address, :postal_code, :city, :phone, :email, :website,
+             :facebook_page_url, :instagram_handle, :tiktok_handle,
              :featured, :status, :sector_id, :place_id, :qr_token, :qr_scan_count, :created_at, :updated_at
 
   attribute :qr_url do |merchant|
@@ -24,5 +25,17 @@ class AdminMerchantSerializer < AlbaResource
 
   attribute :photo_urls do |merchant|
     AttachmentUrls.blob_paths(merchant.photos)
+  end
+
+  attribute :social_accounts do |merchant|
+    merchant.social_accounts.order(:provider).map do |account|
+      {
+        provider: account.provider,
+        account_name: account.account_name,
+        status: account.status,
+        demo: account.demo?,
+        connected: account.connected?
+      }
+    end
   end
 end

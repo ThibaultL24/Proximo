@@ -33,6 +33,7 @@ module Api
           params.require(:merchant).permit(
             :short_description, :description,
             :address, :postal_code, :city, :phone, :email, :website,
+            :facebook_page_url, :instagram_handle, :tiktok_handle,
             :logo, photos: []
           )
         end

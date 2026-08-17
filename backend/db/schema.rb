@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_18_110000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_18_120000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -170,6 +170,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_18_110000) do
     t.datetime "subscription_trial_ends_at"
     t.integer "agency_id", null: false
     t.integer "partner_category", default: 1, null: false
+    t.string "facebook_page_url"
+    t.string "instagram_handle"
+    t.string "tiktok_handle"
     t.index ["agency_id", "slug"], name: "index_merchants_on_agency_id_and_slug", unique: true
     t.index ["agency_id"], name: "index_merchants_on_agency_id"
     t.index ["partner_category"], name: "index_merchants_on_partner_category"

@@ -20,7 +20,7 @@ import {
   adminInputClass,
 } from "../../components/admin/admin-ui";
 import { fetchSectors } from "../../api/public";
-import type { MerchantInput, Sector } from "../../types";
+import type { MerchantInput, MerchantSocialAccount, Sector } from "../../types";
 
 const STATUSES = [
   { value: "draft", label: "Brouillon" },
@@ -41,6 +41,9 @@ const emptyForm: MerchantInput = {
   phone: "",
   email: "",
   website: "",
+  facebook_page_url: "",
+  instagram_handle: "",
+  tiktok_handle: "",
   status: "draft",
   featured: false,
 };
@@ -59,6 +62,7 @@ export function AdminMerchantFormPage() {
   const [photosFiles, setPhotosFiles] = useState<File[]>([]);
   const [existingLogoUrl, setExistingLogoUrl] = useState<string | null>(null);
   const [existingPhotoUrls, setExistingPhotoUrls] = useState<string[]>([]);
+  const [socialAccounts, setSocialAccounts] = useState<MerchantSocialAccount[]>([]);
   const [qrMeta, setQrMeta] = useState<{ token: string; url: string; status: string; scanCount: number } | null>(null);
 
   useEffect(() => {
@@ -90,9 +94,13 @@ export function AdminMerchantFormPage() {
           phone: merchant.phone || "",
           email: merchant.email || "",
           website: merchant.website || "",
+          facebook_page_url: merchant.facebook_page_url || "",
+          instagram_handle: merchant.instagram_handle || "",
+          tiktok_handle: merchant.tiktok_handle || "",
           status: merchant.status,
           featured: merchant.featured,
         });
+        setSocialAccounts(merchant.social_accounts || []);
         if (merchant.qr_token && merchant.qr_url) {
           setQrMeta({
             token: merchant.qr_token,
@@ -295,6 +303,42 @@ export function AdminMerchantFormPage() {
             onChange={(e) => updateField("website", e.target.value)}
             className={adminInputClass}
           />
+        </AdminFieldset>
+
+        <AdminFieldset legend="Pages reseaux sociaux">
+          <AdminHint>URLs renseignees par le commercant ou pre-remplies ici. Pas de mot de passe ni token.</AdminHint>
+          <input
+            type="url"
+            placeholder="URL page Facebook"
+            value={form.facebook_page_url || ""}
+            onChange={(e) => updateField("facebook_page_url", e.target.value)}
+            className={adminInputClass}
+          />
+          <input
+            type="text"
+            placeholder="Identifiant Instagram"
+            value={form.instagram_handle || ""}
+            onChange={(e) => updateField("instagram_handle", e.target.value)}
+            className={adminInputClass}
+          />
+          <input
+            type="text"
+            placeholder="Identifiant TikTok"
+            value={form.tiktok_handle || ""}
+            onChange={(e) => updateField("tiktok_handle", e.target.value)}
+            className={adminInputClass}
+          />
+          {isEdit && socialAccounts.length > 0 && (
+            <ul className="mt-2 space-y-1 text-sm text-ink-muted">
+              {socialAccounts.map((account) => (
+                <li key={account.provider}>
+                  <span className="font-medium capitalize text-ink">{account.provider}</span> ·{" "}
+                  {account.connected ? (account.demo ? "Demo" : "Connecte") : account.status} ·{" "}
+                  {account.account_name}
+                </li>
+              ))}
+            </ul>
+          )}
         </AdminFieldset>
 
         <AdminFieldset legend="Localisation (France)">

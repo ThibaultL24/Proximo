@@ -21,7 +21,7 @@ class PublicationCreator
     publication.publish!
 
     if syndicate && merchant.subscription_active?
-      selected = Array(providers).compact_blank.map(&:to_s) & Social::Config::V1_PROVIDERS
+      selected = resolve_providers(providers)
       SocialPublishOrchestrator.call(publication:, providers: selected) if selected.any?
     end
 
@@ -31,4 +31,15 @@ class PublicationCreator
   private
 
   attr_reader :merchant, :params, :syndicate, :providers
+
+  def resolve_providers(explicit)
+    allowed = Social::Config::V1_PROVIDERS.select { |provider| merchant.social_page_configured?(provider) }
+    explicit_list = Array(explicit).compact_blank.map(&:to_s)
+
+    if explicit_list.any?
+      explicit_list & allowed
+    else
+      merchant.social_accounts.ready.where(provider: allowed).pluck(:provider)
+    end
+  end
 end

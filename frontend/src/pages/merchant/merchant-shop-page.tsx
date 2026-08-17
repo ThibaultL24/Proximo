@@ -36,6 +36,9 @@ const emptyForm: MerchantProfileInput = {
   phone: "",
   email: "",
   website: "",
+  facebook_page_url: "",
+  instagram_handle: "",
+  tiktok_handle: "",
 };
 
 function formatDate(iso?: string) {
@@ -73,6 +76,9 @@ export function MerchantShopPage() {
         phone: data.phone || "",
         email: data.email || "",
         website: data.website || "",
+        facebook_page_url: data.facebook_page_url || "",
+        instagram_handle: data.instagram_handle || "",
+        tiktok_handle: data.tiktok_handle || "",
       });
     } catch {
       setError("Impossible de charger votre fiche");
@@ -243,6 +249,34 @@ export function MerchantShopPage() {
             placeholder="Site web"
             value={form.website}
             onChange={(e) => updateField("website", e.target.value)}
+            className={adminInputClass}
+          />
+        </AdminFieldset>
+
+        <AdminFieldset legend="Pages reseaux sociaux">
+          <AdminHint>
+            Renseignez vos pages pour activer Facebook, Instagram et TikTok sur l&apos;ecran Publier. Ensuite,
+            connectez chaque reseau une fois via OAuth ou mode demo.
+          </AdminHint>
+          <input
+            type="url"
+            placeholder="URL page Facebook"
+            value={form.facebook_page_url}
+            onChange={(e) => updateField("facebook_page_url", e.target.value)}
+            className={adminInputClass}
+          />
+          <input
+            type="text"
+            placeholder="Identifiant Instagram (@compte)"
+            value={form.instagram_handle}
+            onChange={(e) => updateField("instagram_handle", e.target.value)}
+            className={adminInputClass}
+          />
+          <input
+            type="text"
+            placeholder="Identifiant TikTok (@compte)"
+            value={form.tiktok_handle}
+            onChange={(e) => updateField("tiktok_handle", e.target.value)}
             className={adminInputClass}
           />
         </AdminFieldset>

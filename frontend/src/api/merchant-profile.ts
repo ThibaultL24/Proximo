@@ -13,6 +13,9 @@ function buildProfileFormData(data: MerchantProfileInput, files?: { logo?: File 
   if (data.phone !== undefined) formData.append("merchant[phone]", data.phone);
   if (data.email !== undefined) formData.append("merchant[email]", data.email);
   if (data.website !== undefined) formData.append("merchant[website]", data.website);
+  if (data.facebook_page_url !== undefined) formData.append("merchant[facebook_page_url]", data.facebook_page_url);
+  if (data.instagram_handle !== undefined) formData.append("merchant[instagram_handle]", data.instagram_handle);
+  if (data.tiktok_handle !== undefined) formData.append("merchant[tiktok_handle]", data.tiktok_handle);
 
   if (files?.logo) formData.append("merchant[logo]", files.logo);
   files?.photos?.forEach((photo) => formData.append("merchant[photos][]", photo));

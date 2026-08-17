@@ -45,6 +45,23 @@ class Merchant < ApplicationRecord
     MerchantSubscriptionService.for(self).active?
   end
 
+  def social_page_configured?(provider)
+    case provider.to_s
+    when "facebook" then facebook_page_url.present?
+    when "instagram" then instagram_handle.present?
+    when "tiktok" then tiktok_handle.present?
+    else false
+    end
+  end
+
+  def social_page_label(provider)
+    case provider.to_s
+    when "facebook" then facebook_page_url
+    when "instagram" then instagram_handle
+    when "tiktok" then tiktok_handle
+    end
+  end
+
   private
 
   def generate_slug

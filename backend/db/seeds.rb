@@ -86,9 +86,15 @@ User.find_or_create_by!(email: "client@demo.fr") do |u|
   u.agency = agency
 end
 
-%w[facebook instagram].each do |provider|
+merchant.update!(
+  facebook_page_url: "https://facebook.com/boulangerie-martin-demo",
+  instagram_handle: "boulangerie_martin",
+  tiktok_handle: "boulangerie.martin"
+)
+
+%w[facebook instagram tiktok].each do |provider|
   merchant.social_accounts.find_or_create_by!(provider: provider) do |account|
-    account.account_name = "Boulangerie Martin (#{provider.capitalize})"
+    account.account_name = merchant.social_page_label(provider) || "Boulangerie Martin (#{provider.capitalize})"
     account.access_token = "demo"
     account.status = :connected
     account.connected_at = Time.current
@@ -169,7 +175,7 @@ end
 
   next unless pub.syndicated?
 
-  %w[facebook instagram].each do |provider|
+  %w[facebook instagram tiktok].each do |provider|
     pub.social_posts.find_or_create_by!(provider: provider) do |post|
       post.status = :published
       post.external_post_id = "demo-seed-#{provider}-#{pub.id}"
@@ -272,6 +278,9 @@ end
 end
 
 Product.where(agency: agency, slug: "abonnement-pan-surprise").destroy_all
+
+require_relative "seeds/demo_enrichment"
+DemoEnrichment.call(agency: agency, merchant: merchant, client: client, admin: admin)
 
 puts "Seeds OK — Fenêtre Ouverte 07700"
 puts "Agency: #{agency.name} (#{agency.slug})"

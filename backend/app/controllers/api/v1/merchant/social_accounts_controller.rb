@@ -18,6 +18,9 @@ module Api
           unless Social::Config.v1_provider?(provider)
             return render json: { error: "Réseau non supporté" }, status: :unprocessable_entity
           end
+          unless @merchant.social_page_configured?(provider)
+            return render json: { error: "Renseignez d'abord la page #{provider} sur votre fiche commercant" }, status: :unprocessable_entity
+          end
 
           if Social::Config.configured?(provider)
             state = Social::OauthState.generate(merchant_id: @merchant.id, provider: provider)
@@ -64,9 +67,10 @@ module Api
         end
 
         def connect_demo!(provider, account_name = nil)
+          label = @merchant.social_page_label(provider)
           account = @merchant.social_accounts.find_or_initialize_by(provider: provider)
           account.assign_attributes(
-            account_name: account_name.presence || "Démo #{provider.capitalize}",
+            account_name: account_name.presence || label.presence || "Démo #{provider.capitalize}",
             access_token: "demo",
             refresh_token: nil,
             external_id: "demo-#{provider}",
@@ -78,10 +82,14 @@ module Api
         end
 
         def provider_status
-          Social::Config::V1_PROVIDERS.map do |provider|
+          Social::Config::V1_PROVIDERS.filter_map do |provider|
+            next unless @merchant.social_page_configured?(provider)
+
             account = @merchant.social_accounts.find_by(provider: provider)
             {
               provider: provider,
+              page_configured: true,
+              page_label: @merchant.social_page_label(provider),
               oauth_configured: Social::Config.configured?(provider),
               connected: account&.connected? || false,
               demo: account&.demo? || false,

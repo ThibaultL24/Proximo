@@ -25,6 +25,9 @@ function buildMerchantFormData(merchant: MerchantInput, files?: MerchantFiles) {
   if (merchant.phone) formData.append("merchant[phone]", merchant.phone);
   if (merchant.email) formData.append("merchant[email]", merchant.email);
   if (merchant.website) formData.append("merchant[website]", merchant.website);
+  if (merchant.facebook_page_url) formData.append("merchant[facebook_page_url]", merchant.facebook_page_url);
+  if (merchant.instagram_handle) formData.append("merchant[instagram_handle]", merchant.instagram_handle);
+  if (merchant.tiktok_handle) formData.append("merchant[tiktok_handle]", merchant.tiktok_handle);
 
   if (files?.logo) formData.append("merchant[logo]", files.logo);
   files?.photos?.forEach((photo) => formData.append("merchant[photos][]", photo));

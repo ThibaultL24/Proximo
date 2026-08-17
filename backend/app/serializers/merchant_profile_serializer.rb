@@ -1,5 +1,6 @@
 # app/serializers/merchant_profile_serializer.rb
 class MerchantProfileSerializer < MerchantSerializer
+  attributes :facebook_page_url, :instagram_handle, :tiktok_handle
   attributes :qr_token, :qr_scan_count
 
   attribute :qr_url do |merchant|

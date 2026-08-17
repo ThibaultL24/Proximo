@@ -60,11 +60,11 @@ export const FEED_CATEGORY_LABELS: Record<FeedCategory, string> = {
   bien_etre: "Bien-être",
 };
 
-/** Réseaux V1 commerçant — pas X / TikTok */
+/** Réseaux commerçant V1 — Facebook, Instagram, TikTok */
 export const SOCIAL_PROVIDERS = [
-  { id: "facebook", label: "Facebook" },
-  { id: "instagram", label: "Instagram" },
-  { id: "linkedin", label: "LinkedIn" },
+  { id: "facebook", label: "Facebook", field: "facebook_page_url", placeholder: "https://facebook.com/votre-page" },
+  { id: "instagram", label: "Instagram", field: "instagram_handle", placeholder: "@votre_compte" },
+  { id: "tiktok", label: "TikTok", field: "tiktok_handle", placeholder: "@votre_compte" },
 ] as const;
 
 export type SocialProvider = (typeof SOCIAL_PROVIDERS)[number]["id"];

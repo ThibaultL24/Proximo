@@ -4,6 +4,8 @@ import type { SocialAccount, SocialProvider } from "../types";
 
 export interface SocialProviderStatus {
   provider: SocialProvider;
+  page_configured?: boolean;
+  page_label?: string | null;
   oauth_configured: boolean;
   connected: boolean;
   demo: boolean;

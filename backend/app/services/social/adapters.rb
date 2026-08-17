@@ -6,7 +6,7 @@ module Social
     MAP = {
       "facebook" => Facebook,
       "instagram" => Instagram,
-      "linkedin" => Linkedin
+      "tiktok" => Tiktok
     }.freeze
 
     def for(provider)

@@ -37,6 +37,9 @@ export interface Merchant {
   phone?: string;
   email?: string;
   website?: string;
+  facebook_page_url?: string;
+  instagram_handle?: string;
+  tiktok_handle?: string;
   opening_hours?: Record<string, string>;
   featured: boolean;
   status: string;
@@ -52,6 +55,15 @@ export interface Merchant {
   photo_urls?: string[];
   created_at?: string;
   updated_at?: string;
+  social_accounts?: MerchantSocialAccount[];
+}
+
+export interface MerchantSocialAccount {
+  provider: string;
+  account_name: string;
+  status: string;
+  demo: boolean;
+  connected: boolean;
 }
 
 export interface MerchantInput {
@@ -67,6 +79,9 @@ export interface MerchantInput {
   phone?: string;
   email?: string;
   website?: string;
+  facebook_page_url?: string;
+  instagram_handle?: string;
+  tiktok_handle?: string;
   status: string;
   featured: boolean;
 }
@@ -125,6 +140,9 @@ export interface MerchantProfileInput {
   phone?: string;
   email?: string;
   website?: string;
+  facebook_page_url?: string;
+  instagram_handle?: string;
+  tiktok_handle?: string;
 }
 
 export interface MerchantDetail extends Merchant {
@@ -454,7 +472,7 @@ export interface Product {
 }
 
 
-export type SocialProvider = "facebook" | "instagram" | "linkedin" | "twitter" | "tiktok";
+export type SocialProvider = "facebook" | "instagram" | "tiktok";
 
 export interface FeedMerchantSummary {
   id: number;

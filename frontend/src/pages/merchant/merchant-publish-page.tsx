@@ -1,6 +1,6 @@
 // src/pages/merchant/merchant-publish-page.tsx
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { createMerchantPublication, fetchMerchantPublications } from "../../api/merchant-publications";
 import {
   connectSocialProvider,
@@ -48,9 +48,7 @@ export function MerchantPublishPage() {
     ]);
     setPublications(pubs);
     setProviders(social.providers);
-    setSelected((current) =>
-      current.filter((id) => social.providers.some((p) => p.provider === id && p.connected))
-    );
+    setSelected(social.providers.filter((p) => p.connected).map((p) => p.provider));
   }
 
   useEffect(() => {
@@ -79,10 +77,14 @@ export function MerchantPublishPage() {
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
 
-  const connectedProviders = useMemo(
-    () => providers.filter((p) => p.connected),
-    [providers]
+  const configuredProviders = useMemo(() => providers, [providers]);
+
+  const connectedCount = useMemo(
+    () => configuredProviders.filter((p) => p.connected).length,
+    [configuredProviders]
   );
+
+  const hasAnyPageConfigured = configuredProviders.length > 0;
 
   function toggleProvider(provider: SocialProvider) {
     setSelected((current) =>
@@ -102,9 +104,12 @@ export function MerchantPublishPage() {
       }
       setMessage(`${labelFor(provider)} connecté en mode démo (ajoutez les clés API pour le live).`);
       await loadAll();
-      setSelected((current) => (current.includes(provider) ? current : [...current, provider]));
-    } catch {
-      setError(`Impossible de connecter ${labelFor(provider)}.`);
+    } catch (err: unknown) {
+      const apiError =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response?: { data?: { error?: string } } }).response?.data?.error
+          : undefined;
+      setError(apiError || `Impossible de connecter ${labelFor(provider)}.`);
     } finally {
       setConnecting(null);
     }
@@ -160,7 +165,7 @@ export function MerchantPublishPage() {
       <AdminPageHeader
         eyebrow="Fenêtre Ouverte"
         title="Publier"
-        description="Une rédaction, le fil du 07700, et Facebook / Instagram / LinkedIn si connectés. Signature Fenêtre Ouverte ajoutée sur les réseaux."
+        description="Une rédaction, le fil du 07700, et Facebook / Instagram / TikTok si connectés. Signature Fenêtre Ouverte ajoutée sur les réseaux."
         backTo=""
       />
 
@@ -170,32 +175,50 @@ export function MerchantPublishPage() {
         <div className="space-y-4 lg:col-span-2">
           <AdminPanelCard title="Réseaux connectés">
             <p className="mb-4 text-sm text-ink-muted">
-              Sans clés Meta / LinkedIn dans le serveur, la connexion crée un compte <strong>démo</strong>{" "}
-              (syndication simulée). Avec clés, vous passez par OAuth réel.
+              Renseignez d&apos;abord vos pages sur{" "}
+              <Link to="/espace-commercant/ma-fiche" className="font-medium text-petrol underline">
+                Ma fiche vitrine
+              </Link>
+              , puis connectez chaque réseau. Sans clés Meta / TikTok, la connexion crée un compte{" "}
+              <strong>démo</strong> (syndication simulée).
             </p>
+
+            {!hasAnyPageConfigured && (
+              <p className="rounded-lg border border-line bg-paper px-3 py-3 text-sm text-ink-muted">
+                Aucune page réseau renseignée. Ajoutez Facebook, Instagram ou TikTok sur votre fiche pour
+                activer la syndication.
+              </p>
+            )}
+
             <div className="space-y-3">
-              {SOCIAL_PROVIDERS.map((provider) => {
-                const status = providers.find((p) => p.provider === provider.id);
-                const connected = Boolean(status?.connected);
+              {configuredProviders.map((status) => {
+                const provider = SOCIAL_PROVIDERS.find((p) => p.id === status.provider);
+                if (!provider) return null;
+                const connected = Boolean(status.connected);
+                const checked = selected.includes(provider.id);
+
                 return (
                   <div
                     key={provider.id}
-                    className="rounded-lg border border-line bg-paper px-3 py-3"
+                    className={`rounded-lg border px-3 py-3 ${
+                      connected ? "border-line bg-paper" : "border-dashed border-line bg-surface/50 opacity-90"
+                    }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-sm font-medium text-ink">{provider.label}</p>
+                        {status.page_label && (
+                          <p className="mt-0.5 text-xs text-ink-muted">{status.page_label}</p>
+                        )}
                         {connected ? (
                           <p className="mt-0.5 text-xs text-ink-muted">
-                            {status?.account_name}
-                            {status?.demo ? " · Mode démo" : " · Connecté"}
-                            {!status?.oauth_configured && status?.demo
-                              ? " (clés API absentes)"
-                              : ""}
+                            {status.account_name}
+                            {status.demo ? " · Mode démo" : " · Connecté"}
+                            {!status.oauth_configured && status.demo ? " (clés API absentes)" : ""}
                           </p>
                         ) : (
                           <p className="mt-0.5 text-xs text-ink-muted">
-                            {status?.oauth_configured ? "OAuth prêt" : "Mode démo disponible"}
+                            {status.oauth_configured ? "OAuth prêt — connectez pour publier" : "Mode démo disponible"}
                           </p>
                         )}
                       </div>
@@ -218,22 +241,25 @@ export function MerchantPublishPage() {
                         </button>
                       )}
                     </div>
-                    {connected && (
-                      <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-ink">
-                        <input
-                          type="checkbox"
-                          checked={selected.includes(provider.id)}
-                          onChange={() => toggleProvider(provider.id)}
-                          className="rounded border-line"
-                        />
-                        Publier aussi sur {provider.label}
-                      </label>
-                    )}
+                    <label
+                      className={`mt-3 flex items-center gap-2 text-sm ${
+                        connected ? "cursor-pointer text-ink" : "cursor-not-allowed text-ink-muted"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={connected && checked}
+                        disabled={!connected}
+                        onChange={() => connected && toggleProvider(provider.id)}
+                        className="rounded border-line disabled:opacity-50"
+                      />
+                      Publier aussi sur {provider.label}
+                    </label>
                   </div>
                 );
               })}
             </div>
-            {connectedProviders.length === 0 && (
+            {hasAnyPageConfigured && connectedCount === 0 && (
               <p className="mt-4 text-xs text-ink-muted">
                 Connectez au moins un réseau pour diffuser en une fois hors du fil.
               </p>

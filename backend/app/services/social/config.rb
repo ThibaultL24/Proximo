@@ -1,12 +1,12 @@
 # app/services/social/config.rb
 module Social
   module Config
-    V1_PROVIDERS = %w[facebook instagram linkedin].freeze
+    V1_PROVIDERS = %w[facebook instagram tiktok].freeze
 
     PROVIDER_LIMITS = {
       "facebook" => 500,
       "instagram" => 2_200,
-      "linkedin" => 3_000
+      "tiktok" => 2_200
     }.freeze
 
     module_function
@@ -19,8 +19,8 @@ module Social
       case provider.to_s
       when "facebook", "instagram"
         meta_configured?
-      when "linkedin"
-        linkedin_configured?
+      when "tiktok"
+        tiktok_configured?
       else
         false
       end
@@ -30,8 +30,12 @@ module Social
       ENV["META_APP_ID"].present? && ENV["META_APP_SECRET"].present?
     end
 
-    def linkedin_configured?
-      ENV["LINKEDIN_CLIENT_ID"].present? && ENV["LINKEDIN_CLIENT_SECRET"].present?
+    def tiktok_configured?
+      ENV["TIKTOK_CLIENT_KEY"].present? && ENV["TIKTOK_CLIENT_SECRET"].present?
+    end
+
+    def tiktok_redirect_uri
+      ENV.fetch("TIKTOK_REDIRECT_URI", "#{backend_url}/api/v1/oauth/social/tiktok/callback")
     end
 
     def backend_url
