@@ -9,6 +9,7 @@ import { SignupPage } from "../pages/auth/signup-page";
 import { LoginPage } from "../pages/auth/login-page";
 import { AgencySignupPage } from "../pages/auth/agency-signup-page";
 import { PlatformDashboardPage } from "../pages/platform/platform-dashboard-page";
+import { PlatformIntegrationsPage } from "../pages/platform/platform-integrations-page";
 import { AdminAnalyticsPage } from "../pages/admin/admin-analytics-page";
 import { AdminArticleFormPage } from "../pages/admin/admin-article-form-page";
 import { AdminArticlesPage } from "../pages/admin/admin-articles-page";
@@ -88,6 +89,7 @@ export function AppRouter() {
 
         <Route element={<ProtectedLayout role="super_admin" />}>
           <Route path="plateforme" element={<PlatformDashboardPage />} />
+          <Route path="plateforme/integrations" element={<PlatformIntegrationsPage />} />
         </Route>
 
         <Route element={<ProtectedLayout role="client" />}>

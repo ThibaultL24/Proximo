@@ -10,7 +10,7 @@ class QrCodeService
   end
 
   def self.frontend_url
-    ENV.fetch("FRONTEND_URL", "http://localhost:5173")
+    AppUrls.frontend_url
   end
 
   def self.merchant_qr_url(merchant)

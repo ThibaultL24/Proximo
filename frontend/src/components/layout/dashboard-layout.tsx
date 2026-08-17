@@ -50,6 +50,7 @@ const clientLinks = [
 
 const platformLinks = [
   { to: "/plateforme", label: "Vue plateforme", icon: IconGrid, end: true },
+  { to: "/plateforme/integrations", label: "Integrations reseaux", icon: IconNewspaper },
 ];
 
 export function DashboardLayout({ kind }: DashboardLayoutProps) {

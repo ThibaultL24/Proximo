@@ -38,12 +38,12 @@ module Social
       ENV.fetch("TIKTOK_REDIRECT_URI", "#{backend_url}/api/v1/oauth/social/tiktok/callback")
     end
 
-    def backend_url
-      ENV.fetch("BACKEND_URL", "http://127.0.0.1:3000").to_s.chomp("/")
+    def frontend_url
+      AppUrls.frontend_url
     end
 
-    def frontend_url
-      ENV.fetch("FRONTEND_URL", "http://localhost:5173").to_s.chomp("/")
+    def backend_url
+      AppUrls.backend_url
     end
 
     def meta_redirect_uri
