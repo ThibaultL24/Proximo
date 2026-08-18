@@ -9,7 +9,7 @@ class LeadPolicy < ApplicationPolicy
   end
 
   def create?
-    merchant_can_create? || client_can_create?
+    merchant_can_create?
   end
 
   def update?
@@ -48,10 +48,6 @@ class LeadPolicy < ApplicationPolicy
 
   def merchant_can_create?
     user&.merchant? && user.merchant.present? && user.merchant.subscription_active?
-  end
-
-  def client_can_create?
-    user&.client? && user.subscription_active?
   end
 
   def owns_lead?

@@ -11,12 +11,9 @@ module Api
         end
 
         def create
-          url = ClientSubscriptionCheckoutService.create_checkout!(user: current_user)
-          render json: { url: url }
-        rescue ClientSubscriptionCheckoutService::Error => e
-          render json: { error: e.message }, status: :unprocessable_entity
-        rescue Stripe::StripeError => e
-          render json: { error: e.message }, status: :unprocessable_entity
+          render json: {
+            error: "Le compte citoyen est gratuit. Un projet immobilier se transmet en magasin, auprès d'un commerçant partenaire."
+          }, status: :unprocessable_entity
         end
 
         def portal

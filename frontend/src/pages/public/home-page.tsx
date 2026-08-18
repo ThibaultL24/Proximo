@@ -11,7 +11,7 @@ const AUDIENCES = [
   {
     id: "habitant",
     title: "Habitant",
-    text: "Suivez le fil local, decouvrez les commerces du 07700 et transmettez votre projet immo.",
+    text: "Suivez le fil local et decouvrez les commerces du 07700. Un projet immo se confie a votre commercant, en magasin.",
     href: "/inscription",
     cta: "Compte citoyen",
   },
@@ -88,7 +88,7 @@ export function HomePage() {
               Tarifs
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-ink-muted">
-              Citoyen 2 €, commercant 12 €, agence 125 € — essai gratuit 7 jours sur les abonnements individuels.
+              Citoyen : gratuit. Commercant 12 €, agence 125 €.
             </p>
           </div>
           <Link to="/tarifs" className={linkButtonClass("outline")}>

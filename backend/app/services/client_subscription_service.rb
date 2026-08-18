@@ -17,8 +17,8 @@ class ClientSubscriptionService
       active: active?,
       trial_ends_at: user.subscription_trial_ends_at,
       current_period_end: user.subscription_current_period_end,
-      price_label: "2 € / mois",
-      features_locked: !active?
+      price_label: "Gratuit",
+      features_locked: false
     }
   end
 

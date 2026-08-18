@@ -171,20 +171,18 @@ export function MerchantProfilePage() {
             <p className="text-xs font-semibold uppercase tracking-wider text-brass">Immobilier</p>
             <p className="mt-1 font-serif text-lg text-petrol">Vous avez un projet immobilier ?</p>
             <p className="mt-1 text-sm text-ink-muted">
-              Vente, achat ou estimation — nos équipes accompagnent les habitants du secteur.
+              Confiez-le à {merchant.name} en magasin. C&apos;est le commerçant qui transmet le
+              dossier à l&apos;agence — pas de formulaire en ligne.
             </p>
-            <Link
-              to={
-                user?.role === "client"
-                  ? `/espace-client/leads/nouveau?merchant=${merchant.slug}`
-                  : user
-                    ? "/espace-client"
-                    : `/inscription?merchant=${merchant.slug}`
-              }
-              className={`${linkButtonClass("accent")} mt-4`}
-            >
-              {user?.role === "client" ? "Transmettre mon projet" : "Contacter l'agence"}
-            </Link>
+            {merchant.phone ? (
+              <a href={`tel:${merchant.phone}`} className={`${linkButtonClass("accent")} mt-4`}>
+                Appeler {merchant.name}
+              </a>
+            ) : (
+              <Link to="/commerces" className={`${linkButtonClass("outline")} mt-4`}>
+                Trouver un commerçant
+              </Link>
+            )}
           </Card>
 
           <ReviewSection

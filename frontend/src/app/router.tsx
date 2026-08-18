@@ -5,7 +5,6 @@ import { PublicLayout } from "../components/layout/public-layout";
 import { ScrollToTop } from "../components/layout/scroll-to-top";
 import { useAuth } from "../hooks/use-auth";
 import { ClientDashboardPage } from "../pages/client/client-dashboard-page";
-import { ClientNewLeadPage } from "../pages/client/client-new-lead-page";
 import { SignupPage } from "../pages/auth/signup-page";
 import { LoginPage } from "../pages/auth/login-page";
 import { AgencySignupPage } from "../pages/auth/agency-signup-page";
@@ -96,7 +95,7 @@ export function AppRouter() {
 
         <Route element={<ProtectedLayout role="client" />}>
           <Route path="espace-client" element={<ClientDashboardPage />} />
-          <Route path="espace-client/leads/nouveau" element={<ClientNewLeadPage />} />
+          <Route path="espace-client/leads/nouveau" element={<Navigate to="/espace-client" replace />} />
         </Route>
 
         <Route element={<ProtectedLayout role="merchant" />}>

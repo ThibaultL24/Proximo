@@ -17,10 +17,16 @@ export function TarifsPage() {
         titleClassName="mt-2 break-words font-serif text-4xl font-semibold tracking-tight text-white sm:mt-3 sm:text-6xl lg:text-7xl"
       >
         <p className="mt-4 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
-          Des offres simples pour le territoire. Citoyen, commerçant ou agence — essai gratuit 7
-          jours sur les abonnements individuels.
+          Gratuit pour le citoyen. Seuls le commerçant (12 € / mois) et l&apos;agence (125 € / mois)
+          sont payants.
         </p>
       </PublicPageHero>
+
+      <p className="border border-line bg-surface px-5 py-4 text-sm leading-relaxed text-ink">
+        <span className="font-semibold">Gratuit pour le citoyen.</span> Pas d&apos;abonnement
+        habitant : on lit le fil, on consulte les commerces, on laisse un avis. Un projet immobilier
+        se donne au commerçant partenaire, en magasin.
+      </p>
 
       <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {PRICING_TIERS.map((tier) => (
@@ -34,6 +40,11 @@ export function TarifsPage() {
             {"featured" in tier && tier.featured && (
               <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-tile">
                 Le plus populaire
+              </p>
+            )}
+            {tier.id === "citoyen" && (
+              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-tile">
+                Gratuit pour le citoyen
               </p>
             )}
             <h2 className="font-serif text-2xl font-semibold text-ink">{tier.title}</h2>

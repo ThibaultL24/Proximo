@@ -81,7 +81,7 @@ export function NewLeadPage() {
       <AdminPageHeader
         eyebrow="Recommandation"
         title="Transmettre un contact immobilier"
-        description="Partagez les coordonnees d'une personne interessee par un projet immobilier."
+        description="L'habitant vous en parle en magasin. Vous transmettez ensuite le contact à l'agence."
         backTo="/espace-commercant"
         backLabel="Tableau de bord"
       />

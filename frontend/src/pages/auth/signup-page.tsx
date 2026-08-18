@@ -35,9 +35,7 @@ export function SignupPage() {
         phone: phone || undefined,
       });
 
-      const base = homePathForRole(user.role);
-      const next = merchantSlug ? `${base}/leads/nouveau?merchant=${merchantSlug}` : base;
-      navigate(next);
+      navigate(homePathForRole(user.role));
     } catch {
       setError("Inscription impossible. Verifiez vos informations.");
     } finally {
@@ -51,7 +49,8 @@ export function SignupPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">Espace citoyen</p>
         <h1 className="mt-2 font-serif text-3xl font-semibold text-petrol">Créer un compte</h1>
         <p className="mt-2 text-sm text-ink-muted">
-          Gratuit pour consulter l&apos;annuaire — 2 €/mois pour transmettre un projet immo
+          Compte gratuit : fil local, commerces et avis. Un projet immobilier se confie à un
+          commerçant partenaire, en magasin.
         </p>
       </div>
 
@@ -112,7 +111,7 @@ export function SignupPage() {
 
       {merchantSlug && (
         <p className="mt-4 text-center text-sm text-ink-muted">
-          Apres inscription, vous pourrez transmettre votre projet via le commercant selectionne.
+          Un projet immobilier se donne au commerçant en magasin — il le transmet à l&apos;agence.
         </p>
       )}
 

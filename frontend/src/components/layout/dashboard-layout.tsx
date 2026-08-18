@@ -45,7 +45,6 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 
 const clientLinks = [
   { to: "/espace-client", label: "Tableau de bord", icon: IconGrid, end: true },
-  { to: "/espace-client/leads/nouveau", label: "Nouveau projet immo", icon: IconUsers },
 ];
 
 const platformLinks = [

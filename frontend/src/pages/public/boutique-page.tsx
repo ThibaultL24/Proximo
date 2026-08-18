@@ -66,7 +66,7 @@ export function BoutiquePage() {
       <PublicPageHero image={PAGE_HEROES.boutique} kicker="Boutique" title="Produits & services du 07700">
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/85 sm:text-base">
           Ventes ponctuelles demo : paiement unique, code promo et paiement en plusieurs fois. Les
-          abonnements plateforme (citoyen, commercant, agence) sont sur{" "}
+          abonnements plateforme (commercant, agence) sont sur{" "}
           <Link to="/tarifs" className="font-semibold text-white underline">
             la page Tarifs
           </Link>
@@ -83,7 +83,7 @@ export function BoutiquePage() {
           <li>Paiement en plusieurs fois via methodes Dashboard (audit immo)</li>
           <li>Montant libre (don) via prix Stripe custom_unit_amount</li>
           <li>
-            Abonnements 2 € / 12 € / 125 € →{" "}
+            Abonnements commerçant 12 € / agence 125 € →{" "}
             <Link to="/tarifs" className="font-semibold text-tile hover:underline">
               page Tarifs
             </Link>

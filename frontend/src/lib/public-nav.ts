@@ -64,7 +64,7 @@ export const OFFER_TIERS = [
     id: "habitant",
     title: "Habitant",
     description:
-      "Consultez le fil, les commerces et les communes du 07700. Transmettez un projet immobilier quand vous êtes prêt.",
+      "Consultez le fil, les commerces et les communes du 07700. Un projet immobilier se confie à un commerçant partenaire, en magasin.",
     cta: { label: "Créer un compte", href: "/inscription" },
   },
   {
@@ -87,11 +87,18 @@ export const PRICING_TIERS = [
   {
     id: "citoyen",
     title: "Citoyen",
-    price: "2 €",
-    period: "/ mois",
-    description: "Pour les habitants du 07700 qui veulent suivre l'actu locale et transmettre un projet immo.",
-    trial: "Essai gratuit 7 jours",
-    features: ["Fil d'actualites", "Annuaire commerces", "Transmission de leads immo", "Avis sur les fiches"],
+    price: "Gratuit",
+    period: "",
+    description:
+      "Gratuit pour tout habitant du 07700 : fil, commerces et avis, sans abonnement. Un projet immo se confie au commerçant, en magasin — pas sur le site.",
+    trial: "0 € — toujours, pour le citoyen",
+    features: [
+      "Compte habitant gratuit",
+      "Fil d'actualites",
+      "Annuaire commerces",
+      "Avis sur les fiches",
+      "Projet immo via le commercant",
+    ],
     cta: { label: "Creer un compte", href: "/inscription" },
     accent: "outline" as const,
   },
@@ -137,7 +144,7 @@ export const HOW_IT_WORKS = {
   title: "Comment ça marche",
   lead: "Fenêtre Ouverte est un média de territoire : une adresse unique pour l’information locale, les commerces du 07700 et l’immobilier du Sud Ardèche.",
   paragraphs: [
-    "Habitants, commerçants partenaires et agence y partagent un même fil éditorial. On y lit ce qui se passe dans les communes, on y tient sa vitrine, on y transmet un projet — chacun à sa place, sans bruit inutile.",
+    "Habitants, commerçants partenaires et agence y partagent un même fil éditorial. On y lit ce qui se passe dans les communes, on y tient sa vitrine. Un projet immobilier se confie au commerçant, qui le transmet à l’agence — chacun à sa place, sans bruit inutile.",
     "La fiche du commerçant s’ouvre en ligne et, en magasin, par un QR code. L’habitant peut y laisser un avis ; le partenaire y répond. Articles de l’agence et publications des commerces s’y croisent, classés par commune et par rubrique.",
     "Une publication peut également être relayée sur Facebook, Instagram et TikTok. Un seul geste, plusieurs canaux — pour rester visible sans multiplier les outils.",
   ],
