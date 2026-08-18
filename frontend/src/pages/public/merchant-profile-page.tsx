@@ -59,12 +59,12 @@ export function MerchantProfilePage() {
       )}
 
       <div className="overflow-hidden rounded-3xl border border-sand-dark/50 bg-surface">
-        <div className="relative flex h-44 items-end bg-gradient-to-br from-sand via-paper-dark to-sand/50 p-6 sm:h-56">
+        <div className="relative flex min-h-44 items-end bg-gradient-to-br from-sand via-paper-dark to-sand/50 p-4 sm:h-56 sm:p-6">
           {(merchant.logo_url || merchant.photo_urls?.[0]) && (
             <img
               src={merchant.logo_url || merchant.photo_urls?.[0]}
               alt=""
-              className="absolute inset-0 h-full w-full object-cover opacity-30"
+            className="absolute inset-0 h-full w-full max-w-none object-cover opacity-30"
             />
           )}
           <div className="relative">
@@ -72,7 +72,7 @@ export function MerchantProfilePage() {
               <Badge variant="partner">Commerce partenaire</Badge>
               {merchant.featured && <Badge variant="featured">Recommande</Badge>}
             </div>
-            <h1 className="font-serif text-3xl font-semibold text-petrol sm:text-4xl">{merchant.name}</h1>
+            <h1 className="font-serif text-2xl font-semibold text-petrol sm:text-4xl">{merchant.name}</h1>
             <p className="mt-1 text-ink-muted">
               {merchant.place?.name || merchant.sector.name}
               {merchant.city ? ` · ${merchant.city}` : ""}

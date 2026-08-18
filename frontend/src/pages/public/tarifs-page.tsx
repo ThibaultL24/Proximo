@@ -14,7 +14,7 @@ export function TarifsPage() {
         kicker="Sud Ardèche · 07700"
         title="Tarifs"
         size="lg"
-        titleClassName="mt-3 font-serif text-5xl font-semibold tracking-tight text-white sm:text-6xl lg:text-7xl"
+        titleClassName="mt-2 break-words font-serif text-4xl font-semibold tracking-tight text-white sm:mt-3 sm:text-6xl lg:text-7xl"
       >
         <p className="mt-4 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
           Des offres simples pour le territoire. Citoyen, commerçant ou agence — essai gratuit 7
@@ -22,7 +22,7 @@ export function TarifsPage() {
         </p>
       </PublicPageHero>
 
-      <section className="grid gap-6 md:grid-cols-3">
+      <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {PRICING_TIERS.map((tier) => (
           <article
             key={tier.id}

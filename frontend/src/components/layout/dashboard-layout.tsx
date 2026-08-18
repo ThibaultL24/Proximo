@@ -36,7 +36,7 @@ const merchantLinks = [
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return [
-    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all",
+    "flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all",
     isActive
       ? "bg-ink text-white"
       : "text-ink-muted hover:bg-surface hover:text-ink",
@@ -84,16 +84,16 @@ export function DashboardLayout({ kind }: DashboardLayoutProps) {
   return (
     <div className="flex min-h-screen flex-col bg-[#f0eee9]">
       <header className="border-b border-line bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-          <Link to={homePath} className="group flex items-center gap-3 text-ink">
-            <BrandMark className="h-8 w-8" />
-            <span>
-              <span className="block font-serif text-lg font-semibold leading-tight">{BRAND.name}</span>
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-muted">{title}</span>
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-4">
+          <Link to={homePath} className="group flex min-w-0 items-center gap-2 text-ink sm:gap-3">
+            <BrandMark className="h-8 w-8 shrink-0" />
+            <span className="min-w-0">
+              <span className="block truncate font-serif text-base font-semibold leading-tight sm:text-lg">{BRAND.name}</span>
+              <span className="block truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-muted">{title}</span>
             </span>
           </Link>
 
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-4">
             <div className="hidden items-center gap-2 rounded-lg border border-line bg-[#f7f5f1] py-1 pl-1 pr-3 sm:flex">
               <span className="flex h-7 w-7 items-center justify-center rounded-md bg-navy-soft text-xs font-semibold text-ink">
                 {initials}
@@ -102,10 +102,10 @@ export function DashboardLayout({ kind }: DashboardLayoutProps) {
                 {user?.full_name || user?.email}
               </span>
             </div>
-            <Link to="/" className="text-sm text-ink-muted transition hover:text-ink">
+            <Link to="/" className="hidden text-sm text-ink-muted transition hover:text-ink sm:inline">
               Site public
             </Link>
-            <button type="button" onClick={logout} className="text-sm text-ink-muted transition hover:text-ink">
+            <button type="button" onClick={logout} className="text-xs text-ink-muted transition hover:text-ink sm:text-sm">
               Déconnexion
             </button>
           </div>
@@ -114,7 +114,7 @@ export function DashboardLayout({ kind }: DashboardLayoutProps) {
 
       <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 md:flex-row md:gap-8 md:py-8">
         <aside className="md:w-56 md:shrink-0">
-          <nav className="flex gap-1 overflow-x-auto pb-1 md:flex-col md:overflow-visible md:rounded-xl md:border md:border-line md:bg-white md:p-2">
+          <nav className="no-scrollbar flex gap-1 overflow-x-auto pb-1 md:flex-col md:overflow-visible md:rounded-xl md:border md:border-line md:bg-white md:p-2">
             {links.map((link) => {
               const Icon = link.icon;
               return (

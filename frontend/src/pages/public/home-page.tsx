@@ -66,7 +66,7 @@ export function HomePage() {
             Une plateforme locale pour les habitants, les commercants partenaires et l&apos;agence du territoire.
           </p>
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {AUDIENCES.map((item) => (
             <article key={item.id} className="flex flex-col border border-line bg-surface p-5">
               <h3 className="font-serif text-xl font-semibold text-ink">{item.title}</h3>
@@ -95,7 +95,7 @@ export function HomePage() {
             Voir le detail
           </Link>
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {PRICING_TIERS.map((tier) => (
             <article
               key={tier.id}
@@ -121,7 +121,7 @@ export function HomePage() {
             Explorer le territoire
           </h2>
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {OFFER_TIERS.map((tier) => (
             <article key={tier.id} className="flex flex-col border border-line bg-surface p-5">
               <h3 className="font-serif text-xl font-semibold text-ink">{tier.title}</h3>
@@ -134,7 +134,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-6 border-t-2 border-ink pt-8 sm:grid-cols-[1.3fr_1fr]">
+      <section className="grid gap-6 border-t-2 border-ink pt-8 lg:grid-cols-[1.3fr_1fr]">
         <div>
           <h2 className="font-serif text-2xl font-semibold text-ink">Vous etes commercant ?</h2>
           <p className="mt-2 max-w-lg text-sm leading-relaxed text-ink-muted">

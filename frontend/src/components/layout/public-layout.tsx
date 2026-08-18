@@ -16,25 +16,25 @@ export function PublicLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-30 border-b border-line bg-surface/95 pt-[env(safe-area-inset-top)] backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-4">
-          <div className="flex items-center justify-between gap-4 py-3">
+          <div className="flex items-center justify-between gap-2 py-2.5 sm:gap-4 sm:py-3">
             <Link
               to="/"
-              className="flex min-w-0 items-center gap-3 text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tile"
+              className="flex min-w-0 items-center gap-2 text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tile sm:gap-3"
             >
-              <BrandMark className="h-9 w-9 shrink-0 text-ink" />
+              <BrandMark className="h-8 w-8 shrink-0 text-ink sm:h-9 sm:w-9" />
               <span className="min-w-0">
-                <span className="block truncate font-serif text-xl font-semibold leading-none tracking-tight">
+                <span className="block truncate font-serif text-lg font-semibold leading-none tracking-tight sm:text-xl">
                   {BRAND.name}
                 </span>
-                <span className="mt-1 block truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
+                <span className="mt-1 hidden truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-muted sm:block">
                   {BRAND.territoryLabel}
                 </span>
               </span>
             </Link>
 
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-4">
               {user ? (
                 <>
                   <Link
@@ -59,8 +59,11 @@ export function PublicLayout() {
                   Connexion
                 </Link>
               )}
-              <InstallAppLink className="text-xs font-semibold text-ink-muted hover:text-ink sm:text-sm" />
-              <Link to="/inscription" className={linkButtonClass("accent", "text-xs sm:text-sm")}>
+              <InstallAppLink className="hidden text-sm font-semibold text-ink-muted hover:text-ink md:inline" />
+              <Link
+                to="/inscription"
+                className={linkButtonClass("accent", "px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm")}
+              >
                 Rejoindre
               </Link>
             </div>
@@ -68,7 +71,7 @@ export function PublicLayout() {
 
           <nav
             aria-label="Navigation principale"
-            className="no-scrollbar -mx-1 hidden gap-1 overflow-x-auto border-t border-line md:flex"
+            className="-mx-4 flex items-stretch justify-between gap-1 border-t border-line px-3 sm:mx-0 sm:justify-start sm:gap-1 sm:px-0"
           >
             {PUBLIC_NAV.map((item) => {
               const active = item.match(location.pathname);
@@ -79,10 +82,10 @@ export function PublicLayout() {
                   onClick={scrollToPageTop}
                   aria-current={active ? "page" : undefined}
                   className={[
-                    "shrink-0 border-b-2 px-3 py-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-tile",
+                    "whitespace-nowrap px-0 py-2.5 text-center text-[10px] font-semibold tracking-tight transition min-[375px]:text-[11px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-tile sm:px-3 sm:py-3 sm:text-sm sm:tracking-normal",
                     active
-                      ? "border-tile text-ink"
-                      : "border-transparent text-ink-muted hover:border-line-strong hover:text-ink",
+                      ? "border-b-2 border-tile text-ink"
+                      : "border-b-2 border-transparent text-ink-muted hover:border-line-strong hover:text-ink",
                   ].join(" ")}
                 >
                   {item.label}
@@ -93,12 +96,12 @@ export function PublicLayout() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:py-8">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 sm:py-8">
         <Outlet />
       </main>
 
-      <footer className="mt-auto border-t border-line bg-ink text-paper">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[1.4fr_1fr_1fr]">
+      <footer className="mt-auto border-t border-line bg-ink pb-[calc(4.25rem+env(safe-area-inset-bottom))] text-paper md:pb-0">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr] lg:gap-10 lg:py-12">
           <div>
             <div className="flex items-center gap-3 text-white">
               <BrandMark className="h-8 w-8" />

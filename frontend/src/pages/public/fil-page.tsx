@@ -108,8 +108,8 @@ export function FilPage() {
         </p>
       </PublicPageHero>
 
-      <div className="sticky top-[3.25rem] z-20 -mx-4 border-b border-line bg-paper/95 px-4 py-3 backdrop-blur-sm sm:top-[4.5rem]">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="relative z-20 -mx-4 border-b border-line bg-paper/95 px-4 py-3 backdrop-blur-sm md:sticky md:top-[6.75rem]">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div
             role="tablist"
             aria-label="Type de contenu"
@@ -135,7 +135,7 @@ export function FilPage() {
             })}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <label className="sr-only" htmlFor="fil-category">
               Rubrique
             </label>
@@ -143,7 +143,7 @@ export function FilPage() {
               id="fil-category"
               value={category}
               onChange={(e) => patchParams({ category: e.target.value })}
-              className="rounded-md border border-line bg-surface px-3 py-2 text-sm font-medium text-ink"
+              className="min-w-0 max-w-full flex-1 rounded-md border border-line bg-surface px-3 py-2 text-sm font-medium text-ink sm:flex-none"
             >
               {FEED_CATEGORIES.map((opt) => (
                 <option key={opt.id} value={opt.id}>
@@ -159,7 +159,7 @@ export function FilPage() {
               id="fil-commune"
               value={commune}
               onChange={(e) => patchParams({ commune: e.target.value })}
-              className="rounded-md border border-line bg-surface px-3 py-2 text-sm font-medium text-ink"
+              className="min-w-0 max-w-full flex-1 rounded-md border border-line bg-surface px-3 py-2 text-sm font-medium text-ink sm:flex-none"
             >
               <option value="all">Tout le 07700</option>
               {TERRITORY_COMMUNES.map((c) => (

@@ -120,7 +120,7 @@ export function InstallAppBanner() {
 
   return (
     <aside
-      className="fixed inset-x-3 z-50 rounded-lg border border-line bg-surface p-3 shadow-lg bottom-[4.75rem] md:inset-x-auto md:bottom-6 md:right-6 md:w-80"
+      className="fixed inset-x-3 z-50 rounded-lg border border-line bg-surface p-3 shadow-lg bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:inset-x-auto md:bottom-6 md:right-6 md:w-80"
       role="dialog"
       aria-label="Installer l'application"
     >

@@ -20,7 +20,7 @@ export function FilterChips({ label, options, activeId, onChange }: FilterChipsP
       <div
         role="listbox"
         aria-label={label}
-        className="no-scrollbar flex flex-wrap gap-2"
+        className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-0.5 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
       >
         {options.map((opt) => {
           const isActive = activeId === opt.id;
@@ -32,7 +32,7 @@ export function FilterChips({ label, options, activeId, onChange }: FilterChipsP
               aria-selected={isActive}
               onClick={() => onChange(opt.id)}
               className={[
-                "rounded-full border px-3 py-1.5 text-sm font-semibold transition",
+                "shrink-0 rounded-full border px-3 py-1.5 text-sm font-semibold transition",
                 isActive
                   ? "border-ink bg-ink text-paper"
                   : "border-line bg-surface text-ink-muted hover:border-ink/40 hover:text-ink",

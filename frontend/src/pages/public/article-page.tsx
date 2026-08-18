@@ -47,14 +47,14 @@ export function ArticlePage() {
           <img
             src={article.cover_image_url}
             alt=""
-            className="mb-6 aspect-[16/10] w-full object-cover"
+            className="mb-6 aspect-[16/10] w-full object-cover sm:mb-6"
           />
         )}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.12em]">
           <span className="text-tile">{categoryLabel}</span>
           {placeLabel && <span className="text-ink-muted">{placeLabel}</span>}
         </div>
-        <h1 className="mt-3 font-serif text-3xl font-semibold leading-[1.15] tracking-tight text-ink sm:text-4xl">
+        <h1 className="mt-3 font-serif text-[1.75rem] font-semibold leading-[1.15] tracking-tight text-ink sm:text-4xl">
           {article.title}
         </h1>
         {date && (

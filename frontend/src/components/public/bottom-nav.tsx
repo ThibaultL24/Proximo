@@ -81,7 +81,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 backdrop-blur-sm md:hidden">
-      <div className="mx-auto flex max-w-lg items-stretch justify-around px-1 pb-[env(safe-area-inset-bottom)]">
+      <div className="mx-auto flex max-w-lg items-stretch justify-around px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))]">
         {items.map((item) => {
           const target = item.authAlternate && user ? homePathForRole(user.role) : item.to;
           const active =
@@ -95,7 +95,7 @@ export function BottomNav() {
               to={target}
               onClick={scrollToPageTop}
               className={[
-                "flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[10px] font-semibold tracking-wide",
+                "flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-semibold tracking-wide",
                 active ? "text-tile" : "text-ink-muted",
               ].join(" ")}
             >

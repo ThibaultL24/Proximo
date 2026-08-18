@@ -62,7 +62,7 @@ export function LoginPage() {
             S&apos;inscrire
           </Link>
         </p>
-        <p className="border-t border-sand-dark/40 px-6 py-3 text-center text-xs text-ink-muted">
+        <p className="border-t border-sand-dark/40 px-4 py-3 text-center text-xs leading-relaxed text-ink-muted sm:px-6">
           Demo : super@fenetreouverte.fr · admin@fenetreouverte.fr · martin@boulangerie.fr · client@demo.fr / password123
           {" · "}
           <Link to="/agence/inscription" className="font-medium text-petrol hover:text-brass">
