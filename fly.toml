@@ -1,0 +1,41 @@
+# fly.toml
+app = "fenetre-ouverte-07700"
+primary_region = "cdg"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[deploy]
+  release_command = "./bin/rails db:prepare"
+
+[env]
+  RAILS_ENV = "production"
+  APP_HOST = "fenetre-ouverte-07700.fly.dev"
+  FRONTEND_URL = "https://fenetre-ouverte-07700.fly.dev"
+  BACKEND_URL = "https://fenetre-ouverte-07700.fly.dev"
+  FRONTEND_ORIGIN = "https://fenetre-ouverte-07700.fly.dev"
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 50
+    soft_limit = 25
+
+[[http_service.checks]]
+  interval = "15s"
+  timeout = "5s"
+  grace_period = "45s"
+  method = "GET"
+  path = "/up"
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1

@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "up" => "rails/health#show", as: :rails_health_check
+
   namespace :api do
     namespace :v1 do
       get "health", to: "health#show"
@@ -103,4 +105,10 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  root "spa#index"
+  get "*path", to: "spa#index", constraints: ->(req) {
+    path = req.path
+    !path.start_with?("/api/", "/rails/") && path != "/up"
+  }
 end
