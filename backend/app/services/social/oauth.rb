@@ -31,15 +31,17 @@ module Social
     end
 
     def meta_authorize_url(state, provider)
+      app_id = PlatformIntegrationSettings.meta_app_id
+      raise "META_APP_ID manquant" if app_id.blank?
+
       params = {
-        client_id: ENV.fetch("META_APP_ID"),
+        client_id: app_id,
         redirect_uri: Config.meta_redirect_uri,
         state: "#{provider}:#{state}",
         response_type: "code"
       }
 
-      # Facebook Login for Business : préférer un config_id (permissions définies dans Meta)
-      config_id = ENV["META_LOGIN_CONFIG_ID"].presence
+      config_id = PlatformIntegrationSettings.meta_login_config_id.presence
       if config_id
         params[:config_id] = config_id
       else
@@ -81,10 +83,15 @@ module Social
     end
 
     def exchange_meta(code, provider)
+      app_id = PlatformIntegrationSettings.meta_app_id
+      app_secret = PlatformIntegrationSettings.meta_app_secret
+      raise "META_APP_ID manquant" if app_id.blank?
+      raise "META_APP_SECRET manquant" if app_secret.blank?
+
       token_uri = URI("https://graph.facebook.com/v21.0/oauth/access_token")
       token_uri.query = URI.encode_www_form(
-        client_id: ENV.fetch("META_APP_ID"),
-        client_secret: ENV.fetch("META_APP_SECRET"),
+        client_id: app_id,
+        client_secret: app_secret,
         redirect_uri: Config.meta_redirect_uri,
         code: code
       )

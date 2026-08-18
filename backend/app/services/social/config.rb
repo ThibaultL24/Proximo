@@ -27,15 +27,18 @@ module Social
     end
 
     def meta_configured?
-      ENV["META_APP_ID"].present? && ENV["META_APP_SECRET"].present?
+      PlatformIntegrationSettings.meta_app_id.present? &&
+        PlatformIntegrationSettings.meta_app_secret.present?
     end
 
     def tiktok_configured?
-      ENV["TIKTOK_CLIENT_KEY"].present? && ENV["TIKTOK_CLIENT_SECRET"].present?
+      PlatformIntegrationSettings.tiktok_client_key.present? &&
+        PlatformIntegrationSettings.tiktok_client_secret.present?
     end
 
     def tiktok_redirect_uri
-      ENV.fetch("TIKTOK_REDIRECT_URI", "#{backend_url}/api/v1/oauth/social/tiktok/callback")
+      PlatformIntegrationSettings.tiktok_redirect_uri.presence ||
+        PlatformIntegrationSettings.default_tiktok_redirect_uri
     end
 
     def frontend_url
@@ -47,7 +50,8 @@ module Social
     end
 
     def meta_redirect_uri
-      ENV.fetch("META_REDIRECT_URI", "#{backend_url}/api/v1/oauth/social/meta/callback")
+      PlatformIntegrationSettings.meta_redirect_uri.presence ||
+        PlatformIntegrationSettings.default_meta_redirect_uri
     end
 
     def linkedin_redirect_uri

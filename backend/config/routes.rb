@@ -62,7 +62,7 @@ Rails.application.routes.draw do
 
       namespace :platform do
         resource :stats, only: :show, controller: "stats"
-        resource :integrations, only: :show, controller: "integrations"
+        resource :integrations, only: %i[show update], controller: "integrations"
         resources :agencies, only: %i[index show]
       end
 

@@ -1,21 +1,96 @@
 // src/pages/platform/platform-integrations-page.tsx
 import { useEffect, useState } from "react";
-import { fetchPlatformIntegrations, type PlatformIntegrations } from "../../api/platform-integrations";
-import { AdminAlert, AdminLoading, AdminPageHeader } from "../../components/admin/admin-ui";
+import {
+  fetchPlatformIntegrations,
+  updatePlatformIntegrations,
+  type PlatformIntegrationInput,
+  type PlatformIntegrations,
+} from "../../api/platform-integrations";
+import {
+  AdminAlert,
+  AdminFieldset,
+  AdminHint,
+  AdminLoading,
+  AdminPageHeader,
+  adminInputClass,
+} from "../../components/admin/admin-ui";
 import { AdminPanelCard } from "../../components/admin/admin-panel-card";
 import { Badge } from "../../components/ui/badge";
+import { linkButtonClass } from "../../components/ui/button";
+
+const emptyForm: PlatformIntegrationInput = {
+  frontend_url: "",
+  backend_url: "",
+  meta_app_id: "",
+  meta_redirect_uri: "",
+  meta_login_config_id: "",
+  meta_app_secret: "",
+  tiktok_client_key: "",
+  tiktok_redirect_uri: "",
+  tiktok_client_secret: "",
+};
+
+function sourceLabel(source: string) {
+  if (source === "database") return "Enregistre (chiffre)";
+  if (source === "env") return "Via .env";
+  return "Non renseigne";
+}
 
 export function PlatformIntegrationsPage() {
   const [data, setData] = useState<PlatformIntegrations | null>(null);
+  const [form, setForm] = useState<PlatformIntegrationInput>(emptyForm);
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  async function load() {
+    const response = await fetchPlatformIntegrations();
+    setData(response);
+    setForm({
+      ...emptyForm,
+      ...response.form,
+      meta_app_secret: "",
+      tiktok_client_secret: "",
+    });
+  }
 
   useEffect(() => {
-    fetchPlatformIntegrations()
-      .then(setData)
+    load()
       .catch(() => setError("Impossible de charger les integrations"))
       .finally(() => setIsLoading(false));
   }, []);
+
+  function updateField<K extends keyof PlatformIntegrationInput>(key: K, value: PlatformIntegrationInput[K]) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+    setIsSaving(true);
+
+    try {
+      const payload: PlatformIntegrationInput = { ...form };
+      if (!payload.meta_app_secret) delete payload.meta_app_secret;
+      if (!payload.tiktok_client_secret) delete payload.tiktok_client_secret;
+
+      const response = await updatePlatformIntegrations(payload);
+      setData(response);
+      setForm({
+        ...emptyForm,
+        ...response.form,
+        meta_app_secret: "",
+        tiktok_client_secret: "",
+      });
+      setMessage("Parametres enregistres. Les secrets ne sont jamais reaffichés.");
+    } catch {
+      setError("Enregistrement impossible. Verifiez les champs.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   if (isLoading) return <AdminLoading />;
 
@@ -24,51 +99,154 @@ export function PlatformIntegrationsPage() {
       <AdminPageHeader
         eyebrow="Super admin"
         title="Integrations reseaux"
-        description="Statut des apps Meta et TikTok pour la syndication commercant. Les secrets restent cote serveur (.env)."
+        description="Configurez l'app Meta et TikTok de la plateforme. Les secrets sont chiffres en base et jamais reaffichés."
         backTo="/plateforme"
       />
 
+      {message && (
+        <div className="rounded-lg border border-success/30 bg-success/5 px-4 py-3 text-sm text-success">
+          {message}
+        </div>
+      )}
       {error && <AdminAlert>{error}</AdminAlert>}
 
       {data && (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <AdminPanelCard title="URL publique (QR / retours OAuth)">
-            <p className="font-mono text-sm text-ink">{data.frontend_url}</p>
-            <p className="mt-3 text-sm text-ink-muted">
-              Variable <code className="rounded bg-paper px-1">FRONTEND_URL</code>. En dev sans variable, localhost ;
-              en demo deployee, URL publique par defaut.
-            </p>
-          </AdminPanelCard>
-
-          <AdminPanelCard title="Mode plateforme">
-            {data.demo_mode ? (
-              <Badge variant="soon">Demo — cles app absentes</Badge>
-            ) : (
-              <Badge variant="featured">OAuth live disponible</Badge>
-            )}
-            <p className="mt-3 text-sm text-ink-muted">
-              Reseaux V1 : {data.providers.join(", ")}. Les commercants renseignent leurs pages puis connectent via
-              OAuth ; sans cles, connexion demo explicite.
-            </p>
-          </AdminPanelCard>
-
-          {[data.meta, data.tiktok].map((integration) => (
-            <AdminPanelCard key={integration.label} title={integration.label}>
-              <div className="flex items-center gap-2">
-                <Badge variant={integration.configured ? "featured" : "soon"}>
-                  {integration.configured ? "Configure" : "Demo"}
-                </Badge>
-                <span className="text-sm text-ink-muted">mode {integration.mode}</span>
-              </div>
-              <p className="mt-3 text-sm text-ink-muted">Variables serveur attendues :</p>
-              <ul className="mt-2 space-y-1 font-mono text-xs text-ink">
-                {integration.env_keys.map((key) => (
-                  <li key={key}>{key}</li>
-                ))}
-              </ul>
+        <>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <AdminPanelCard title="Mode effectif">
+              {data.demo_mode ? (
+                <Badge variant="soon">Demo — OAuth indisponible</Badge>
+              ) : (
+                <Badge variant="featured">OAuth live disponible</Badge>
+              )}
+              <p className="mt-3 text-sm text-ink-muted">
+                Reseaux V1 : {data.providers.join(", ")}. Les commercants renseignent leurs pages puis connectent
+                via OAuth.
+              </p>
             </AdminPanelCard>
-          ))}
-        </div>
+            <AdminPanelCard title="URL publique effective">
+              <p className="font-mono text-sm text-ink">{data.frontend_url}</p>
+              <p className="mt-2 text-xs text-ink-muted">Utilisee pour les QR codes et les retours OAuth.</p>
+            </AdminPanelCard>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <AdminPanelCard title="URLs plateforme">
+              <AdminFieldset legend="URLs publiques">
+                <AdminHint>Laissez vide pour conserver les valeurs .env ou les defauts dev/demo.</AdminHint>
+                <input
+                  type="url"
+                  placeholder="https://demo.fenetreouverte.fr"
+                  value={form.frontend_url}
+                  onChange={(e) => updateField("frontend_url", e.target.value)}
+                  className={adminInputClass}
+                />
+                <input
+                  type="url"
+                  placeholder="https://api.demo.fenetreouverte.fr (optionnel)"
+                  value={form.backend_url}
+                  onChange={(e) => updateField("backend_url", e.target.value)}
+                  className={adminInputClass}
+                />
+              </AdminFieldset>
+            </AdminPanelCard>
+
+            <AdminPanelCard title="Meta — Facebook / Instagram">
+              <div className="mb-4 flex flex-wrap items-center gap-2">
+                <Badge variant={data.meta.configured ? "featured" : "soon"}>
+                  {data.meta.configured ? "OAuth pret" : "Demo"}
+                </Badge>
+                <span className="text-xs text-ink-muted">
+                  Secret : {data.meta.secret_configured ? "oui" : "non"} ({sourceLabel(data.meta.secret_source)})
+                </span>
+              </div>
+              <AdminFieldset legend="App Meta">
+                <input
+                  type="text"
+                  placeholder="App ID Meta"
+                  value={form.meta_app_id}
+                  onChange={(e) => updateField("meta_app_id", e.target.value)}
+                  className={adminInputClass}
+                />
+                <input
+                  type="password"
+                  placeholder={
+                    data.meta_app_secret_configured
+                      ? "App Secret (laisser vide pour conserver)"
+                      : "App Secret Meta"
+                  }
+                  value={form.meta_app_secret}
+                  onChange={(e) => updateField("meta_app_secret", e.target.value)}
+                  className={adminInputClass}
+                  autoComplete="new-password"
+                />
+                <input
+                  type="url"
+                  placeholder="Redirect URI (optionnel)"
+                  value={form.meta_redirect_uri}
+                  onChange={(e) => updateField("meta_redirect_uri", e.target.value)}
+                  className={adminInputClass}
+                />
+                <p className="text-xs text-ink-muted">Defaut : {data.meta_redirect_uri}</p>
+                <input
+                  type="text"
+                  placeholder="Login Config ID (optionnel, Facebook Login for Business)"
+                  value={form.meta_login_config_id}
+                  onChange={(e) => updateField("meta_login_config_id", e.target.value)}
+                  className={adminInputClass}
+                />
+              </AdminFieldset>
+            </AdminPanelCard>
+
+            <AdminPanelCard title="TikTok">
+              <div className="mb-4 flex flex-wrap items-center gap-2">
+                <Badge variant={data.tiktok.configured ? "featured" : "soon"}>
+                  {data.tiktok.configured ? "Cles presentes" : "Demo"}
+                </Badge>
+                <span className="text-xs text-ink-muted">
+                  Secret : {data.tiktok.secret_configured ? "oui" : "non"} ({sourceLabel(data.tiktok.secret_source)})
+                </span>
+              </div>
+              <AdminHint>
+                Les cles permettent de preparer le live TikTok. La connexion OAuth TikTok reste a finaliser ; sans
+                OAuth, le mode demo continue de simuler la publication.
+              </AdminHint>
+              <AdminFieldset legend="App TikTok">
+                <input
+                  type="text"
+                  placeholder="Client Key TikTok"
+                  value={form.tiktok_client_key}
+                  onChange={(e) => updateField("tiktok_client_key", e.target.value)}
+                  className={adminInputClass}
+                />
+                <input
+                  type="password"
+                  placeholder={
+                    data.tiktok_client_secret_configured
+                      ? "Client Secret (laisser vide pour conserver)"
+                      : "Client Secret TikTok"
+                  }
+                  value={form.tiktok_client_secret}
+                  onChange={(e) => updateField("tiktok_client_secret", e.target.value)}
+                  className={adminInputClass}
+                  autoComplete="new-password"
+                />
+                <input
+                  type="url"
+                  placeholder="Redirect URI (optionnel)"
+                  value={form.tiktok_redirect_uri}
+                  onChange={(e) => updateField("tiktok_redirect_uri", e.target.value)}
+                  className={adminInputClass}
+                />
+                <p className="text-xs text-ink-muted">Defaut : {data.tiktok_redirect_uri}</p>
+              </AdminFieldset>
+            </AdminPanelCard>
+
+            <button type="submit" disabled={isSaving} className={linkButtonClass("accent")}>
+              {isSaving ? "Enregistrement..." : "Enregistrer les parametres"}
+            </button>
+          </form>
+        </>
       )}
     </section>
   );

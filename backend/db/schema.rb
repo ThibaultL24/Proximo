@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_18_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_18_130000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -199,6 +199,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_18_120000) do
     t.index ["kind"], name: "index_places_on_kind"
     t.index ["parent_id", "slug"], name: "index_places_on_parent_id_and_slug", unique: true
     t.index ["parent_id"], name: "index_places_on_parent_id"
+  end
+
+  create_table "platform_integrations", force: :cascade do |t|
+    t.string "frontend_url"
+    t.string "backend_url"
+    t.string "meta_app_id"
+    t.text "meta_app_secret_ciphertext"
+    t.string "meta_redirect_uri"
+    t.string "meta_login_config_id"
+    t.string "tiktok_client_key"
+    t.text "tiktok_client_secret_ciphertext"
+    t.string "tiktok_redirect_uri"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "products", force: :cascade do |t|
