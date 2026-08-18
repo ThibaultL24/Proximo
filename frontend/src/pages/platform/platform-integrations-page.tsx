@@ -201,15 +201,16 @@ export function PlatformIntegrationsPage() {
             <AdminPanelCard title="TikTok">
               <div className="mb-4 flex flex-wrap items-center gap-2">
                 <Badge variant={data.tiktok.configured ? "featured" : "soon"}>
-                  {data.tiktok.configured ? "Cles presentes" : "Demo"}
+                  {data.tiktok.configured ? "OAuth pret" : "Demo"}
                 </Badge>
                 <span className="text-xs text-ink-muted">
                   Secret : {data.tiktok.secret_configured ? "oui" : "non"} ({sourceLabel(data.tiktok.secret_source)})
                 </span>
               </div>
               <AdminHint>
-                Les cles permettent de preparer le live TikTok. La connexion OAuth TikTok reste a finaliser ; sans
-                OAuth, le mode demo continue de simuler la publication.
+                Client Key + Secret : le bouton Connecter du commerçant ouvre OAuth TikTok. La publication live
+                envoie une photo HTTPS (Direct Post). Sans audit TikTok, l&apos;API peut encore refuser le post
+                public — le fil Fenêtre Ouverte et les autres réseaux continuent.
               </AdminHint>
               <AdminFieldset legend="App TikTok">
                 <input

@@ -65,7 +65,7 @@ module Api
           # Formats acceptés :
           # - "facebook:<signed>" / "instagram:<signed>"
           # - "<signed>" seul (provider lu dans le payload après verify)
-          if raw_state.match?(/\A(facebook|instagram|linkedin):/)
+          if raw_state.match?(/\A(facebook|instagram|tiktok|linkedin):/)
             provider, signed = raw_state.split(":", 2)
             [provider, signed]
           else
@@ -75,10 +75,10 @@ module Api
 
         def provider_from_state(raw_state)
           return nil if raw_state.blank?
-          return Regexp.last_match(1) if raw_state.match?(/\A(facebook|instagram|linkedin):/)
+          return Regexp.last_match(1) if raw_state.match?(/\A(facebook|instagram|tiktok|linkedin):/)
 
           payload = Social::OauthState.verify(
-            raw_state.match?(/\A(facebook|instagram|linkedin):/) ? raw_state.split(":", 2).last : raw_state
+            raw_state.match?(/\A(facebook|instagram|tiktok|linkedin):/) ? raw_state.split(":", 2).last : raw_state
           )
           payload && payload["provider"]
         rescue StandardError
@@ -91,6 +91,7 @@ module Api
             # meta = callback partagé FB/IG ; défaut facebook si state illisible
             value.to_s == "meta" ? nil : "facebook"
           when "instagram" then "instagram"
+          when "tiktok" then "tiktok"
           when "linkedin" then "linkedin"
           else
             Social::Config.v1_provider?(value) ? value.to_s : nil

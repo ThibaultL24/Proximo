@@ -24,8 +24,9 @@ class SocialPublisher
     body = truncate(signed_body, social_post.provider)
     image = attached_image
 
-    if social_post.provider == "instagram" && image.nil? && !account.demo? && Social::Config.configured?("instagram")
-      social_post.update!(status: :skipped, error_message: "Instagram requiert une photo")
+    if %w[instagram tiktok].include?(social_post.provider) && image.nil? && !account.demo? && Social::Config.configured?(social_post.provider)
+      network = social_post.provider == "tiktok" ? "TikTok" : "Instagram"
+      social_post.update!(status: :skipped, error_message: "#{network} requiert une photo")
       return :skipped
     end
 

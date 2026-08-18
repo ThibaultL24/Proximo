@@ -179,8 +179,8 @@ export function MerchantPublishPage() {
               <Link to="/espace-commercant/ma-fiche" className="font-medium text-petrol underline">
                 Ma fiche vitrine
               </Link>
-              , puis connectez chaque réseau. Sans clés Meta / TikTok, la connexion crée un compte{" "}
-              <strong>démo</strong> (syndication simulée).
+              , puis connectez chaque réseau. Avec les clés plateforme (super-admin), Connecter ouvre OAuth
+              Meta / TikTok. Sans clés, connexion <strong>démo</strong> (syndication simulée).
             </p>
 
             {!hasAnyPageConfigured && (
@@ -316,7 +316,8 @@ export function MerchantPublishPage() {
               />
             </label>
             <p className="mt-1 text-xs text-ink-muted">
-              Instagram live exige une photo ; en démo, la publication reste simulée sans image.
+              Instagram et TikTok live exigent une photo HTTPS publique ; en démo, la publication reste simulée
+              sans image.
             </p>
 
             <button

@@ -12,6 +12,8 @@ module Social
       case provider.to_s
       when "facebook", "instagram"
         meta_authorize_url(state, provider)
+      when "tiktok"
+        tiktok_authorize_url(state)
       when "linkedin"
         linkedin_authorize_url(state)
       else
@@ -23,6 +25,8 @@ module Social
       case provider.to_s
       when "facebook", "instagram"
         exchange_meta(code, provider)
+      when "tiktok"
+        exchange_tiktok(code)
       when "linkedin"
         exchange_linkedin(code)
       else
@@ -69,6 +73,20 @@ module Social
       end
 
       "https://www.facebook.com/v21.0/dialog/oauth?#{URI.encode_www_form(params)}"
+    end
+
+    def tiktok_authorize_url(state)
+      client_key = PlatformIntegrationSettings.tiktok_client_key
+      raise "TIKTOK_CLIENT_KEY manquant" if client_key.blank?
+
+      params = {
+        client_key: client_key,
+        redirect_uri: Config.tiktok_redirect_uri,
+        state: "tiktok:#{state}",
+        response_type: "code",
+        scope: "user.info.basic,user.info.profile,video.upload,video.publish"
+      }
+      "https://www.tiktok.com/v2/auth/authorize/?#{URI.encode_www_form(params)}"
     end
 
     def linkedin_authorize_url(state)
@@ -124,6 +142,45 @@ module Social
           account_name: page["name"].to_s
         }
       end
+    end
+
+    def exchange_tiktok(code)
+      client_key = PlatformIntegrationSettings.tiktok_client_key
+      client_secret = PlatformIntegrationSettings.tiktok_client_secret
+      raise "TIKTOK_CLIENT_KEY manquant" if client_key.blank?
+      raise "TIKTOK_CLIENT_SECRET manquant" if client_secret.blank?
+
+      res = post_form(URI("https://open.tiktokapis.com/v2/oauth/token/"), {
+        client_key: client_key,
+        client_secret: client_secret,
+        code: code,
+        grant_type: "authorization_code",
+        redirect_uri: Config.tiktok_redirect_uri
+      })
+      token = res["access_token"].presence || res.dig("data", "access_token")
+      raise tiktok_error_message(res, "Token TikTok manquant") if token.blank?
+
+      me = get_json(
+        URI("https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name,avatar_url"),
+        headers: { "Authorization" => "Bearer #{token}" }
+      )
+      user = me.dig("data", "user") || {}
+      open_id = res["open_id"].presence || res.dig("data", "open_id") || user["open_id"]
+      raise "open_id TikTok manquant" if open_id.blank?
+
+      {
+        access_token: token,
+        refresh_token: res["refresh_token"],
+        external_id: open_id,
+        account_name: user["display_name"].presence || "TikTok"
+      }
+    end
+
+    def tiktok_error_message(payload, fallback)
+      payload["error_description"].presence ||
+        payload.dig("error", "message").presence ||
+        payload["error"].presence ||
+        fallback
     end
 
     def exchange_linkedin(code)
