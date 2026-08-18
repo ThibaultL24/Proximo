@@ -31,6 +31,11 @@ module AttachmentUrls
   end
 
   def rails_blob_path(attachment)
-    Rails.application.routes.url_helpers.rails_blob_path(attachment, only_path: true)
+    helpers = Rails.application.routes.url_helpers
+    if Rails.application.routes.default_url_options[:host].present?
+      helpers.rails_blob_url(attachment)
+    else
+      helpers.rails_blob_path(attachment, only_path: true)
+    end
   end
 end

@@ -49,5 +49,11 @@ test:
 #
 production:
   primary:
+    <% if ENV["DATABASE_URL"].present? %>
     <<: *default
     url: <%= ENV["DATABASE_URL"] %>
+    <% else %>
+    adapter: sqlite3
+    database: storage/production.sqlite3
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+    <% end %>

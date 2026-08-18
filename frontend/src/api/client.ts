@@ -2,9 +2,10 @@
 import axios from "axios";
 
 const TOKEN_KEY = "proximmo_token";
+export const API_ROOT = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") || "";
 
 export const api = axios.create({
-  baseURL: "/api/v1",
+  baseURL: `${API_ROOT}/api/v1`,
 });
 
 api.interceptors.request.use((config) => {

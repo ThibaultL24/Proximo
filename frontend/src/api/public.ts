@@ -1,5 +1,5 @@
 // src/api/public.ts
-import { api } from "./client";
+import { API_ROOT, api } from "./client";
 import type { Article, Merchant, Place, PlaceLookup, Sector } from "../types";
 
 export async function fetchPlaces(parentId?: number) {
@@ -46,7 +46,7 @@ export async function trackQrScan(token: string, sessionId: string) {
 }
 
 export function publicQrImageUrl(token: string) {
-  return `/api/v1/public/qr/${token}/image`;
+  return `${API_ROOT}/api/v1/public/qr/${token}/image`;
 }
 
 export async function fetchArticles(placePath?: string, scope?: string) {
