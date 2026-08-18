@@ -26,7 +26,8 @@ class ProductSerializer < AlbaResource
     {
       "one_time" => "Paiement unique",
       "promo" => "Paiement unique + code promo",
-      "installment" => "Paiement en plusieurs fois"
+      "installment" => "Paiement en plusieurs fois",
+      "custom" => "Montant libre"
     }.fetch(product.checkout_mode, product.checkout_mode)
   end
 end

@@ -1,32 +1,26 @@
 // src/pages/public/tarifs-page.tsx
 import { Link } from "react-router-dom";
 import { linkButtonClass } from "../../components/ui/button";
-import { HOW_IT_WORKS, PRICING_TIERS } from "../../lib/public-nav";
-import { TERRITORY_HERO } from "../../lib/territory";
+import { HowItWorks } from "../../components/public/how-it-works";
+import { PublicPageHero } from "../../components/public/public-page-hero";
+import { PRICING_TIERS } from "../../lib/public-nav";
+import { PAGE_HEROES } from "../../lib/territory";
 
 export function TarifsPage() {
   return (
     <div className="space-y-14 pb-16">
-      <section className="relative overflow-hidden">
-        <div className="relative aspect-[21/9] min-h-[200px] max-h-[320px] w-full">
-          <img
-            src={TERRITORY_HERO.image_url}
-            alt={TERRITORY_HERO.image_alt}
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/30 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 px-1 pb-6 sm:px-0 sm:pb-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">Tarifs</p>
-            <h1 className="mt-2 max-w-2xl font-serif text-3xl font-semibold text-white sm:text-4xl">
-              Des offres simples pour le 07700
-            </h1>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/80 sm:text-base">
-              Citoyen, commercant ou agence — choisissez la formule adaptee. Essai gratuit sur les abonnements
-              individuels.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PublicPageHero
+        image={PAGE_HEROES.tarifs}
+        kicker="Sud Ardèche · 07700"
+        title="Tarifs"
+        size="lg"
+        titleClassName="mt-3 font-serif text-5xl font-semibold tracking-tight text-white sm:text-6xl lg:text-7xl"
+      >
+        <p className="mt-4 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
+          Des offres simples pour le territoire. Citoyen, commerçant ou agence — essai gratuit 7
+          jours sur les abonnements individuels.
+        </p>
+      </PublicPageHero>
 
       <section className="grid gap-6 md:grid-cols-3">
         {PRICING_TIERS.map((tier) => (
@@ -69,20 +63,7 @@ export function TarifsPage() {
         ))}
       </section>
 
-      <section aria-labelledby="how-heading" className="border border-line bg-paper px-5 py-8 sm:px-8">
-        <h2 id="how-heading" className="font-serif text-2xl font-semibold text-ink sm:text-3xl">
-          Comment ca marche
-        </h2>
-        <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {HOW_IT_WORKS.map((item) => (
-            <li key={item.step} className="border border-line bg-surface p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tile">Etape {item.step}</p>
-              <p className="mt-2 font-serif text-lg font-semibold text-ink">{item.title}</p>
-              <p className="mt-2 text-sm leading-relaxed text-ink-muted">{item.text}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
+      <HowItWorks />
 
       <section className="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-8">
         <div>

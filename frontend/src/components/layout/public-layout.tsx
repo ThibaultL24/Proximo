@@ -1,12 +1,14 @@
 // src/components/layout/public-layout.tsx
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { BottomNav } from "../public/bottom-nav";
 import { BrandMark } from "../brand/brand-mark";
+import { BottomNav } from "../public/bottom-nav";
+import { InstallAppBanner, InstallAppLink } from "../public/install-app-banner";
 import { BRAND } from "../../lib/brand";
 import { PUBLIC_NAV } from "../../lib/public-nav";
 import { linkButtonClass } from "../ui/button";
 import { useAuth } from "../../hooks/use-auth";
 import { homePathForRole } from "../../lib/auth-redirect";
+import { scrollToPageTop } from "./scroll-to-top";
 
 export function PublicLayout() {
   const { user, logout } = useAuth();
@@ -57,6 +59,7 @@ export function PublicLayout() {
                   Connexion
                 </Link>
               )}
+              <InstallAppLink className="text-xs font-semibold text-ink-muted hover:text-ink sm:text-sm" />
               <Link to="/inscription" className={linkButtonClass("accent", "text-xs sm:text-sm")}>
                 Rejoindre
               </Link>
@@ -73,6 +76,7 @@ export function PublicLayout() {
                 <Link
                   key={item.id}
                   to={item.href}
+                  onClick={scrollToPageTop}
                   aria-current={active ? "page" : undefined}
                   className={[
                     "shrink-0 border-b-2 px-3 py-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-tile",
@@ -141,6 +145,9 @@ export function PublicLayout() {
                 </Link>
               </li>
               <li>
+                <InstallAppLink className="hover:text-white" />
+              </li>
+              <li>
                 <Link to="/connexion" className="hover:text-white">
                   Espace partenaire
                 </Link>
@@ -161,6 +168,7 @@ export function PublicLayout() {
       </footer>
 
       <BottomNav />
+      <InstallAppBanner />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 // src/components/public/merchant-card.tsx
 import { Link } from "react-router-dom";
+import { BrandImageFallback } from "../brand/brand-image-fallback";
 import { Badge } from "../ui/badge";
 import { FEED_CATEGORY_LABELS } from "../../lib/feed-categories";
 import type { Merchant } from "../../types";
@@ -28,9 +29,7 @@ export function MerchantCard({ merchant }: MerchantCardProps) {
             loading="lazy"
           />
         ) : (
-          <div className="flex h-full items-center justify-center">
-            <span className="font-serif text-4xl text-ink/15">{merchant.name.charAt(0)}</span>
-          </div>
+          <BrandImageFallback />
         )}
       </div>
       <div className="flex flex-1 flex-col p-4">

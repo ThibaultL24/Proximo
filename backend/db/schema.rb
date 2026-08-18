@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_18_130000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_18_140000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -229,10 +229,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_18_130000) do
     t.string "image_url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "stripe_product_id"
+    t.string "stripe_price_id"
     t.index ["agency_id", "slug"], name: "index_products_on_agency_id_and_slug", unique: true
     t.index ["agency_id"], name: "index_products_on_agency_id"
     t.index ["merchant_id"], name: "index_products_on_merchant_id"
     t.index ["status"], name: "index_products_on_status"
+    t.index ["stripe_price_id"], name: "index_products_on_stripe_price_id", unique: true, where: "stripe_price_id IS NOT NULL"
   end
 
   create_table "publications", force: :cascade do |t|

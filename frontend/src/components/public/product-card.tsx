@@ -1,4 +1,5 @@
 // src/components/public/product-card.tsx
+import { BrandImageFallback } from "../brand/brand-image-fallback";
 import { linkButtonClass } from "../ui/button";
 import type { Product } from "../../types";
 
@@ -31,9 +32,7 @@ export function ProductCard({ product, onCheckout, isLoading = false }: ProductC
             loading="lazy"
           />
         ) : (
-          <div className="flex h-full items-center justify-center font-serif text-4xl text-ink/15">
-            {product.name.charAt(0)}
-          </div>
+          <BrandImageFallback />
         )}
         <span className="absolute left-3 top-3 bg-surface/95 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-tile">
           {product.checkout_label}
@@ -53,7 +52,9 @@ export function ProductCard({ product, onCheckout, isLoading = false }: ProductC
 
         <div className="mt-4 space-y-2">
           <p className="font-serif text-2xl font-semibold tabular-nums text-ink">
-            {formatPrice(product.price_cents, product.currency)}
+            {product.checkout_mode === "custom"
+              ? `À partir de ${formatPrice(product.price_cents, product.currency)}`
+              : formatPrice(product.price_cents, product.currency)}
           </p>
 
           {product.seller_type === "merchant" && (

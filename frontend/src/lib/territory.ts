@@ -21,11 +21,55 @@ export interface TerritoryCommune {
 
 export const TERRITORY_POSTAL = "07700";
 
-/** Bandeau d'ambiance — Pont d'Arc, Sud Ardèche */
+/** Bandeau d'ambiance — Pont d'Arc, Sud Ardèche (fallback) */
 export const TERRITORY_HERO = {
-  image_url: "/territory/hero-pont-d-arc.png",
-  image_alt: "Le Pont d'Arc sur l'Ardèche",
+  image_url: "/territory/hero-gorges.png",
+  image_alt: "Méandre de l'Ardèche",
   image_credit: "Fonds 07700",
+} as const;
+
+/** Heroes photo par page publique — une photo distincte par onglet */
+export const PAGE_HEROES = {
+  home: {
+    image_url: "/territory/hero-gorges.png",
+    image_alt: "Méandre de l'Ardèche vu des gorges",
+  },
+  fil: {
+    image_url: "/territory/bourg-saint-andeol-centre.png",
+    image_alt: "Centre de Bourg-Saint-Andéol et son clocher",
+  },
+  commerces: {
+    image_url: "/territory/hero-commerces.png",
+    image_alt: "Ruelle de village en Ardèche, Rue Perbet",
+  },
+  boutique: {
+    image_url: "/territory/saint-marcel-d-ardeche-ruelle.png",
+    image_alt: "Ruelle fleurie à Saint-Marcel-d'Ardèche",
+  },
+  communes: {
+    image_url: "/territory/saint-marcel-d-ardeche.png",
+    image_alt: "Village de Saint-Marcel-d'Ardèche vu du ciel",
+  },
+  loisirs: {
+    image_url: "/territory/hero-pont-d-arc.png",
+    image_alt: "Pont d'Arc et gorges de l'Ardèche",
+  },
+  bien_etre: {
+    image_url: "/territory/hero-ruisseau.png",
+    image_alt: "Chemin le long d'un ruisseau en Ardèche",
+  },
+  immo: {
+    image_url: "/territory/bourg-saint-andeol.png",
+    image_alt: "Toits de Bourg-Saint-Andéol et le Rhône",
+  },
+  vie_locale: {
+    image_url: "/territory/hero-ruelle.png",
+    image_alt: "Ruelle de village en Ardèche",
+  },
+  tarifs: {
+    image_url: "/territory/hero-campagne.png",
+    image_alt: "Campagne du Sud Ardèche",
+  },
 } as const;
 
 export const TERRITORY_COMMUNES: TerritoryCommune[] = [

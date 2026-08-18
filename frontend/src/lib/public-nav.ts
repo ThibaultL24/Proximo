@@ -132,10 +132,13 @@ export const PRICING_TIERS = [
   },
 ] as const;
 
-export const HOW_IT_WORKS = [
-  { step: "1", title: "Scan QR", text: "Le client scanne le QR code en vitrine ou sur un flyer." },
-  { step: "2", title: "Fiche commercant", text: "Il decouvre la fiche photo, les horaires et les contacts." },
-  { step: "3", title: "Fil local", text: "Il lit les posts et articles du territoire 07700." },
-  { step: "4", title: "Avis", text: "Il laisse un avis ; le commercant ou l'agence repond." },
-  { step: "5", title: "1 clic reseaux", text: "Le commercant publie sur Facebook, Instagram et TikTok en un envoi." },
-] as const;
+export const HOW_IT_WORKS = {
+  eyebrow: "Le concept",
+  title: "Comment ça marche",
+  lead: "Fenêtre Ouverte est un média de territoire : une adresse unique pour l’information locale, les commerces du 07700 et l’immobilier du Sud Ardèche.",
+  paragraphs: [
+    "Habitants, commerçants partenaires et agence y partagent un même fil éditorial. On y lit ce qui se passe dans les communes, on y tient sa vitrine, on y transmet un projet — chacun à sa place, sans bruit inutile.",
+    "La fiche du commerçant s’ouvre en ligne et, en magasin, par un QR code. L’habitant peut y laisser un avis ; le partenaire y répond. Articles de l’agence et publications des commerces s’y croisent, classés par commune et par rubrique.",
+    "Une publication peut également être relayée sur Facebook, Instagram et TikTok. Un seul geste, plusieurs canaux — pour rester visible sans multiplier les outils.",
+  ],
+} as const;

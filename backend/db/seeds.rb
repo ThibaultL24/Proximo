@@ -238,16 +238,16 @@ end
     price_cents: 2500,
     checkout_mode: :one_time,
     merchant: nil,
-    image_url: "https://placekitten.com/600/400"
+    image_url: nil
   },
   {
     slug: "coffret-fouace-martin",
     name: "Coffret fouace du samedi",
-    description: "Fouace aux figues + baguette levain — retrait en boutique Boulangerie Martin.",
+    description: "Fouace aux figues + baguette levain — retrait en boutique. Code promo FOUACE10 (−10 %).",
     price_cents: 1800,
     checkout_mode: :promo,
     merchant: merchant,
-    image_url: "https://placekitten.com/601/400"
+    image_url: nil
   },
   {
     slug: "panier-decouverte-martin",
@@ -256,7 +256,7 @@ end
     price_cents: 1200,
     checkout_mode: :one_time,
     merchant: merchant,
-    image_url: "https://placekitten.com/602/400"
+    image_url: nil
   },
   {
     slug: "audit-immo-express",
@@ -265,7 +265,16 @@ end
     price_cents: 9900,
     checkout_mode: :installment,
     merchant: nil,
-    image_url: "https://placekitten.com/603/400"
+    image_url: nil
+  },
+  {
+    slug: "don-territoire-07700",
+    name: "Don au territoire 07700",
+    description: "Montant libre (5 € à 200 €) pour soutenir l'info locale Fenêtre Ouverte.",
+    price_cents: 1000,
+    checkout_mode: :custom,
+    merchant: nil,
+    image_url: nil
   }
 ].each do |attrs|
   merchant_ref = attrs.delete(:merchant)

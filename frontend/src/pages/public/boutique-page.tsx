@@ -5,7 +5,8 @@ import { createProductCheckout, fetchProducts } from "../../api/products";
 import { ProductCard } from "../../components/public/product-card";
 import { linkButtonClass } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
-import { TERRITORY_HERO } from "../../lib/territory";
+import { PublicPageHero } from "../../components/public/public-page-hero";
+import { PAGE_HEROES } from "../../lib/territory";
 import type { Product } from "../../types";
 
 export function BoutiquePage() {
@@ -62,38 +63,25 @@ export function BoutiquePage() {
 
   return (
     <div className="space-y-10 pb-16">
-      <section className="relative overflow-hidden">
-        <div className="relative aspect-[21/9] min-h-[180px] max-h-[280px] w-full">
-          <img
-            src={TERRITORY_HERO.image_url}
-            alt={TERRITORY_HERO.image_alt}
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/25 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 px-1 pb-6 sm:px-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">Boutique</p>
-            <h1 className="mt-2 font-serif text-3xl font-semibold text-white sm:text-4xl">
-              Produits & services du 07700
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/80">
-              Ventes ponctuelles demo : paiement unique, code promo et paiement en plusieurs fois. Les abonnements
-              plateforme (citoyen, commercant, agence) sont sur{" "}
-              <Link to="/tarifs" className="font-semibold text-white underline">
-                la page Tarifs
-              </Link>
-              .
-            </p>
-          </div>
-        </div>
-      </section>
+      <PublicPageHero image={PAGE_HEROES.boutique} kicker="Boutique" title="Produits & services du 07700">
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/85 sm:text-base">
+          Ventes ponctuelles demo : paiement unique, code promo et paiement en plusieurs fois. Les
+          abonnements plateforme (citoyen, commercant, agence) sont sur{" "}
+          <Link to="/tarifs" className="font-semibold text-white underline">
+            la page Tarifs
+          </Link>
+          .
+        </p>
+      </PublicPageHero>
 
       <Card tone="panel" className="p-4 text-sm text-ink-muted">
         <p className="font-semibold text-ink">Cas Stripe illustres</p>
         <ul className="mt-2 list-inside list-disc space-y-1">
-          <li>Produit agence → charge plateforme (guide, audit)</li>
+          <li>Produit agence → charge plateforme (guide, audit, don)</li>
           <li>Produit commercant → destination Connect + 10 % plateforme</li>
-          <li>Code promo active sur le coffret fouace</li>
+          <li>Code promo FOUACE10 (−10 %) sur le coffret fouace</li>
           <li>Paiement en plusieurs fois via methodes Dashboard (audit immo)</li>
+          <li>Montant libre (don) via prix Stripe custom_unit_amount</li>
           <li>
             Abonnements 2 € / 12 € / 125 € →{" "}
             <Link to="/tarifs" className="font-semibold text-tile hover:underline">

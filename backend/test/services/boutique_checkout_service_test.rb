@@ -52,4 +52,18 @@ class BoutiqueCheckoutServiceTest < ActiveSupport::TestCase
     assert_equal 200, product.platform_fee_cents
     assert_equal 1800, product.merchant_amount_cents
   end
+
+  test "uses stripe catalog price when present" do
+    product = @agency.products.create!(
+      name: "Guide",
+      slug: "guide-#{SecureRandom.hex(4)}",
+      price_cents: 2500,
+      checkout_mode: :one_time,
+      status: :published,
+      stripe_price_id: "price_test_catalog"
+    )
+
+    item = BoutiqueCheckoutService.new(product, nil).send(:line_item)
+    assert_equal({ price: "price_test_catalog", quantity: 1 }, item)
+  end
 end

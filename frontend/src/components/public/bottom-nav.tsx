@@ -2,6 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/use-auth";
 import { homePathForRole } from "../../lib/auth-redirect";
+import { scrollToPageTop } from "../layout/scroll-to-top";
 
 function IconHome({ active }: { active: boolean }) {
   return (
@@ -92,6 +93,7 @@ export function BottomNav() {
             <Link
               key={item.label}
               to={target}
+              onClick={scrollToPageTop}
               className={[
                 "flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[10px] font-semibold tracking-wide",
                 active ? "text-tile" : "text-ink-muted",

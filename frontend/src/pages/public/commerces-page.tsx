@@ -4,9 +4,10 @@ import { Link, useSearchParams } from "react-router-dom";
 import { fetchMerchants } from "../../api/public";
 import { FilterChips } from "../../components/public/filter-chips";
 import { MerchantCard } from "../../components/public/merchant-card";
+import { PublicPageHero } from "../../components/public/public-page-hero";
 import { BRAND } from "../../lib/brand";
 import { FEED_CATEGORIES, type FeedCategory } from "../../lib/feed-categories";
-import { TERRITORY_COMMUNES } from "../../lib/territory";
+import { PAGE_HEROES, TERRITORY_COMMUNES } from "../../lib/territory";
 import type { Merchant } from "../../types";
 
 const COMMUNE_OPTIONS = [
@@ -101,18 +102,16 @@ export function CommercesPage() {
 
   return (
     <div className="space-y-8 pb-10">
-      <header className="space-y-3 border-b border-line pb-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
-          {BRAND.territoryLabel}
-        </p>
-        <h1 className="font-serif text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-          Commerces & partenaires
-        </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-ink-muted sm:text-base">
+      <PublicPageHero
+        image={PAGE_HEROES.commerces}
+        kicker={BRAND.territoryLabel}
+        title="Commerces & partenaires"
+      >
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/85 sm:text-base">
           Toutes les adresses du 07700, regroupées par commune. Cliquez une fiche pour découvrir le
           commerce.
         </p>
-      </header>
+      </PublicPageHero>
 
       <aside className="space-y-5 rounded-lg border border-line bg-surface p-4 sm:p-5">
         <FilterChips

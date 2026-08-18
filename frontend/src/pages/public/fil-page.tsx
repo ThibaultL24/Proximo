@@ -4,11 +4,12 @@ import { Link, useSearchParams } from "react-router-dom";
 import { fetchFeed } from "../../api/feed";
 import { FeedCard } from "../../components/public/feed-card";
 import { linkButtonClass } from "../../components/ui/button";
+import { PublicPageHero } from "../../components/public/public-page-hero";
 import { BRAND } from "../../lib/brand";
 import { FEED_CATEGORIES, FEED_CATEGORY_LABELS, type FeedCategory } from "../../lib/feed-categories";
 import { groupFeedByPeriod } from "../../lib/feed-groups";
 import { communePlacePath, filHref } from "../../lib/place-paths";
-import { TERRITORY_COMMUNES } from "../../lib/territory";
+import { PAGE_HEROES, TERRITORY_COMMUNES } from "../../lib/territory";
 import type { FeedArticleItem, FeedItem } from "../../types";
 
 type KindFilter = "all" | "article" | "publication";
@@ -97,17 +98,15 @@ export function FilPage() {
 
   return (
     <div className="space-y-8 pb-10">
-      <header className="space-y-2 border-b border-line pb-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
-          {BRAND.territoryLabel}
-        </p>
-        <h1 className="font-serif text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-          {titleParts.length ? `Fil · ${titleParts.join(" · ")}` : "Fil d'actualités"}
-        </h1>
-        <p className="max-w-xl text-sm leading-relaxed text-ink-muted">
+      <PublicPageHero
+        image={PAGE_HEROES.fil}
+        kicker={BRAND.territoryLabel}
+        title={titleParts.length ? `Fil · ${titleParts.join(" · ")}` : "Fil d'actualités"}
+      >
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/85 sm:text-base">
           Une lecture claire : une à la une, puis le fil par période.
         </p>
-      </header>
+      </PublicPageHero>
 
       <div className="sticky top-[3.25rem] z-20 -mx-4 border-b border-line bg-paper/95 px-4 py-3 backdrop-blur-sm sm:top-[4.5rem]">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">

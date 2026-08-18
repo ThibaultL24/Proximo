@@ -2,8 +2,10 @@
 import { Link } from "react-router-dom";
 import { linkButtonClass } from "../../components/ui/button";
 import { BRAND } from "../../lib/brand";
-import { HOW_IT_WORKS, OFFER_TIERS, PRICING_TIERS } from "../../lib/public-nav";
-import { TERRITORY_HERO } from "../../lib/territory";
+import { HowItWorks } from "../../components/public/how-it-works";
+import { PublicPageHero } from "../../components/public/public-page-hero";
+import { OFFER_TIERS, PRICING_TIERS } from "../../lib/public-nav";
+import { PAGE_HEROES } from "../../lib/territory";
 
 const AUDIENCES = [
   {
@@ -32,38 +34,28 @@ const AUDIENCES = [
 export function HomePage() {
   return (
     <div className="space-y-16 pb-16 md:pb-10">
-      <section className="relative -mx-4 overflow-hidden sm:mx-0 sm:rounded-lg">
-        <div className="relative aspect-[21/9] min-h-[240px] max-h-[420px] w-full">
-          <img
-            src={TERRITORY_HERO.image_url}
-            alt={TERRITORY_HERO.image_alt}
-            className="h-full w-full object-cover"
-            loading="eager"
-            fetchPriority="high"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/25 to-ink/10" />
-          <div className="absolute inset-x-0 bottom-0 px-4 pb-8 sm:px-8 sm:pb-10">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
-              {BRAND.territoryLabel}
-            </p>
-            <h1 className="mt-2 max-w-3xl font-serif text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-              {BRAND.name}
-            </h1>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">
-              {BRAND.tagline} Commerces, actu locale et immobilier du 07700 — avec QR code, avis et
-              publication multi-reseaux.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/fil" className={linkButtonClass("accent")}>
-                Voir le fil
-              </Link>
-              <Link to="/tarifs" className={linkButtonClass("outline", "border-white/40 bg-white/10 text-white hover:bg-white/20")}>
-                Voir les tarifs
-              </Link>
-            </div>
-          </div>
+      <PublicPageHero
+        image={PAGE_HEROES.home}
+        kicker={BRAND.territoryLabel}
+        title={BRAND.name}
+        size="lg"
+      >
+        <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">
+          {BRAND.tagline} Commerces, actu locale et immobilier du 07700 — avec QR code, avis et
+          publication multi-reseaux.
+        </p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link to="/fil" className={linkButtonClass("accent")}>
+            Voir le fil
+          </Link>
+          <Link
+            to="/tarifs"
+            className={linkButtonClass("outline", "border-white/40 bg-white/10 text-white hover:bg-white/20")}
+          >
+            Voir les tarifs
+          </Link>
         </div>
-      </section>
+      </PublicPageHero>
 
       <section aria-labelledby="pour-qui-heading" className="space-y-6">
         <div className="max-w-2xl">
@@ -87,20 +79,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section aria-labelledby="how-heading" className="border border-line bg-paper px-5 py-8 sm:px-8">
-        <h2 id="how-heading" className="font-serif text-2xl font-semibold text-ink sm:text-3xl">
-          Comment ca marche
-        </h2>
-        <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {HOW_IT_WORKS.map((item) => (
-            <li key={item.step} className="border border-line bg-surface p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-tile">Etape {item.step}</p>
-              <p className="mt-2 font-serif text-lg font-semibold text-ink">{item.title}</p>
-              <p className="mt-2 text-sm leading-relaxed text-ink-muted">{item.text}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
+      <HowItWorks />
 
       <section aria-labelledby="tarifs-heading" className="space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-4">

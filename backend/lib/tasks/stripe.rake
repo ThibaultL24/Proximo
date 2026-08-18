@@ -56,6 +56,16 @@ namespace :stripe do
     puts "Evenements : checkout.session.completed, customer.subscription.*, invoice.paid, invoice.payment_failed, account.updated"
   end
 
+  desc "Create one-time boutique products (digital, physical, promo, installment, pay-what-you-want)"
+  task setup_shop_products: :environment do
+    result = StripeShopCatalog.sync!
+    puts "Boutique Stripe :"
+    result[:items].each do |item|
+      puts "  #{item[:slug]}  product=#{item[:stripe_product_id]}  price=#{item[:stripe_price_id]}"
+    end
+    puts "Promo : #{result[:coupon][:promotion_code]} (coupon #{result[:coupon][:coupon_id]})"
+  end
+
   def find_or_create_product(lookup_key:, name:, description:, plan:)
     existing = Stripe::Product.list(limit: 100).data.find { |p| p.metadata["lookup_key"] == lookup_key }
     return existing if existing

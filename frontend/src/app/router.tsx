@@ -2,6 +2,7 @@
 import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
 import { DashboardLayout } from "../components/layout/dashboard-layout";
 import { PublicLayout } from "../components/layout/public-layout";
+import { ScrollToTop } from "../components/layout/scroll-to-top";
 import { useAuth } from "../hooks/use-auth";
 import { ClientDashboardPage } from "../pages/client/client-dashboard-page";
 import { ClientNewLeadPage } from "../pages/client/client-new-lead-page";
@@ -53,6 +54,7 @@ function GazetteTerritoireRedirect() {
 export function AppRouter() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route element={<PublicLayout />}>
           <Route index element={<HomePage />} />

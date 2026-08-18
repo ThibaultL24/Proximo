@@ -7,7 +7,8 @@ class Product < ApplicationRecord
   enum :checkout_mode, {
     one_time: 0,
     promo: 1,
-    installment: 2
+    installment: 2,
+    custom: 3
   }
 
   enum :status, { draft: 0, published: 1 }
@@ -34,5 +35,13 @@ class Product < ApplicationRecord
 
   def merchant_amount_cents
     price_cents - platform_fee_cents
+  end
+
+  def catalog_price?
+    stripe_price_id.present?
+  end
+
+  def custom_amount?
+    custom?
   end
 end

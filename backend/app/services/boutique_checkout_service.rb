@@ -60,12 +60,16 @@ class BoutiqueCheckoutService
     params[:customer_email] = user.email if user&.email.present?
     params[:mode] = "payment"
     params[:payment_intent_data] = payment_intent_data if product.merchant_product?
-    params[:allow_promotion_codes] = true if product.promo?
+    params[:allow_promotion_codes] = true if product.promo? || product.custom?
 
     params
   end
 
   def line_item
+    if product.stripe_price_id.present?
+      return { price: product.stripe_price_id, quantity: 1 }
+    end
+
     {
       price_data: {
         currency: product.currency.downcase,

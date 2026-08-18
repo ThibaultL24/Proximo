@@ -6,10 +6,11 @@ import { fetchMerchants } from "../../api/public";
 import { FeedCard } from "../../components/public/feed-card";
 import { FilterChips } from "../../components/public/filter-chips";
 import { MerchantCard } from "../../components/public/merchant-card";
+import { PublicPageHero } from "../../components/public/public-page-hero";
 import { BRAND } from "../../lib/brand";
 import { FEED_CATEGORY_LABELS, RUBRIQUES, type FeedCategory } from "../../lib/feed-categories";
 import { communePlacePath, filHref } from "../../lib/place-paths";
-import { TERRITORY_COMMUNES } from "../../lib/territory";
+import { PAGE_HEROES, TERRITORY_COMMUNES } from "../../lib/territory";
 import type { FeedItem, Merchant } from "../../types";
 
 const COMMUNE_OPTIONS = [
@@ -68,24 +69,21 @@ export function RubriquePage({ category }: RubriquePageProps) {
 
   return (
     <div className="space-y-8 pb-10">
-      <header className="space-y-3 border-b border-line pb-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">
-          Rubrique · {BRAND.territoryLabel}
-        </p>
-        <h1 className="font-serif text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-          {meta.label}
-          {communeName ? ` · ${communeName}` : ""}
-        </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-ink-muted sm:text-base">
+      <PublicPageHero
+        image={PAGE_HEROES[category]}
+        kicker={`Rubrique · ${BRAND.territoryLabel}`}
+        title={communeName ? `${meta.label} · ${communeName}` : meta.label}
+      >
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/85 sm:text-base">
           {meta.description} Sur toutes les communes du 07700 — affinez par ville si besoin.
         </p>
         <Link
           to={filHref({ category })}
-          className="inline-block text-sm font-semibold text-tile hover:underline"
+          className="mt-3 inline-block text-sm font-semibold text-white underline decoration-white/40 underline-offset-4 hover:decoration-white"
         >
           Ouvrir dans le fil →
         </Link>
-      </header>
+      </PublicPageHero>
 
       <aside className="rounded-lg border border-line bg-surface p-4 sm:p-5">
         <FilterChips

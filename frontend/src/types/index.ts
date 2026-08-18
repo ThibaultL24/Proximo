@@ -446,7 +446,7 @@ export interface PublicationDetail {
   merchant: FeedMerchantSummary;
 }
 
-export type ProductCheckoutMode = "one_time" | "promo" | "installment";
+export type ProductCheckoutMode = "one_time" | "promo" | "installment" | "custom";
 
 export interface Product {
   id: number;
