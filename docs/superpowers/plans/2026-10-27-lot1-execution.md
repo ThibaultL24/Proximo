@@ -29,13 +29,13 @@
 ### Tâche 3 : Proximo, isolation des organisations — ARRÊT OBLIGATOIRE
 
 - [x] Introduire `Organization`, `Membership`, `Partner` (migrations contraintes, FK, index) — tests CI encore à confirmer.
-- [ ] Migration progressive des données `Agency` et des relations utiles.
+- [x] Migration progressive : les anciennes agences, leurs administrateurs, commerçants et prospects sont rattachés aux nouvelles organisations / partenaires. Réexécution idempotente vérifiée par test CI à confirmer.
 - [ ] Tests de base ajoutés sur les nouveaux endpoints avec deux organisations fictives (lecture, mutation, accès ID direct et rôles). Reste : exécution CI et audit des parcours hérités / tableaux de bord.
-- [ ] Relecture des contrôleurs, politiques, services et serializers avant la suite.
+- [ ] Accès directs inter-agences corrigés dans les anciens contrôleurs admin (leads, commissions, checkout). Reste : revue complète des contrôleurs, politiques, services, serializers.
 
 ### Tâche 4 : routes et métier Proximo
 
-- [ ] Découpler `Lead` des commerçants ; garder l'audit des statuts et commissions.
+- [ ] Nouveaux leads Proximo indépendants des commerçants sur endpoints dédiés (création/lecture). Reste : migration des anciens parcours de statut, commission, suppression des colonnes legacy.
 - [ ] Isoler les endpoints, rôles, UI et facturation immobiliers.
 
 ### Tâche 5 : Fenêtre Ouverte, isolation des territoires — ARRÊT OBLIGATOIRE

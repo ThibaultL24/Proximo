@@ -9,6 +9,7 @@ Rails.application.routes.draw do
       namespace :proximo do
         resources :organizations, only: %i[index show] do
           resources :partners, only: %i[index show create update]
+          resources :leads, only: %i[index show create]
         end
       end
 

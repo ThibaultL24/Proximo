@@ -1,7 +1,9 @@
 # app/models/lead.rb
 class Lead < ApplicationRecord
   belongs_to :merchant, optional: true
-  belongs_to :agency
+  belongs_to :agency, optional: true # legacy bridge until Agency is removed
+  belongs_to :organization, optional: true
+  belongs_to :partner, optional: true
   belongs_to :submitted_by, class_name: "User"
   has_one :commission, dependent: :destroy
   has_many :lead_status_events, dependent: :destroy
@@ -19,11 +21,29 @@ class Lead < ApplicationRecord
   validates :contact_name, :contact_phone, :lead_type, presence: true
   validates :consent_given, acceptance: { message: "doit etre confirme" }
   validate :merchant_must_be_published, if: -> { merchant.present? }
+  validate :organization_or_legacy_agency
+  validate :partner_belongs_to_organization
+  validate :agency_organization_consistency
   validates :budget_min, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :budget_max, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validate :budget_max_must_be_greater_than_budget_min
 
   private
+
+  def organization_or_legacy_agency
+    errors.add(:organization, "doit etre renseignee") if organization.nil? && agency.nil?
+  end
+
+  def partner_belongs_to_organization
+    return if partner.nil? || organization.nil?
+    errors.add(:partner, "n'appartient pas a cette organisation") if partner.organization_id != organization.id
+  end
+
+  def agency_organization_consistency
+    return if organization.nil? || agency.nil? || organization.legacy_agency_id.nil?
+    errors.add(:organization, "ne correspond pas a l'agence source") if organization.legacy_agency_id != agency.id
+  end
+
 
   def budget_max_must_be_greater_than_budget_min
     return if budget_min.blank? || budget_max.blank?
