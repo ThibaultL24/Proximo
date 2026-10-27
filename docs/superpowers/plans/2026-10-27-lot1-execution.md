@@ -28,9 +28,9 @@
 
 ### Tâche 3 : Proximo, isolation des organisations — ARRÊT OBLIGATOIRE
 
-- [ ] Introduire `Organization`, `Membership`, `Partner` (migrations contraintes, FK, index).
+- [x] Introduire `Organization`, `Membership`, `Partner` (migrations contraintes, FK, index) — tests CI encore à confirmer.
 - [ ] Migration progressive des données `Agency` et des relations utiles.
-- [ ] Tests des accès avec deux organisations fictives : lecture, mutation, accès par ID direct, tableaux de bord, rôles.
+- [ ] Tests de base ajoutés sur les nouveaux endpoints avec deux organisations fictives (lecture, mutation, accès ID direct et rôles). Reste : exécution CI et audit des parcours hérités / tableaux de bord.
 - [ ] Relecture des contrôleurs, politiques, services et serializers avant la suite.
 
 ### Tâche 4 : routes et métier Proximo

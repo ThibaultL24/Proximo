@@ -5,6 +5,13 @@ Rails.application.routes.draw do
     namespace :v1 do
       get "health", to: "health#show"
 
+      # API multi-organisations nouvelle génération : ne dépend pas d'Agency.
+      namespace :proximo do
+        resources :organizations, only: %i[index show] do
+          resources :partners, only: %i[index show create update]
+        end
+      end
+
       namespace :auth do
         post "login", to: "sessions#create"
         post "register", to: "registrations#create"

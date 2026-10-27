@@ -10,6 +10,9 @@ class User < ApplicationRecord
 
   enum :role, { merchant: 0, admin: 1, client: 2, super_admin: 3 }
 
+  has_many :memberships, dependent: :destroy
+  has_many :organizations, through: :memberships
+
   belongs_to :agency, optional: true
 
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
