@@ -41,8 +41,8 @@
 ### Tâche 5 : Fenêtre Ouverte, isolation des territoires — ARRÊT OBLIGATOIRE
 
 - [ ] `Territory` et contrôles de portée.
-- [ ] Deux territoires fictifs, accès direct interdit hors périmètre.
-- [ ] Conserver Gazette, fiches, publications, QR et fonction sociale.
+- [x] Deux territoires fictifs, tests d'accès direct (lecture et écriture) ajoutés et validés sur CI.
+- [x] Gazette, fiches, publications, QR et intégrations sociales héritées conservées sans suppressions ; revue des parcours restant nécessaire.
 
 ### Tâches 6 et 7 : nettoyage, vérification
 

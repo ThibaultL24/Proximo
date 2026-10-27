@@ -62,3 +62,12 @@ jobs:
           node-version: "22"
       - run: npm ci
       - run: npm run build
+
+  local_preview_config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate local startup script syntax
+        run: bash -n scripts/lot1-local.sh
+      - name: Validate local PostgreSQL Compose configuration
+        run: docker compose -f compose.lot1.local.yml config --quiet

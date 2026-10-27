@@ -8,8 +8,10 @@ COMMAND="${1:-help}"
 # These credentials are only for local Docker Compose containers.
 export RAILS_ENV=development
 export LOT1_SKIP_REMOTE_ASSETS=1
-export FENETRE_OUVERTE_DATABASE_URL="${FENETRE_OUVERTE_DATABASE_URL:-postgresql://lot1:lot1-local-only@127.0.0.1:55432/fenetre_ouverte_development}"
-export PROXIMO_DATABASE_URL="${PROXIMO_DATABASE_URL:-postgresql://lot1:lot1-local-only@127.0.0.1:55433/proximo_development}"
+# Deliberately override inherited database variables: NEVER operate on production here.
+unset DATABASE_URL
+export FENETRE_OUVERTE_DATABASE_URL="postgresql://lot1:lot1-local-only@127.0.0.1:55432/fenetre_ouverte_development"
+export PROXIMO_DATABASE_URL="postgresql://lot1:lot1-local-only@127.0.0.1:55433/proximo_development"
 export FENETRE_OUVERTE_JWT_SECRET="${FENETRE_OUVERTE_JWT_SECRET:-local-demo-fo-jwt-secret-not-for-production}"
 export PROXIMO_JWT_SECRET="${PROXIMO_JWT_SECRET:-local-demo-proximo-jwt-secret-not-for-production}"
 
