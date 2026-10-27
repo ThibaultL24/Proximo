@@ -2,7 +2,7 @@ require "test_helper"
 
 class JsonWebTokenTest < ActiveSupport::TestCase
   test "creates and verifies a local token with explicit issuer and audience" do
-    token = JsonWebToken.encode(user_id: 42)
+    token = JsonWebToken.encode({ user_id: 42 })
     payload = JsonWebToken.decode(token)
 
     assert_equal 42, payload[:user_id]

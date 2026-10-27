@@ -66,6 +66,6 @@ class ProximoOrganizationIsolationTest < ActionDispatch::IntegrationTest
   private
 
   def auth(user)
-    { "Authorization" => "Bearer #{JsonWebToken.encode(user_id: user.id)}" }
+    { "Authorization" => "Bearer #{JsonWebToken.encode({ user_id: user.id })}" }
   end
 end
