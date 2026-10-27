@@ -4,6 +4,7 @@ module Api
       class LeadsController < ApplicationController
         before_action :authenticate_user!
         before_action :load_membership!
+        before_action :require_manager!, only: %i[qualify reject convert]
 
         def index
           render json: scoped_leads.includes(:submitted_by).order(created_at: :desc).map { |lead| serialize(lead) }
@@ -38,7 +39,34 @@ module Api
           end
         end
 
+        def qualify
+          transition!(:qualified, note: params[:note])
+        end
+
+        def reject
+          transition!(:rejected, note: params[:reason])
+        end
+
+        def convert
+          transition!(:converted, note: params[:note], amount_cents: params[:amount_cents])
+        end
+
         private
+
+        def transition!(status, note:, amount_cents: nil)
+          lead = @membership.organization.leads.find(params[:id])
+          ProximoLeadWorkflow.transition!(
+            lead: lead, actor: current_user, to: status,
+            note: note, amount_cents: amount_cents
+          )
+          render json: serialize(lead.reload)
+        rescue ProximoLeadWorkflow::InvalidTransition => e
+          render json: { error: e.message }, status: :unprocessable_entity
+        end
+
+        def require_manager!
+          forbidden unless @membership.owner? || @membership.manager?
+        end
 
         def load_membership!
           @membership = current_user.memberships.find_by(organization_id: params[:organization_id])

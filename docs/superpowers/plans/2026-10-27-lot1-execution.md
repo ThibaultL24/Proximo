@@ -36,7 +36,7 @@
 ### Tâche 4 : routes et métier Proximo
 
 - [ ] Nouveaux leads Proximo indépendants des commerçants sur endpoints dédiés (création/lecture). Reste : migration des anciens parcours de statut, commission, suppression des colonnes legacy.
-- [ ] Isoler les endpoints, rôles, UI et facturation immobiliers.
+- [ ] API immobilière indépendante créée : leads, qualification, rejet, conversion, commissions en lecture, contrôle des rôles. Restent l'UI spécialisée, le paiement et la facturation Stripe.
 
 ### Tâche 5 : Fenêtre Ouverte, isolation des territoires — ARRÊT OBLIGATOIRE
 
