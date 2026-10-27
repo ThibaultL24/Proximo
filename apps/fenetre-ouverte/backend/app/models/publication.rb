@@ -2,6 +2,7 @@
 class Publication < ApplicationRecord
   belongs_to :merchant
   belongs_to :agency
+  belongs_to :territory, optional: true
   has_many :social_posts, dependent: :destroy
   has_many :reviews, as: :reviewable, dependent: :destroy
 
@@ -19,9 +20,25 @@ class Publication < ApplicationRecord
 
   validates :body, presence: true
   validates :category, presence: true
+  validate :territory_matches_references
 
   scope :published, -> { where(status: :published).where("published_at IS NULL OR published_at <= ?", Time.current) }
   scope :recent, -> { order(published_at: :desc, created_at: :desc) }
+
+  private
+
+  def territory_matches_references
+    return unless territory
+
+    if territory.legacy_agency_id.present? && territory.legacy_agency_id != agency_id
+      errors.add(:territory, "ne correspond pas a l'agence historique")
+    end
+    if merchant&.territory_id.present? && merchant.territory_id != territory_id
+      errors.add(:merchant, "n'appartient pas au territoire")
+    end
+  end
+
+  public
 
   def publish!
     update!(status: :published, published_at: Time.current)

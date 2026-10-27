@@ -10,7 +10,9 @@ class User < ApplicationRecord
 
   enum :role, { merchant: 0, admin: 1, client: 2, super_admin: 3 }
 
-  belongs_to :agency, optional: true
+  belongs_to :agency, optional: true # legacy bridge
+  has_many :territory_memberships, dependent: :destroy
+  has_many :territories, through: :territory_memberships
 
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :password, length: { minimum: 8 }, if: -> { password.present? }

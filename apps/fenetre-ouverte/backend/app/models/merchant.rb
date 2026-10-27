@@ -2,6 +2,7 @@
 class Merchant < ApplicationRecord
   belongs_to :sector
   belongs_to :agency
+  belongs_to :territory, optional: true
 
   has_many :products, dependent: :destroy
 
@@ -30,6 +31,7 @@ class Merchant < ApplicationRecord
   validates :name, :slug, :sector, :agency, presence: true
   validates :slug, uniqueness: { scope: :agency_id }
   validates :qr_token, uniqueness: true
+  validate :territory_matches_legacy_and_sector
 
   before_validation :generate_slug, if: -> { slug.blank? && name.present? }
   before_validation :generate_qr_token, on: :create
@@ -63,6 +65,18 @@ class Merchant < ApplicationRecord
   end
 
   private
+
+  def territory_matches_legacy_and_sector
+    return unless territory
+
+    if territory.legacy_agency_id.present? && territory.legacy_agency_id != agency_id
+      errors.add(:territory, "ne correspond pas a l'agence historique")
+    end
+    if sector&.territory_id.present? && sector.territory_id != territory_id
+      errors.add(:sector, "n'appartient pas au territoire")
+    end
+  end
+
 
   def generate_slug
     self.slug = name.parameterize

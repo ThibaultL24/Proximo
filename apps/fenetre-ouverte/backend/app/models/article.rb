@@ -4,6 +4,7 @@ class Article < ApplicationRecord
   belongs_to :merchant, optional: true
   belongs_to :place, optional: true
   belongs_to :agency
+  belongs_to :territory, optional: true
 
   has_many :reviews, as: :reviewable, dependent: :destroy
 
@@ -31,11 +32,24 @@ class Article < ApplicationRecord
   IMMO_CATEGORIES = %w[real_estate agency_news].freeze
 
   validate :category_matches_editorial_scope, if: :category_changed?
+  validate :territory_matches_references
 
   scope :gazette, -> { where(category: GAZETTE_CATEGORIES) }
   scope :immo, -> { where(category: IMMO_CATEGORIES) }
 
   private
+
+  def territory_matches_references
+    return unless territory
+
+    if territory.legacy_agency_id.present? && territory.legacy_agency_id != agency_id
+      errors.add(:territory, "ne correspond pas a l'agence historique")
+    end
+    if merchant&.territory_id.present? && merchant.territory_id != territory_id
+      errors.add(:merchant, "n'appartient pas au territoire")
+    end
+  end
+
 
   def category_matches_editorial_scope
     return if GAZETTE_CATEGORIES.include?(category) || IMMO_CATEGORIES.include?(category)

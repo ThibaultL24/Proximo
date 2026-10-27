@@ -13,6 +13,13 @@ Rails.application.routes.draw do
         get "me", to: "sessions#show"
       end
 
+      # Nouvelle API multi-territoires, independante des recherches globales Agency.
+      scope "territories/:territory_slug", module: :territories do
+        resources :merchants, only: %i[index show]
+        resources :articles, only: %i[index show update]
+        resources :publications, only: %i[index show]
+      end
+
       namespace :public do
         get "feed", to: "feed#index"
         resources :sectors, only: %i[index show], param: :slug

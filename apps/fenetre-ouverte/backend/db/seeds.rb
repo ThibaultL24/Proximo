@@ -291,6 +291,9 @@ Product.where(agency: agency, slug: "abonnement-pan-surprise").destroy_all
 require_relative "seeds/demo_enrichment"
 DemoEnrichment.call(agency: agency, merchant: merchant, client: client, admin: admin)
 
+require Rails.root.join("db/migrate/20261028000200_backfill_territories").to_s
+BackfillTerritories.new.backfill!
+
 puts "Seeds OK — Fenêtre Ouverte 07700"
 puts "Agency: #{agency.name} (#{agency.slug})"
 puts "Territoire: #{bourg.name} (#{bourg.slug})"
