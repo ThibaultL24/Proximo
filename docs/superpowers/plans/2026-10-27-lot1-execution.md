@@ -1,0 +1,56 @@
+# Lot 1 — Exécution contrôlée de la séparation (27 octobre 2026)
+
+## Base et invariants
+
+- Source : commit `fa20cd5411f0efb8b2d316d31e86d34a38c0fa7c` de `main` (18 août 2026).
+- Monolithe historique conservé en place ; boutique gelée, ni déplacée ni enrichie.
+- Proximo : `Organization`, `Membership`, `Partner`, `Lead`, `Commission`.
+- Fenêtre Ouverte : `Territory`, `Merchant`, `Article`, `Publication`, `QR`.
+- `Agency` supprimée des deux applications à la fin du lot, jamais avant migration des dépendances.
+- `Lead` sans `merchant_id` ; `Merchant` sans leads ni produits.
+- Deux bases PostgreSQL, sans table partagée, migration ou authentification croisée.
+- JWT : secrets, `iss`, `aud` propres à chaque API. Vérifier le refus de jetons croisés, même si les secrets de test sont identiques.
+
+## Ordre opératoire (arrêts de revue)
+
+### Tâche 1 : snapshot et copies
+
+- [x] Préserver `backend/` et `frontend/`.
+- [x] Dupliquer les répertoires dans `apps/proximo/` et `apps/fenetre-ouverte/`.
+- [ ] Vérifier la compilation et les tests des copies ; **aucun déploiement**.
+
+### Tâche 2 : socles indépendants
+
+- [ ] PostgreSQL par application en dev/test/prod.
+- [ ] Ports Rails `3100` et `3200`, Vite `5174` et `5173`.
+- [ ] JWT avec `iss/aud` et secrets propres, tests positifs et négatifs.
+- [ ] Configurations distinctes et aucun secret d'exemple valide en production.
+
+### Tâche 3 : Proximo, isolation des organisations — ARRÊT OBLIGATOIRE
+
+- [ ] Introduire `Organization`, `Membership`, `Partner` (migrations contraintes, FK, index).
+- [ ] Migration progressive des données `Agency` et des relations utiles.
+- [ ] Tests des accès avec deux organisations fictives : lecture, mutation, accès par ID direct, tableaux de bord, rôles.
+- [ ] Relecture des contrôleurs, politiques, services et serializers avant la suite.
+
+### Tâche 4 : routes et métier Proximo
+
+- [ ] Découpler `Lead` des commerçants ; garder l'audit des statuts et commissions.
+- [ ] Isoler les endpoints, rôles, UI et facturation immobiliers.
+
+### Tâche 5 : Fenêtre Ouverte, isolation des territoires — ARRÊT OBLIGATOIRE
+
+- [ ] `Territory` et contrôles de portée.
+- [ ] Deux territoires fictifs, accès direct interdit hors périmètre.
+- [ ] Conserver Gazette, fiches, publications, QR et fonction sociale.
+
+### Tâches 6 et 7 : nettoyage, vérification
+
+- [ ] Supprimer `Agency` et les dépendances étrangères à chacun des domaines.
+- [ ] Préserver la boutique dans le monolithe gelé uniquement.
+- [ ] Exécuter tests API, intégration, build front et sécurité ; démontrer que chaque API refuse le JWT de l'autre.
+- [ ] Préparer une migration des données **sans réutiliser directement la base en production**.
+
+## Conditions de fin
+
+Deux backends Rails indépendants répondent sur `:3100` et `:3200`, avec deux bases PostgreSQL et des JWT incompatibles. Les deux frontières métier et les tests d'isolation sont validés. Jusqu'à cette preuve, il s'agit d'une branche d'extraction, pas d'un remplacement prêt à livrer.
