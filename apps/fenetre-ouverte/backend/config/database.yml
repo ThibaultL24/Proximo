@@ -14,4 +14,4 @@ test:
 
 production:
   <<: *default
-  url: <%= ENV.fetch("FENETRE_OUVERTE_DATABASE_URL") %>
+  url: <%= ENV["FENETRE_OUVERTE_DATABASE_URL"] %>

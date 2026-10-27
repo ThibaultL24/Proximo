@@ -14,4 +14,4 @@ test:
 
 production:
   <<: *default
-  url: <%= ENV.fetch("PROXIMO_DATABASE_URL") %>
+  url: <%= ENV["PROXIMO_DATABASE_URL"] %>
