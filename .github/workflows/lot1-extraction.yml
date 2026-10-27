@@ -46,6 +46,22 @@ jobs:
           PROXIMO_TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/proximo_test
           FENETRE_OUVERTE_TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/fenetre_ouverte_test
 
+      - name: Smoke-test local demo seeds and domain backfill
+        env:
+          RAILS_ENV: test
+          LOT1_SKIP_REMOTE_ASSETS: "1"
+          PROXIMO_TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/proximo_test
+          FENETRE_OUVERTE_TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/fenetre_ouverte_test
+          PROXIMO_CONFIRM_LEGACY_BACKFILL: "1"
+        run: |
+          bin/rails db:seed
+          if [ "${{ matrix.app }}" = "proximo" ]; then
+            bin/rails proximo:backfill_legacy
+            bin/rails runner 'abort "No migrated organizations" unless Organization.exists?'
+          else
+            bin/rails runner 'abort "No migrated territories" unless Territory.exists?'
+          fi
+
   frontend:
     runs-on: ubuntu-latest
     strategy:
