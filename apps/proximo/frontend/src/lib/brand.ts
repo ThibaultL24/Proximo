@@ -1,8 +1,8 @@
-// src/lib/brand.ts
+// Copie provisoire : les écrans purement territoriaux restent à retirer.
 export const BRAND = {
-  name: "Fenêtre Ouverte",
-  tagline: "L'information locale, l'immobilier et les bonnes adresses.",
-  territory: "07700",
-  territoryLabel: "Sud Ardèche · 07700",
-  shortPitch: "Actualités, commerces, sorties et projets immo — publiés par les habitants et partenaires du 07700.",
+  name: "Proximo",
+  tagline: "Plateforme immobilière d'apporteurs d'affaires.",
+  territory: "",
+  territoryLabel: "Réseau immobilier",
+  shortPitch: "Relations partenaires, opportunités et commissions immobilières.",
 } as const;

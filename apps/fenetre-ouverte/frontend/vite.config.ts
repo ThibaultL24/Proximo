@@ -94,13 +94,14 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
+    strictPort: true,
     proxy: {
       "/api": {
-        target: "http://localhost:3000",
+        target: "http://localhost:3200",
         changeOrigin: true,
       },
       "/rails": {
-        target: "http://localhost:3000",
+        target: "http://localhost:3200",
         changeOrigin: true,
       },
     },

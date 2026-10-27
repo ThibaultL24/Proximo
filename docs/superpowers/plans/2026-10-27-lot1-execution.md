@@ -21,10 +21,10 @@
 
 ### Tâche 2 : socles indépendants
 
-- [ ] PostgreSQL par application en dev/test/prod.
-- [ ] Ports Rails `3100` et `3200`, Vite `5174` et `5173`.
-- [ ] JWT avec `iss/aud` et secrets propres, tests positifs et négatifs.
-- [ ] Configurations distinctes et aucun secret d'exemple valide en production.
+- [x] Configuration PostgreSQL distincte par application en dev/test/prod (tests CI à confirmer).
+- [x] Ports Rails `3100` et `3200`, Vite `5174` et `5173`.
+- [x] JWT avec `iss/aud` et secrets propres, tests positifs et négatifs (exécution CI à confirmer).
+- [x] Configurations distinctes et secrets explicites obligatoires en production.
 
 ### Tâche 3 : Proximo, isolation des organisations — ARRÊT OBLIGATOIRE
 

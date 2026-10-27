@@ -1,0 +1,62 @@
+name: Lot 1 extraction checks
+on:
+  pull_request:
+    paths:
+      - "apps/**"
+      - ".github/workflows/lot1-extraction.yml"
+  push:
+    branches:
+      - refactor/lot1-domain-extraction
+
+jobs:
+  rails:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [proximo, fenetre-ouverte]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: apps/${{ matrix.app }}/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4.1"
+          bundler-cache: true
+          working-directory: apps/${{ matrix.app }}/backend
+      - name: Prepare database and run tests
+        run: bin/rails db:prepare && bin/rails test
+        env:
+          RAILS_ENV: test
+          PROXIMO_TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/proximo_test
+          FENETRE_OUVERTE_TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/fenetre_ouverte_test
+
+  frontend:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [proximo, fenetre-ouverte]
+    defaults:
+      run:
+        working-directory: apps/${{ matrix.app }}/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci
+      - run: npm run build

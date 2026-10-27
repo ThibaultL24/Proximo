@@ -10,7 +10,7 @@ Le **monolithe de référence reste dans `backend/` et `frontend/`**, volontaire
 ## Jalons
 
 1. [x] Dupliquer la base historique sans modifier la version en ligne.
-2. [ ] Préparer les services indépendants (ports, bases PostgreSQL, JWT distincts).
+2. [x] Préparer la configuration des services indépendants (ports, bases PostgreSQL, JWT distincts) ; tests CI à valider.
 3. [ ] Créer Organization / Membership / Partner dans Proximo et prouver l'isolation de deux organisations fictives.
 4. [ ] Extraire les parcours immobiliers, supprimer les liens marchand / prospect.
 5. [ ] Créer Territory dans Fenêtre Ouverte et vérifier l'isolation de deux territoires fictifs.

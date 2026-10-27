@@ -1,7 +1,7 @@
 // src/api/client.ts
 import axios from "axios";
 
-const TOKEN_KEY = "proximmo_token";
+const TOKEN_KEY = "fenetre_ouverte_token";
 export const API_ROOT = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") || "";
 
 export const api = axios.create({
