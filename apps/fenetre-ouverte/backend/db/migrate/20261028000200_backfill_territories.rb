@@ -6,13 +6,10 @@ class BackfillTerritories < ActiveRecord::Migration[8.0]
   end
 
   def down
-    # Keep original historical foreign keys on the legacy models.
-    execute "UPDATE publications SET territory_id = NULL"
-    execute "UPDATE articles SET territory_id = NULL"
-    execute "UPDATE merchants SET territory_id = NULL"
-    execute "UPDATE sectors SET territory_id = NULL"
-    execute "DELETE FROM territory_memberships"
-    execute "DELETE FROM territories WHERE legacy_agency_id IS NOT NULL"
+    # An automatic rollback would detach or delete editorial work created
+    # after import. Require an explicit, reviewed data migration instead.
+    raise ActiveRecord::IrreversibleMigration,
+      "Export or reconcile territorial content before rolling back"
   end
 
   def backfill!
