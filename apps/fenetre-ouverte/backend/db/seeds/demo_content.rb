@@ -3,6 +3,8 @@ module DemoContent
   module_function
 
   def attach_remote_file(record, attachment, url, filename)
+    return if ENV["LOT1_SKIP_REMOTE_ASSETS"] == "1"
+
     require "open-uri"
 
     io = URI.open(url, read_timeout: 15, open_timeout: 10)
