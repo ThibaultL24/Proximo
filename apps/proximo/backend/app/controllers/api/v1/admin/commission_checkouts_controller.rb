@@ -20,7 +20,7 @@ module Api
         private
 
         def set_commission
-          @commission = ::Commission.find(params[:commission_id])
+          @commission = policy_scope(::Commission).find(params[:commission_id])
         end
       end
     end

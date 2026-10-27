@@ -62,7 +62,8 @@ module Api
         private
 
         def set_lead
-          @lead = ::Lead.find(params[:id])
+          # Scope before authorization: an ID from a different tenant must be 404.
+          @lead = policy_scope(::Lead).find(params[:id])
         end
 
         def lead_params
