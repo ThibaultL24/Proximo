@@ -37,6 +37,8 @@ jobs:
           ruby-version: "3.4"
           bundler-cache: true
           working-directory: apps/${{ matrix.app }}/backend
+      - name: Install libvips for ruby-vips
+        run: sudo apt-get update && sudo apt-get install -y libvips-dev
       - name: Prepare database and run tests
         run: bin/rails db:prepare && bin/rails test
         env:
