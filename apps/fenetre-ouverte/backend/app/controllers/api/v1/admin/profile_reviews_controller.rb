@@ -38,6 +38,8 @@ module Api
             id: revision.id, merchant_id: revision.merchant_id, merchant_name: revision.merchant.name,
             status: revision.status, changeset: revision.changeset,
             logo_attached: revision.logo.attached?, photos_count: revision.photos.count,
+            logo_url: AttachmentUrls.blob_path(revision.logo),
+            photo_urls: AttachmentUrls.blob_paths(revision.photos),
             submitted_at: revision.created_at, review_note: revision.review_note
           }
         end

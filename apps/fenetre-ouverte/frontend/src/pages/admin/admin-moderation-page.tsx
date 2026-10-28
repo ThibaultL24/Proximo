@@ -18,6 +18,8 @@ interface PendingProfile {
   changeset: Record<string, string>;
   logo_attached: boolean;
   photos_count: number;
+  logo_url?: string | null;
+  photo_urls?: string[];
   submitted_at: string;
 }
 export function AdminModerationPage() {
@@ -83,7 +85,13 @@ export function AdminModerationPage() {
                 <div key={key} className="rounded-xl bg-paper p-3"><dt className="text-xs font-bold text-ink-muted">{key}</dt><dd className="mt-1 break-words text-sm">{String(value)}</dd></div>
               ))}
             </dl>
-            {(profile.logo_attached || profile.photos_count > 0) && <p className="text-sm text-ink-muted">Médias à vérifier : {profile.logo_attached ? "logo" : ""} {profile.photos_count} photo(s)</p>}
+            {(profile.logo_attached || profile.photos_count > 0) && <div className="space-y-3">
+              <p className="text-sm text-ink-muted">Médias soumis à validation : {profile.photos_count} photo(s){profile.logo_attached ? " et un logo" : ""}</p>
+              <div className="flex flex-wrap gap-3">
+                {profile.logo_url && <a href={profile.logo_url} target="_blank" rel="noreferrer" aria-label="Agrandir le nouveau logo"><img src={profile.logo_url} alt="Nouveau logo proposé" className="h-24 w-24 rounded-xl border border-line object-cover" /></a>}
+                {(profile.photo_urls || []).map((url,i) => <a href={url} target="_blank" rel="noreferrer" key={url} aria-label={`Agrandir la photo ${i+1}`}><img src={url} alt={`Photo proposée ${i+1}`} className="h-24 w-32 rounded-xl border border-line object-cover" /></a>)}
+              </div>
+            </div>}
             <div className="flex gap-3">
               <button type="button" disabled={!!busy} onClick={() => decide("profile_reviews", profile.id, "approve")} className="rounded-xl bg-[#0b4c93] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-40">Valider la fiche</button>
               <button type="button" disabled={!!busy} onClick={() => decide("profile_reviews", profile.id, "reject")} className="rounded-xl border border-red-200 px-5 py-2.5 text-sm font-bold text-red-700 disabled:opacity-40">Refuser</button>
