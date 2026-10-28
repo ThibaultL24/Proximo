@@ -1,0 +1,24 @@
+.proximo-ui { background:#0a0b0b; color:#fafafa; font-family:Inter,"Segoe UI",system-ui,sans-serif; overflow-x:hidden; }
+.proximo-wrap { max-width:1160px; margin:0 auto; padding-left:24px; padding-right:24px; }
+.proximo-nav { height:82px; border-bottom:1px solid #ffffff19; display:flex; align-items:center; justify-content:space-between; gap:16px; max-width:1240px; margin:0 auto; padding:0 24px; }
+.proximo-logo { font:900 22px/1 system-ui,sans-serif; letter-spacing:-.075em; }
+.proximo-logo span { color:#eafa4f; }
+.proximo-kicker { color:#eafa64; font-size:11px; font-weight:800; letter-spacing:.18em; }
+.proximo-dot { display:inline-block; width:7px; height:7px; border-radius:100%; background:#eafa64; box-shadow:0 0 14px #eafa64; margin-right:8px; }
+.proximo-outline { display:inline-flex; align-items:center; justify-content:center; gap:12px; padding:13px 18px; border-radius:12px; border:1px solid #ffffff3b; font-size:13px; font-weight:700; color:white; background:#ffffff08; transition:.2s; }
+.proximo-outline:hover { background:#ffffff18; border-color:#ffffff80; }
+.proximo-primary { display:inline-flex; gap:24px; align-items:center; justify-content:center; padding:15px 23px; border-radius:12px; background:#eafa64; color:#060708; font-size:14px; font-weight:800; box-shadow:0 0 33px #defa5328; transition:.2s; }
+.proximo-primary:hover { transform:translateY(-2px); box-shadow:0 0 45px #defa534a; }
+.proximo-hero { position:relative; isolation:isolate; background:linear-gradient(150deg,#0c0d0d,#111413 60%,#171a0d); }
+.proximo-hero-glow { position:absolute; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse 45% 70% at 75% 50%,#d8f93f12,transparent 75%),linear-gradient(130deg,transparent 70%,#eafa6409); }
+.proximo-gradient-text { background:linear-gradient(120deg,#ffffff 0%,#f4ff84 75%); background-clip:text; color:transparent; }
+.proximo-window { border:1px solid #ffffff24; border-radius:24px; background:linear-gradient(145deg,#ffffff15,#ffffff06); padding:27px; box-shadow:0 30px 90px #00000095, 0 0 60px #eafa6409; backdrop-filter:blur(20px); }
+.proximo-feature { border:1px solid #ffffff1b; border-radius:20px; background:linear-gradient(130deg,#ffffff0b,#ffffff04); padding:32px; transition:transform .25s,border-color .25s; }
+.proximo-feature:hover { transform:translateY(-4px); border-color:#eafa6470; }
+.proximo-plan { border:1px solid #ffffff27; border-radius:24px; background:#141515; padding:30px; }
+.proximo-plan-featured { border-color:#eafa64; background:linear-gradient(150deg,#24271c,#151615); box-shadow:0 0 60px #eafa6413; }
+.proximo-panel { border:1px solid #ffffff22; border-radius:20px; background:#ffffff0b; padding:24px; }
+.proximo-input { width:100%; border:1px solid #ffffff32; border-radius:12px; background:#ffffff0d; color:white; padding:13px 15px; font-size:14px; outline:none; }
+.proximo-input:focus { border-color:#eafa64; box-shadow:0 0 0 2px #eafa642c; }
+.proximo-input option { color:#000; }
+.proximo-form-label { display:block; font-size:12px; font-weight:700; color:#ffffffb5; margin-bottom:7px; }

@@ -1,0 +1,17 @@
+# Base PostgreSQL propre à proximo. N'utilisez jamais la base de l'autre application.
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+
+development:
+  <<: *default
+  url: <%= ENV.fetch("PROXIMO_DATABASE_URL", "postgresql:///proximo_development") %>
+
+test:
+  <<: *default
+  url: <%= ENV.fetch("PROXIMO_TEST_DATABASE_URL", "postgresql:///proximo_test") %>
+
+production:
+  <<: *default
+  url: <%= ENV["PROXIMO_DATABASE_URL"] %>

@@ -1,0 +1,113 @@
+/* src/index.css */
+@import "tailwindcss";
+
+/*
+  Fenêtre Ouverte — système graphique
+  Journal local contemporain · Sud Ardèche 07700
+
+  paper   — ivoire chaud (fond page)
+  ink     — bleu nuit (texte & structure)
+  tile    — rouge tuile (accent action / une)
+  sun     — soleil sec (rare, badges secondaires)
+  line    — gris chaud (séparateurs)
+
+  Alias hérités (petrol, brass, lagune, sky…) remappés
+  pour ne pas casser les écrans admin existants.
+*/
+@theme {
+  --color-paper: #f4f8ff;
+  --color-paper-dark: #e8f0fb;
+  --color-surface: #ffffff;
+  --color-ink: #093969;
+  --color-ink-muted: #506a85;
+  --color-navy: #093969;
+  --color-navy-soft: #e9f2ff;
+  --color-tile: #f08226;
+  --color-tile-light: #ff9c45;
+  --color-tile-soft: #fff1e5;
+  --color-sun: #ffbd24;
+  --color-sun-light: #ffda77;
+  --color-sun-soft: #fff6d7;
+  --color-line: #d6e4f5;
+  --color-line-strong: #aac3df;
+  --color-petrol: #0a4b93;
+  --color-petrol-light: #1467b1;
+  --color-lagune: #0e77ba;
+  --color-lagune-light: #2d9ed3;
+  --color-lagune-soft: #e1f4ff;
+  --color-sky: #27b7ee;
+  --color-sky-light: #79d4fa;
+  --color-brass: #f08226;
+  --color-brass-light: #ffa44b;
+  --color-ocre: #e4ab14;
+  --color-ocre-light: #ffcf3d;
+  --color-garrigue: #368a65;
+  --color-sand: #edf5fb;
+  --color-sand-dark: #dae9f5;
+  --color-success: #238363;
+  --color-alert: #d1544f;
+  --font-sans: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --shadow-soft: 0 6px 24px rgb(10 59 106 / 0.06);
+  --shadow-raised: 0 14px 38px rgb(10 59 106 / 0.12);
+}
+
+html {
+  overflow-x: clip;
+}
+
+body {
+  @apply bg-paper font-sans text-ink antialiased;
+  overflow-x: clip;
+}
+
+img,
+video,
+iframe {
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+.font-serif {
+  font-family: var(--font-serif);
+  font-optical-sizing: auto;
+  letter-spacing: -0.018em;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--color-tile) 22%, white);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Trait éditorial type journal */
+.rule {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.rule-strong {
+  border: 0;
+  border-top: 2px solid var(--color-ink);
+}
+
+a:focus-visible,
+button:focus-visible,
+[role="tab"]:focus-visible {
+  outline: 2px solid var(--color-tile);
+  outline-offset: 2px;
+}
+
+.fo-card { border: 1px solid var(--color-line); border-radius: 1.5rem; background: white; box-shadow: var(--shadow-soft); }
+.fo-pill { border-radius: 999px; background: var(--color-sun-soft); color: var(--color-ink); font-weight: 700; }
+.fo-hover { transition: transform .2s ease, box-shadow .2s ease; }
+.fo-hover:hover { transform: translateY(-3px); box-shadow: var(--shadow-raised); }

@@ -1,0 +1,48 @@
+# app/models/publication.rb
+class Publication < ApplicationRecord
+  belongs_to :merchant
+  belongs_to :agency
+  belongs_to :territory, optional: true
+  has_many :social_posts, dependent: :destroy
+  has_many :reviews, as: :reviewable, dependent: :destroy
+
+  has_one_attached :image
+
+  enum :category, {
+    vie_locale: 0,
+    commerces: 1,
+    loisirs: 2,
+    immo: 3,
+    bien_etre: 4
+  }
+
+  enum :status, { draft: 0, published: 1, pending_review: 2, rejected: 3 }
+  belongs_to :reviewed_by, class_name: "User", optional: true
+
+  validates :body, presence: true
+  validates :category, presence: true
+  validate :territory_matches_references
+
+  scope :published, -> { where(status: :published).where("published_at IS NULL OR published_at <= ?", Time.current) }
+  scope :recent, -> { order(published_at: :desc, created_at: :desc) }
+
+  private
+
+  def territory_matches_references
+    return unless territory
+
+    if territory.legacy_agency_id.present? && territory.legacy_agency_id != agency_id
+      errors.add(:territory, "ne correspond pas a l'agence historique")
+    end
+    if merchant&.territory_id.present? && merchant.territory_id != territory_id
+      errors.add(:merchant, "n'appartient pas au territoire")
+    end
+  end
+
+  public
+
+  def publish!
+    raise ActiveRecord::RecordInvalid, self unless merchant.published?
+    update!(status: :published, published_at: Time.current, review_note: nil)
+  end
+end
