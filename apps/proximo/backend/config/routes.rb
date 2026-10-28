@@ -38,8 +38,6 @@ Rails.application.routes.draw do
         resources :articles, only: %i[index show], param: :slug
         resources :publications, only: %i[show]
         get "reviews", to: "reviews#index"
-        resources :products, only: %i[index show], param: :slug
-        post "products/:product_slug/checkout", to: "product_checkouts#create"
         get "qr/:token", to: "qr#show"
         post "qr/:token/scan", to: "qr#scan"
         get "qr/:token/image", to: "qr#image"

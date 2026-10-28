@@ -145,7 +145,7 @@ export function FilPage() {
               onChange={(e) => patchParams({ category: e.target.value })}
               className="min-w-0 max-w-full flex-1 rounded-md border border-line bg-surface px-3 py-2 text-sm font-medium text-ink sm:flex-none"
             >
-              {FEED_CATEGORIES.map((opt) => (
+              {FEED_CATEGORIES.filter((opt) => opt.id !== "immo").map((opt) => (
                 <option key={opt.id} value={opt.id}>
                   {opt.id === "all" ? "Toutes rubriques" : opt.label}
                 </option>

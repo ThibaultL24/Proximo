@@ -24,7 +24,7 @@ export function TarifsPage() {
 
       <p className="border border-line bg-surface px-5 py-4 text-sm leading-relaxed text-ink">
         <span className="font-semibold">Gratuit pour le citoyen.</span> Pas d&apos;abonnement
-        habitant : on lit le fil, on consulte les commerces, on laisse un avis. Un projet immobilier
+        habitant : on lit le fil, on consulte les commerces, on laisse un avis. Notre réseau local
         se donne au commerçant partenaire, en magasin.
       </p>
 

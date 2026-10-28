@@ -109,7 +109,7 @@ export function MerchantShopPage() {
       setProfile(updated);
       setLogoFile(null);
       setNewPhotos([]);
-      setSuccess("Votre fiche a ete mise a jour.");
+      setSuccess("Vos modifications ont été envoyées à l'administrateur pour validation. La fiche publique reste inchangée en attendant.");
     } catch {
       setError("Enregistrement impossible. Verifiez les champs.");
     } finally {
@@ -118,7 +118,7 @@ export function MerchantShopPage() {
   }
 
   async function handleDeletePhoto(signedId: string) {
-    if (!window.confirm("Supprimer cette photo de la galerie ?")) return;
+    if (!window.confirm("La suppression d'une photo publiée nécessite une validation administrative. Continuer ?")) return;
 
     setDeletingPhotoId(signedId);
     setError("");
@@ -126,7 +126,7 @@ export function MerchantShopPage() {
       await deleteMerchantPhoto(signedId);
       await loadProfile();
     } catch {
-      setError("Impossible de supprimer la photo");
+      setError("La suppression des photos publiées doit être demandée à l'administration.");
     } finally {
       setDeletingPhotoId(null);
     }
@@ -144,7 +144,7 @@ export function MerchantShopPage() {
       <AdminPageHeader
         eyebrow="Vitrine"
         title="Ma fiche commercant"
-        description="Personnalisez la page visible sur le site et via votre QR code en magasin."
+        description="Gérez votre vitrine et vos photos. Chaque modification est envoyée à la modération : votre fiche QR reste publique dans sa version validée."
         backTo="/espace-commercant"
         backLabel="Tableau de bord"
         action={

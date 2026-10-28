@@ -51,7 +51,7 @@ export const OFFER_TIERS = [
     id: "habitant",
     title: "Habitant",
     description:
-      "Consultez le fil, les commerces et les communes du 07700. Un projet immobilier se confie à un commerçant partenaire, en magasin.",
+      "Consultez le fil, les commerces et les communes du 07700. Les publications et fiches sont vérifiées par la modération.",
     cta: { label: "Créer un compte", href: "/inscription" },
   },
   {
@@ -65,7 +65,7 @@ export const OFFER_TIERS = [
     id: "decouvrir",
     title: "Découvrir librement",
     description:
-      "Parcourez le fil d’actus, les bonnes adresses et l’immobilier local sans compte — la lecture reste ouverte.",
+      "Parcourez le fil d’actus, les bonnes adresses et les histoires du territoire sans compte — la lecture reste ouverte.",
     cta: { label: "Voir le fil", href: "/fil" },
   },
 ] as const;
@@ -84,7 +84,7 @@ export const PRICING_TIERS = [
       "Fil d'actualites",
       "Annuaire commerces",
       "Avis sur les fiches",
-      "Projet immo via le commercant",
+      "Informations et découvertes locales",
     ],
     cta: { label: "Creer un compte", href: "/inscription" },
     accent: "outline" as const,
@@ -100,30 +100,14 @@ export const PRICING_TIERS = [
       "Fiche vitrine photo",
       "QR code + compteur scans",
       "Publication fil + Facebook, Instagram, TikTok",
-      "Gestion des leads et commissions",
+      "Modération des publications avant diffusion",
       "Reponse aux avis clients",
     ],
     cta: { label: "Espace partenaire", href: "/connexion" },
     accent: "accent" as const,
     featured: true,
   },
-  {
-    id: "agence",
-    title: "Agence immobiliere",
-    price: "125 €",
-    period: "/ mois",
-    description: "Licence reseau pour piloter commercants, editorial, leads et commissions.",
-    trial: "Demo sur demande",
-    features: [
-      "Back-office complet",
-      "Articles gazette et immo",
-      "Pipeline leads et commissions Stripe",
-      "Analytics QR et conversion",
-      "Moderation des avis",
-    ],
-    cta: { label: "Inscription agence", href: "/agence/inscription" },
-    accent: "outline" as const,
-  },
+
 ] as const;
 
 export const HOW_IT_WORKS = {
@@ -131,7 +115,7 @@ export const HOW_IT_WORKS = {
   title: "Comment ça marche",
   lead: "Fenêtre Ouverte est un média de territoire : une adresse unique pour l’information locale, les commerces du 07700 et l’immobilier du Sud Ardèche.",
   paragraphs: [
-    "Habitants, commerçants partenaires et agence y partagent un même fil éditorial. On y lit ce qui se passe dans les communes, on y tient sa vitrine. Un projet immobilier se confie au commerçant, qui le transmet à l’agence — chacun à sa place, sans bruit inutile.",
+    "Habitants, commerçants partenaires et agence y partagent un même fil éditorial. On y lit ce qui se passe dans les communes, on y tient sa vitrine. Le commerçant prépare ses actualités ; l'administration les valide avant leur diffusion sur le fil ou sur les réseaux.",
     "La fiche du commerçant s’ouvre en ligne et, en magasin, par un QR code. L’habitant peut y laisser un avis ; le partenaire y répond. Articles de l’agence et publications des commerces s’y croisent, classés par commune et par rubrique.",
     "Une publication peut également être relayée sur Facebook, Instagram et TikTok. Un seul geste, plusieurs canaux — pour rester visible sans multiplier les outils.",
   ],
