@@ -1,0 +1,22 @@
+.gazette-sheet { width: min(100%, 210mm); min-height: 297mm; overflow: hidden; background: white; box-shadow: 0 10px 40px #09396922; color:#143553; }
+.gazette-sheet-header { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:18px 20px; background:#09458d; color:white; }
+.gazette-sheet-header strong { font: 900 clamp(22px,3.5vw,40px)/1 system-ui,sans-serif; letter-spacing:-.065em; }
+.gazette-sheet-header strong span { color:#ffc329; }
+.gazette-sheet-header small { display:block; margin-top:6px; font:italic 15px Georgia,serif; }
+.gazette-sheet-header p { text-align:right; font:800 15px/1.4 system-ui,sans-serif; }
+.gazette-sheet-header b { font-size:8px; letter-spacing:.14em; }
+.gazette-sheet-body { padding:23px; }
+.gazette-eyebrow { color:#dd790b; text-transform:uppercase; letter-spacing:.17em; font:800 10px system-ui,sans-serif; }
+.gazette-sheet h2 { font:800 clamp(24px,4vw,36px)/1.15 Georgia,serif; color:#073c76; margin:10px 0; }
+.gazette-lead { font:italic 15px/1.5 Georgia,serif; color:#446984; margin-bottom:15px; }
+.gazette-cover { width:100%; max-height:220px; object-fit:cover; border-radius:12px; margin-bottom:16px; }
+.gazette-columns { columns:2; column-gap:23px; font:13px/1.55 Georgia,serif; text-align:justify; }
+.gazette-columns p { margin:0 0 10px; break-inside:avoid; white-space:pre-wrap; }
+.gazette-sheet-footer { margin:20px; padding:10px 0; border-top:3px solid #ffbf24; display:flex; justify-content:space-between; gap:15px; font:800 9px system-ui,sans-serif; color:#0b4c93; }
+@media print {
+  @page { size:A4 portrait; margin:0; }
+  body * { visibility:hidden !important; }
+  #gazette-print-area, #gazette-print-area * { visibility:visible !important; }
+  #gazette-print-area { position:absolute; top:0; left:0; width:210mm; min-height:297mm; margin:0; box-shadow:none; }
+  .gazette-editor-controls { display:none !important; }
+}
