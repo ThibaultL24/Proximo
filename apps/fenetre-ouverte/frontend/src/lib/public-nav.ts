@@ -10,7 +10,7 @@ export interface PublicNavItem {
   category?: FeedCategory;
 }
 
-/** Navbar publique : Fil · Commerces · Communes · Loisirs · Bien-être · Immo */
+/** Navbar publique : Fil · Commerces · Communes · Loisirs · Bien-être */
 export const PUBLIC_NAV: PublicNavItem[] = [
   {
     id: "fil",
@@ -23,12 +23,6 @@ export const PUBLIC_NAV: PublicNavItem[] = [
     label: "Commerces",
     href: "/commerces",
     match: (p) => p === "/commerces" || p.startsWith("/commerces/"),
-  },
-  {
-    id: "boutique",
-    label: "Boutique",
-    href: "/boutique",
-    match: (p) => p === "/boutique" || p.startsWith("/boutique/"),
   },
   {
     id: "communes",
@@ -49,13 +43,6 @@ export const PUBLIC_NAV: PublicNavItem[] = [
     href: "/bien-etre",
     category: "bien_etre",
     match: (p) => p === "/bien-etre",
-  },
-  {
-    id: "immo",
-    label: "Immo",
-    href: "/immo",
-    category: "immo",
-    match: (p) => p === "/immo",
   },
 ];
 

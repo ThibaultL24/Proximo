@@ -150,7 +150,7 @@ export function MerchantPublishPage() {
         selected.length > 0
           ? ` + ${selected.length} réseau${selected.length > 1 ? "x" : ""}.`
           : ".";
-      setMessage(`Publication mise en ligne sur le fil Fenêtre Ouverte${networkNote}`);
+      setMessage(`Publication envoyée à la modération. La diffusion sur le fil et les réseaux${networkNote} sera déclenchée après validation.`);
     } catch {
       setError("Publication impossible. Vérifiez votre abonnement actif.");
     } finally {
@@ -165,7 +165,7 @@ export function MerchantPublishPage() {
       <AdminPageHeader
         eyebrow="Fenêtre Ouverte"
         title="Publier"
-        description="Une rédaction, le fil du 07700, et Facebook / Instagram / TikTok si connectés. Signature Fenêtre Ouverte ajoutée sur les réseaux."
+        description="Partagez vos nouveautés dans le réseau local. Vos publications sont relues par l'administration avant toute diffusion sur le fil et les réseaux connectés."
         backTo=""
       />
 
@@ -328,8 +328,8 @@ export function MerchantPublishPage() {
               {isSubmitting
                 ? "Publication..."
                 : selected.length > 0
-                  ? `Publier sur le fil + ${selected.length} réseau${selected.length > 1 ? "x" : ""}`
-                  : "Publier sur Fenêtre Ouverte"}
+                  ? `Soumettre pour le fil + ${selected.length} réseau${selected.length > 1 ? "x" : ""}`
+                  : "Soumettre à validation"}
             </button>
           </AdminPanelCard>
         </form>
@@ -343,6 +343,8 @@ export function MerchantPublishPage() {
                 <p className="whitespace-pre-wrap text-sm text-ink">{publication.body}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className="text-xs text-ink-muted">{publication.category}</span>
+                  {publication.status === "pending_review" && <Badge variant="soon">En attente de validation</Badge>}
+                  {publication.status === "rejected" && <Badge variant="partner">Refusé</Badge>}
                   {publication.syndicated && (
                     <Badge variant="featured">Syndiqué</Badge>
                   )}

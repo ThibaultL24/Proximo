@@ -15,50 +15,41 @@
   pour ne pas casser les écrans admin existants.
 */
 @theme {
-  --color-paper: #f6f1e8;
-  --color-paper-dark: #ebe4d6;
-  --color-surface: #fffdf9;
-  --color-ink: #1a2332;
-  --color-ink-muted: #6a645c;
-
-  --color-navy: #1a2332;
-  --color-navy-soft: #e8ebf0;
-
-  --color-tile: #c14d32;
-  --color-tile-light: #d46248;
-  --color-tile-soft: #f8ebe6;
-
-  --color-sun: #d9a441;
-  --color-sun-light: #e4b65c;
-  --color-sun-soft: #faf3e3;
-
-  --color-line: #ddd5c8;
-  --color-line-strong: #c9bfae;
-
-  /* Alias legacy → nouvelle direction */
-  --color-petrol: #1a2332;
-  --color-petrol-light: #2a3648;
-  --color-lagune: #1a2332;
-  --color-lagune-light: #2a3648;
-  --color-lagune-soft: #e8ebf0;
-  --color-sky: #1a2332;
-  --color-sky-light: #2a3648;
-  --color-brass: #c14d32;
-  --color-brass-light: #d46248;
-  --color-ocre: #d9a441;
-  --color-ocre-light: #e4b65c;
-  --color-garrigue: #4a6b52;
-  --color-sand: #ebe4d6;
-  --color-sand-dark: #ddd5c8;
-
-  --color-success: #3d6b4f;
-  --color-alert: #b33b3b;
-
+  --color-paper: #f4f8ff;
+  --color-paper-dark: #e8f0fb;
+  --color-surface: #ffffff;
+  --color-ink: #093969;
+  --color-ink-muted: #506a85;
+  --color-navy: #093969;
+  --color-navy-soft: #e9f2ff;
+  --color-tile: #f08226;
+  --color-tile-light: #ff9c45;
+  --color-tile-soft: #fff1e5;
+  --color-sun: #ffbd24;
+  --color-sun-light: #ffda77;
+  --color-sun-soft: #fff6d7;
+  --color-line: #d6e4f5;
+  --color-line-strong: #aac3df;
+  --color-petrol: #0a4b93;
+  --color-petrol-light: #1467b1;
+  --color-lagune: #0e77ba;
+  --color-lagune-light: #2d9ed3;
+  --color-lagune-soft: #e1f4ff;
+  --color-sky: #27b7ee;
+  --color-sky-light: #79d4fa;
+  --color-brass: #f08226;
+  --color-brass-light: #ffa44b;
+  --color-ocre: #e4ab14;
+  --color-ocre-light: #ffcf3d;
+  --color-garrigue: #368a65;
+  --color-sand: #edf5fb;
+  --color-sand-dark: #dae9f5;
+  --color-success: #238363;
+  --color-alert: #d1544f;
   --font-sans: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
   --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
-
-  --shadow-soft: 0 1px 0 rgb(26 35 50 / 0.04), 0 2px 8px rgb(26 35 50 / 0.04);
-  --shadow-raised: 0 2px 4px rgb(26 35 50 / 0.04), 0 12px 28px rgb(26 35 50 / 0.08);
+  --shadow-soft: 0 6px 24px rgb(10 59 106 / 0.06);
+  --shadow-raised: 0 14px 38px rgb(10 59 106 / 0.12);
 }
 
 html {
@@ -115,3 +106,8 @@ button:focus-visible,
   outline: 2px solid var(--color-tile);
   outline-offset: 2px;
 }
+
+.fo-card { border: 1px solid var(--color-line); border-radius: 1.5rem; background: white; box-shadow: var(--shadow-soft); }
+.fo-pill { border-radius: 999px; background: var(--color-sun-soft); color: var(--color-ink); font-weight: 700; }
+.fo-hover { transition: transform .2s ease, box-shadow .2s ease; }
+.fo-hover:hover { transform: translateY(-3px); box-shadow: var(--shadow-raised); }

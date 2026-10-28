@@ -1,9 +1,7 @@
 // src/components/layout/dashboard-layout.tsx
 import { Link, NavLink, Outlet } from "react-router-dom";
 import {
-  IconBuilding,
   IconChart,
-  IconEuro,
   IconGrid,
   IconNewspaper,
   IconShop,
@@ -22,16 +20,14 @@ const adminLinks = [
   { to: "/admin/analytics", label: "Analytics", icon: IconChart },
   { to: "/admin/commercants", label: "Commerçants", icon: IconShop },
   { to: "/admin/articles", label: "Gazette", icon: IconNewspaper },
-  { to: "/admin/immo", label: "Articles immo", icon: IconBuilding },
-  { to: "/admin/leads", label: "Recommandations", icon: IconUsers },
-  { to: "/admin/commissions", label: "Commissions", icon: IconEuro },
+  { to: "/admin/moderation", label: "Modération", icon: IconUsers },
+  { to: "/admin/gazette-studio", label: "Studio Gazette", icon: IconNewspaper },
 ];
 
 const merchantLinks = [
   { to: "/espace-commercant", label: "Tableau de bord", icon: IconGrid, end: true },
   { to: "/espace-commercant/publier", label: "Publier", icon: IconNewspaper },
   { to: "/espace-commercant/ma-fiche", label: "Ma fiche vitrine", icon: IconShop },
-  { to: "/espace-commercant/leads/nouveau", label: "Transmettre un contact", icon: IconUsers },
 ];
 
 function navLinkClass({ isActive }: { isActive: boolean }) {

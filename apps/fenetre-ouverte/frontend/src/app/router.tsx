@@ -13,6 +13,8 @@ import { PlatformIntegrationsPage } from "../pages/platform/platform-integration
 import { AdminAnalyticsPage } from "../pages/admin/admin-analytics-page";
 import { AdminArticleFormPage } from "../pages/admin/admin-article-form-page";
 import { AdminArticlesPage } from "../pages/admin/admin-articles-page";
+import { AdminModerationPage } from "../pages/admin/admin-moderation-page";
+import { AdminGazetteStudioPage } from "../pages/admin/admin-gazette-studio-page";
 import { AdminCommissionsPage } from "../pages/admin/admin-commissions-page";
 import { AdminDashboardPage } from "../pages/admin/admin-dashboard-page";
 import { AdminImmoArticlesPage } from "../pages/admin/admin-immo-articles-page";
@@ -24,7 +26,6 @@ import { MerchantShopPage } from "../pages/merchant/merchant-shop-page";
 import { MerchantPublishPage } from "../pages/merchant/merchant-publish-page";
 import { NewLeadPage } from "../pages/merchant/new-lead-page";
 import { ArticlePage } from "../pages/public/article-page";
-import { BoutiquePage } from "../pages/public/boutique-page";
 import { CommercesPage } from "../pages/public/commerces-page";
 import { CommuneDetailPage } from "../pages/public/commune-detail-page";
 import { CommunesPage } from "../pages/public/communes-page";
@@ -58,7 +59,6 @@ export function AppRouter() {
         <Route element={<PublicLayout />}>
           <Route index element={<HomePage />} />
           <Route path="tarifs" element={<TarifsPage />} />
-          <Route path="boutique" element={<BoutiquePage />} />
           <Route path="fil" element={<FilPage />} />
           <Route path="fil/post/:id" element={<PublicationPage />} />
           <Route path="commerces" element={<CommercesPage />} />
@@ -66,7 +66,7 @@ export function AppRouter() {
           <Route path="communes/:slug" element={<CommuneDetailPage />} />
           <Route path="loisirs" element={<RubriquePage category="loisirs" />} />
           <Route path="bien-etre" element={<RubriquePage category="bien_etre" />} />
-          <Route path="immo" element={<RubriquePage category="immo" />} />
+          <Route path="immo" element={<Navigate to="/fil" replace />} />
           <Route path="vie-locale" element={<RubriquePage category="vie_locale" />} />
 
           <Route path="annuaire/*" element={<Navigate to="/commerces" replace />} />
@@ -79,7 +79,7 @@ export function AppRouter() {
           <Route path="gazette/territoire/:region/:department/:city" element={<GazetteTerritoireRedirect />} />
           <Route path="gazette/territoire/:region/:department" element={<Navigate to="/communes" replace />} />
           <Route path="gazette/territoire/:region" element={<Navigate to="/communes" replace />} />
-          <Route path="gazette/immo" element={<Navigate to="/immo" replace />} />
+          <Route path="gazette/immo" element={<Navigate to="/fil" replace />} />
           <Route path="gazette" element={<Navigate to="/fil" replace />} />
           <Route path="gazette/:slug" element={<ArticlePage />} />
 
@@ -114,6 +114,8 @@ export function AppRouter() {
           <Route path="admin/commercants/nouveau" element={<AdminMerchantFormPage />} />
           <Route path="admin/commercants/:id/modifier" element={<AdminMerchantFormPage />} />
           <Route path="admin/articles" element={<AdminArticlesPage />} />
+          <Route path="admin/moderation" element={<AdminModerationPage />} />
+          <Route path="admin/gazette-studio" element={<AdminGazetteStudioPage />} />
           <Route path="admin/articles/nouveau" element={<AdminArticleFormPage editorialScope="gazette" />} />
           <Route path="admin/articles/:id/modifier" element={<AdminArticleFormPage editorialScope="gazette" />} />
           <Route path="admin/immo" element={<AdminImmoArticlesPage />} />

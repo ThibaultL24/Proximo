@@ -100,7 +100,7 @@ export function PublicLayout() {
         <Outlet />
       </main>
 
-      <footer className="mt-auto border-t border-line bg-ink pb-[calc(4.25rem+env(safe-area-inset-bottom))] text-paper md:pb-0">
+      <footer className="mt-auto border-t border-line bg-[#082f62] pb-[calc(4.25rem+env(safe-area-inset-bottom))] text-paper md:pb-0">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr] lg:gap-10 lg:py-12">
           <div>
             <div className="flex items-center gap-3 text-white">
@@ -135,11 +135,6 @@ export function PublicLayout() {
               <li>
                 <Link to="/commerces" className="hover:text-white">
                   Commerces & partenaires
-                </Link>
-              </li>
-              <li>
-                <Link to="/boutique" className="hover:text-white">
-                  Boutique
                 </Link>
               </li>
               <li>
