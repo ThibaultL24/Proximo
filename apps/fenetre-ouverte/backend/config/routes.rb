@@ -29,8 +29,6 @@ Rails.application.routes.draw do
         resources :articles, only: %i[index show], param: :slug
         resources :publications, only: %i[show]
         get "reviews", to: "reviews#index"
-        resources :products, only: %i[index show], param: :slug
-        post "products/:product_slug/checkout", to: "product_checkouts#create"
         get "qr/:token", to: "qr#show"
         post "qr/:token/scan", to: "qr#scan"
         get "qr/:token/image", to: "qr#image"
@@ -76,6 +74,18 @@ Rails.application.routes.draw do
       end
 
       namespace :admin do
+        resources :publication_moderations, only: %i[index] do
+          member do
+            patch :approve
+            patch :reject
+          end
+        end
+        resources :profile_reviews, only: %i[index] do
+          member do
+            patch :approve
+            patch :reject
+          end
+        end
         resource :billing, only: %i[show create], controller: "billing" do
           get :portal, on: :member
           get :invoices, on: :member

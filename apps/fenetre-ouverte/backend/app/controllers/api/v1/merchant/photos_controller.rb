@@ -9,6 +9,9 @@ module Api
         def destroy
           authorize @merchant, :update_profile?
 
+          # Removing an already visible photo is also an editorial change.
+          return render json: { error: "Demandez la suppression a la moderation" }, status: :unprocessable_entity
+
           blob = ActiveStorage::Blob.find_signed!(params[:signed_id])
           attachment = @merchant.photos.attachments.find_by!(blob_id: blob.id)
           attachment.purge

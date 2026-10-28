@@ -51,7 +51,7 @@ module Api
         private
 
         def set_merchant
-          @merchant = ::Merchant.find(params[:id])
+          @merchant = policy_scope(::Merchant).find(params[:id])
         end
 
         def merchant_params

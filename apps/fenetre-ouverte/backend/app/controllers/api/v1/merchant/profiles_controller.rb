@@ -1,4 +1,3 @@
-# app/controllers/api/v1/merchant/profiles_controller.rb
 module Api
   module V1
     module Merchant
@@ -8,16 +7,26 @@ module Api
 
         def show
           authorize @merchant, :view_profile?
-          render json: MerchantProfileSerializer.new(@merchant).serializable_hash
+          render json: MerchantProfileSerializer.new(@merchant).serializable_hash.merge(
+            pending_profile_review: @merchant.merchant_profile_revisions.pending_review.exists?
+          )
         end
 
         def update
           authorize @merchant, :update_profile?
-
-          if @merchant.update(profile_params)
-            render json: MerchantProfileSerializer.new(@merchant.reload).serializable_hash
+          attributes = profile_params
+          changeset = attributes.except(:logo, :photos).to_h
+          revision = @merchant.merchant_profile_revisions.build(
+            changeset: changeset, submitted_by: current_user
+          )
+          revision.logo.attach(attributes[:logo]) if attributes[:logo].present?
+          revision.photos.attach(attributes[:photos]) if attributes[:photos].present?
+          if revision.save
+            render json: MerchantProfileSerializer.new(@merchant).serializable_hash.merge(
+              pending_profile_review: true, review_id: revision.id
+            ), status: :accepted
           else
-            render json: { errors: @merchant.errors.full_messages }, status: :unprocessable_entity
+            render json: { errors: revision.errors.full_messages }, status: :unprocessable_entity
           end
         end
 
@@ -25,7 +34,6 @@ module Api
 
         def set_merchant
           return forbidden unless current_user.merchant
-
           @merchant = current_user.merchant
         end
 

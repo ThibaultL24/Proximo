@@ -16,7 +16,8 @@ class Publication < ApplicationRecord
     bien_etre: 4
   }
 
-  enum :status, { draft: 0, published: 1 }
+  enum :status, { draft: 0, published: 1, pending_review: 2, rejected: 3 }
+  belongs_to :reviewed_by, class_name: "User", optional: true
 
   validates :body, presence: true
   validates :category, presence: true
@@ -41,6 +42,7 @@ class Publication < ApplicationRecord
   public
 
   def publish!
-    update!(status: :published, published_at: Time.current)
+    raise ActiveRecord::RecordInvalid, self unless merchant.published?
+    update!(status: :published, published_at: Time.current, review_note: nil)
   end
 end

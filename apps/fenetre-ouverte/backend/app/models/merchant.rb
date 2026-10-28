@@ -5,6 +5,7 @@ class Merchant < ApplicationRecord
   belongs_to :territory, optional: true
 
   has_many :products, dependent: :destroy
+  has_many :merchant_profile_revisions, dependent: :destroy
 
   has_many :reviews, as: :reviewable, dependent: :destroy
   belongs_to :place, optional: true

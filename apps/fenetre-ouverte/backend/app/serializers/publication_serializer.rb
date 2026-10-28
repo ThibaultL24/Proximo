@@ -2,7 +2,8 @@
 class PublicationSerializer < AlbaResource
   include AttachmentUrls
 
-  attributes :id, :body, :category, :status, :published_at, :syndicated, :created_at
+  attributes :id, :body, :category, :status, :published_at, :syndicated, :created_at,
+             :requested_syndication, :requested_providers, :review_note
 
   attribute :image_url do |publication|
     blob_path(publication.image)
