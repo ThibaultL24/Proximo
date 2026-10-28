@@ -20,15 +20,15 @@ module Api
             @publication.update!(reviewed_by: current_user, reviewed_at: Time.current)
           end
 
-          # The merchant explicitly requested these channels; approval is the release gate.
+          # An approval does not depend on third-party network uptime.
           if @publication.requested_syndication? && @publication.merchant.subscription_active?
-            selected = @publication.requested_providers & Social::Config::V1_PROVIDERS
-            SocialPublishOrchestrator.call(publication: @publication, providers: selected) if selected.any?
+            begin
+              selected = @publication.requested_providers & Social::Config::V1_PROVIDERS
+              SocialPublishOrchestrator.call(publication: @publication, providers: selected) if selected.any?
+            rescue StandardError => e
+              Rails.logger.error("Social dispatch after approval: #{e.class} #{e.message}")
+            end
           end
-          render json: PublicationSerializer.new(@publication.reload).serializable_hash
-        rescue StandardError => e
-          Rails.logger.error("Social dispatch after approval: #{e.class} #{e.message}")
-          # Editorial approval persists even if third-party networks fail.
           render json: PublicationSerializer.new(@publication.reload).serializable_hash
         end
 

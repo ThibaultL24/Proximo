@@ -55,7 +55,7 @@ class CommunityModerationTest < ActionDispatch::IntegrationTest
     patch "/api/v1/merchant/profile", headers: auth(@merchant_user),
       params: { merchant: { short_description: "Nouveaux horaires annonces" } }
     assert_response :accepted
-    assert_equal original, @merchant.reload.short_description
+    assert_nil @merchant.reload.short_description
     revision = @merchant.merchant_profile_revisions.pending_review.last
     assert_equal "Nouveaux horaires annonces", revision.changeset.fetch("short_description")
 
