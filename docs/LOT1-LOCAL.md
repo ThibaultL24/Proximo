@@ -1,5 +1,19 @@
 # Prévisualisation locale — Lot 1 (WSL2 / Linux)
 
+## Voir seulement la différence visuelle (sans Docker ni backend)
+
+Pour comparer rapidement les deux nouvelles pages d'accueil, Node.js et npm suffisent :
+
+```bash
+git clone --branch refactor/lot1-domain-extraction --single-branch \\
+  https://github.com/ThibaultL24/Proximo.git lot1-design-preview
+cd lot1-design-preview
+bash scripts/preview-interfaces.sh
+```
+
+Ouvrir **http://localhost:5173** pour le réseau social local Fenêtre Ouverte et **http://localhost:5174** pour le SaaS Proximo noir/jaune. Les appels API échoueront tant que Rails n'est pas démarré, mais les pages publiques et leur identité sont visualisables. Ce script n'installe pas de base de données, ne déploie rien et n'affecte pas `main`. Si les deux pages ont encore la même apparence, vérifier que les ports n'étaient pas déjà utilisés et que la branche affichée par `git branch --show-current` est bien `refactor/lot1-domain-extraction`.
+
+
 **Ce document ne décrit pas un déploiement.** Le site du client existant n'est pas modifié et la PR demeure en brouillon. Lancez les deux copies en local pour examiner les parcours avant toute décision de fusion.
 
 ## Prérequis
