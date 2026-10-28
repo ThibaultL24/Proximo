@@ -22,8 +22,8 @@ class CommunityModerationTest < ActionDispatch::IntegrationTest
     assert_equal "pending_review", publication.status
     assert_nil publication.published_at
 
-    get "/api/v1/public/publications/#{publication.id}"
-    assert_response :not_found
+    assert_not Publication.published.exists?(id: publication.id)
+    assert_not FeedBuilder.call(agency: @first).any? { |row| row[:type] == "publication" && row[:id] == publication.id }
 
     get "/api/v1/admin/publication_moderations", headers: auth(@admin)
     assert_response :success
@@ -33,8 +33,8 @@ class CommunityModerationTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "published", publication.reload.status
 
-    get "/api/v1/public/publications/#{publication.id}"
-    assert_response :success
+    assert Publication.published.exists?(id: publication.id)
+    assert FeedBuilder.call(agency: @first).any? { |row| row[:type] == "publication" && row[:id] == publication.id }
   end
 
   test "rejected publications stay private; cross-agency moderation is forbidden" do
