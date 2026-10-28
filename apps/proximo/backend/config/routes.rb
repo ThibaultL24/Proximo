@@ -17,6 +17,7 @@ Rails.application.routes.draw do
             end
           end
           resources :commissions, only: %i[index show]
+          resources :client_dossiers, only: %i[index show create update]
         end
       end
 
