@@ -17,7 +17,9 @@ module Api
         private
 
         def serialize(organization)
-          organization.as_json(only: %i[id name slug status])
+          organization.as_json(only: %i[id name slug status]).merge(
+            membership_role: current_user.memberships.find_by(organization_id: organization.id)&.role
+          )
         end
       end
     end
