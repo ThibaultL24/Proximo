@@ -81,12 +81,15 @@ function Paragraphs({ parts }: { parts: string[] }) {
 }
 
 function GazetteSheet({
-  draft, page, article, extraImage,
+  draft, page, article, extraImage, headerLogo, footerLogo, qrImage,
 }: {
   draft: EditionDraft;
   page: PageDraft;
   article: Article | undefined;
   extraImage?: string;
+  headerLogo?: string;
+  footerLogo?: string;
+  qrImage?: string;
 }) {
   const [left, right] = balanceColumns(paragraphsOf(article?.body || ""));
   const cover = article?.cover_image_url;
@@ -99,8 +102,7 @@ function GazetteSheet({
     <article className={"gazette-proof-page gazette-layout-" + page.template}>
       <header className="gazette-reference-header">
         <div className="gazette-reference-brand" aria-label="Signature du partenaire">
-          <span className="gazette-brand-symbol">⌂</span>
-          <span>Propriétés-<br />privées.com</span>
+          {headerLogo ? <img className="gazette-header-logo" src={headerLogo} alt="Logo de l'annonceur" /> : <><span className="gazette-brand-symbol">⌂</span><span>Propriétés-<br />privées.com</span></>}
         </div>
         <div className="gazette-reference-masthead">
           <strong>La Gazette</strong>
@@ -138,6 +140,7 @@ function GazetteSheet({
                 {isPractical && page.note && <aside className="gazette-practical-note"><strong>BON À SAVOIR :</strong><p>{page.note.replace(/^BON À SAVOIR\s*:\s*/i, "")}</p></aside>}
               </div>
             </div>
+            {isPractical && qrImage && <div className="gazette-reference-qr-promo"><span>Un projet dans votre entourage ? Découvrez notre réseau local.</span><img src={qrImage} alt="QR code fourni par la rédaction" /></div>}
           </>
         )}
       </main>
@@ -149,7 +152,7 @@ function GazetteSheet({
             <small>{draft.legal}</small>
             <small>NE PAS JETER SUR LA VOIE PUBLIQUE.</small>
           </div>
-          <div className="gazette-reference-ad-brand">Propriétés<br /><strong>Privées</strong></div>
+          <div className="gazette-reference-ad-brand">{footerLogo ? <img src={footerLogo} alt="Logo de l'annonceur" /> : <>Propriétés<br /><strong>Privées</strong></>}</div>
         </div>
         <p>Édition {draft.edition.toLowerCase()} - {draft.issue.toLowerCase()}</p>
       </footer>
@@ -162,12 +165,19 @@ export function AdminGazetteStudioPage() {
   const [draft, setDraft] = useState<EditionDraft>(loadDraft);
   const [selectedPageId, setSelectedPageId] = useState(1);
   const [extraImages, setExtraImages] = useState<Record<number, string>>({});
+  const [qrImages, setQrImages] = useState<Record<number, string>>({});
+  const [headerLogo, setHeaderLogo] = useState<string>();
+  const [footerLogo, setFooterLogo] = useState<string>();
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    fetchAdminArticles({ scope: "gazette" }).then(setArticles)
-      .catch(() => setError("Impossible de charger les articles de la Gazette."));
+    fetchAdminArticles({ scope: "gazette" }).then((data) => {
+      setArticles(data);
+      setDraft((current) => current.pages.every((page) => page.articleId === null) && data.length > 0
+        ? { ...current, pages: current.pages.map((page, index) => ({ ...page, articleId: data[index % data.length].id })) }
+        : current);
+    }).catch(() => setError("Impossible de charger les articles de la Gazette."));
   }, []);
 
   useEffect(() => {
@@ -207,20 +217,17 @@ export function AdminGazetteStudioPage() {
     setDraft((current) => ({ ...current, pages: remaining }));
     setSelectedPageId(remaining[0].id);
   };
-  const loadImage = (file?: File) => {
+  const readImage = (file: File | undefined, onReady: (data: string) => void) => {
     if (!file) return;
     if (!file.type.startsWith("image/") || file.size > 5_000_000) {
       setError("Choisissez une image de moins de 5 Mo.");
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setExtraImages((images) => ({ ...images, [selectedPage.id]: reader.result as string }));
-      }
-    };
+    reader.onload = () => { if (typeof reader.result === "string") onReady(reader.result); };
     reader.readAsDataURL(file);
   };
+  const loadImage = (file?: File) => readImage(file, (value) => setExtraImages((images) => ({ ...images, [selectedPage.id]: value })));
 
   return <section className="gazette-studio space-y-6">
     <header className="gazette-studio-heading">
@@ -245,6 +252,10 @@ export function AdminGazetteStudioPage() {
           ))}
         </div>
       </div>
+          <div className="gazette-control-grid gazette-logo-controls">
+            <label>Logo d'en-tête (optionnel)<input type="file" accept="image/*" onChange={(event) => readImage(event.target.files?.[0], setHeaderLogo)} /></label>
+            <label>Logo du pied publicitaire (optionnel)<input type="file" accept="image/*" onChange={(event) => readImage(event.target.files?.[0], setFooterLogo)} /></label>
+          </div>
       <div className="gazette-studio-settings">
         <h2>Composition des pages</h2>
         <div className="gazette-page-tabs">
@@ -268,6 +279,7 @@ export function AdminGazetteStudioPage() {
           </label>
           <label>Rubrique ou sous-titre<input value={selectedPage.rubric} onChange={(event) => updatePage("rubric", event.target.value)} /></label>
           <label>Seconde photographie (facultative)<input type="file" accept="image/*" onChange={(event) => loadImage(event.target.files?.[0])} /></label>
+          <label>QR code existant (image facultative)<input type="file" accept="image/*" onChange={(event) => readImage(event.target.files?.[0], (value) => setQrImages((images) => ({ ...images, [selectedPage.id]: value })))} /></label>
         </div>
         {selectedPage.template === "pratique" && <label className="gazette-note-label">Encadré « Bon à savoir »
           <textarea rows={3} value={selectedPage.note} onChange={(event) => updatePage("note", event.target.value)} />
@@ -280,14 +292,15 @@ export function AdminGazetteStudioPage() {
         {saved && <p role="status" className="gazette-studio-notice">Brouillon enregistré dans ce navigateur uniquement.</p>}
         {error && <p role="alert" className="gazette-studio-error">{error}</p>}
         {currentArticle && currentArticle.body.length > 3800 && <p className="gazette-studio-warning">Article long : vérifiez visuellement le débordement dans l'aperçu d'impression. La pagination automatique et l'archivage serveur restent à consolider.</p>}
-        <p className="gazette-studio-help">Les textes viennent de l'éditeur d'articles. Les images ajoutées ici sont temporaires ; elles ne survivent pas à un rechargement. Aucune édition n'est encore publiée depuis ce studio.</p>
+        <p className="gazette-studio-help">Les textes viennent de l'éditeur d'articles. Les logos, photos et QR importés ici sont temporaires ; ils ne survivent pas à un rechargement. Vérifiez qu'un QR téléchargé est scannable avant impression. Aucune édition n'est encore publiée depuis ce studio.</p>
       </div>
     </div>
     <div className="gazette-proof-scroller">
       {draft.pages.map((page) => (
         <GazetteSheet key={page.id} draft={draft} page={page}
           article={articles.find((article) => article.id === page.articleId)}
-          extraImage={extraImages[page.id]} />
+          extraImage={extraImages[page.id]} qrImage={qrImages[page.id]}
+          headerLogo={headerLogo} footerLogo={footerLogo} />
       ))}
     </div>
   </section>;
