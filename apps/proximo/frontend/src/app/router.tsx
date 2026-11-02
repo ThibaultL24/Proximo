@@ -3,6 +3,7 @@ import { useAuth } from "../hooks/use-auth";
 import { ScrollToTop } from "../components/layout/scroll-to-top";
 import { ProximoLandingPage } from "../pages/public/proximo-landing-page";
 import { ProximoLoginPage, ProximoWorkspacePage, ProximoNewDossierPage } from "../pages/public/proximo-workspace-page";
+import { ProximoLeadsPage } from "../pages/public/proximo-leads-page";
 
 function Protected({children}:{children:React.ReactNode}) {
   const {user,isLoading}=useAuth();
@@ -17,6 +18,7 @@ export function AppRouter() {
       <Route index element={<ProximoLandingPage/>}/>
       <Route path="connexion" element={<ProximoLoginPage/>}/>
       <Route path="espace" element={<Protected><ProximoWorkspacePage/></Protected>}/>
+      <Route path="recommandations" element={<Protected><ProximoLeadsPage/></Protected>}/>
       <Route path="dossiers/nouveau" element={<Protected><ProximoNewDossierPage/></Protected>}/>
       <Route path="*" element={<Navigate to="/" replace/>}/>
     </Routes>
