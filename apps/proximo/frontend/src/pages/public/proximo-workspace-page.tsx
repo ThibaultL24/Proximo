@@ -6,7 +6,7 @@ import "./proximo-design.css";
 
 interface Organization { id:number; name:string; slug:string; }
 interface Dossier { id:number; full_name:string; project_type:string; property_city?:string; mandate_status:string; created_at:string; }
-function Shell({ children }: {children:React.ReactNode}) {
+export function Shell({ children }: {children:React.ReactNode}) {
   const {user,logout}=useAuth();
   const navigate=useNavigate();
   return <div className="proximo-ui min-h-screen">
@@ -62,6 +62,7 @@ export function ProximoWorkspacePage() {
     <div className="mt-8 flex flex-wrap items-end gap-4">
       <label className="min-w-[240px]"><span className="proximo-form-label">Organisation</span><select className="proximo-input" value={selected??""} onChange={e=>setSelected(Number(e.target.value))}>{organizations.map(o=><option value={o.id} key={o.id}>{o.name}</option>)}</select></label>
       {selected&&<Link to={`/dossiers/nouveau?organization_id=${selected}`} className="proximo-primary">+ Créer une fiche client</Link>}
+      <Link to="/recommandations" className="proximo-outline">Voir le réseau d'apporteurs →</Link>
     </div>
     {error&&<p className="mt-5 rounded-xl border border-white/20 bg-white/10 p-4 text-sm text-white/70">{error}</p>}
     <section className="mt-10">
