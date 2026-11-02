@@ -4,7 +4,7 @@ module Api
       class LeadsController < ApplicationController
         before_action :authenticate_user!
         before_action :load_membership!
-        before_action :require_manager!, only: %i[qualify reject convert]
+        before_action :require_manager!, only: %i[qualify start reject convert]
 
         def index
           render json: scoped_leads.includes(:submitted_by).order(created_at: :desc).map { |lead| serialize(lead) }
@@ -12,7 +12,12 @@ module Api
 
         def show
           lead = scoped_leads.find(params[:id])
-          render json: serialize(lead)
+          render json: serialize(lead).merge(
+            history: lead.lead_status_events.order(:created_at).map do |event|
+              { from_status: event.from_status, to_status: event.to_status,
+                note: event.note, created_at: event.created_at }
+            end
+          )
         end
 
         def create
@@ -41,6 +46,10 @@ module Api
 
         def qualify
           transition!(:qualified, note: params[:note])
+        end
+
+        def start
+          transition!(:in_progress, note: params[:note])
         end
 
         def reject
