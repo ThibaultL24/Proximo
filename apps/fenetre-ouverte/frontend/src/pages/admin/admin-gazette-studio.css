@@ -1,22 +1,98 @@
-.gazette-sheet { width: min(100%, 210mm); min-height: 297mm; overflow: hidden; background: white; box-shadow: 0 10px 40px #09396922; color:#143553; }
-.gazette-sheet-header { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:18px 20px; background:#09458d; color:white; }
-.gazette-sheet-header strong { font: 900 clamp(22px,3.5vw,40px)/1 system-ui,sans-serif; letter-spacing:-.065em; }
-.gazette-sheet-header strong span { color:#ffc329; }
-.gazette-sheet-header small { display:block; margin-top:6px; font:italic 15px Georgia,serif; }
-.gazette-sheet-header p { text-align:right; font:800 15px/1.4 system-ui,sans-serif; }
-.gazette-sheet-header b { font-size:8px; letter-spacing:.14em; }
-.gazette-sheet-body { padding:23px; }
-.gazette-eyebrow { color:#dd790b; text-transform:uppercase; letter-spacing:.17em; font:800 10px system-ui,sans-serif; }
-.gazette-sheet h2 { font:800 clamp(24px,4vw,36px)/1.15 Georgia,serif; color:#073c76; margin:10px 0; }
-.gazette-lead { font:italic 15px/1.5 Georgia,serif; color:#446984; margin-bottom:15px; }
-.gazette-cover { width:100%; max-height:220px; object-fit:cover; border-radius:12px; margin-bottom:16px; }
-.gazette-columns { columns:2; column-gap:23px; font:13px/1.55 Georgia,serif; text-align:justify; }
-.gazette-columns p { margin:0 0 10px; break-inside:avoid; white-space:pre-wrap; }
-.gazette-sheet-footer { margin:20px; padding:10px 0; border-top:3px solid #ffbf24; display:flex; justify-content:space-between; gap:15px; font:800 9px system-ui,sans-serif; color:#0b4c93; }
+/* Gazette Octobre 2026 — composition inspirée du document imprimé fourni.
+   L'identité magenta et la grille A4 sont intentionnelles, ce n'est pas le thème UI du site. */
+.gazette-studio { --gazette-pink: #e5004f; --gazette-darkpink: #c60043; color: #17253d; }
+.gazette-studio-heading { background: #093969; color: white; padding: 25px; border-radius: 22px; }
+.gazette-studio-heading p { font-size: 11px; font-weight: 800; letter-spacing: .16em; color: #ffd34b; }
+.gazette-studio-heading h1 { font-size: 30px; font-weight: 800; margin: 5px 0; }
+.gazette-studio-heading span { font-size: 14px; color: #e1edff; }
+.gazette-studio-controls { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
+.gazette-studio-settings { border: 1px solid #dae1e8; border-radius: 16px; background: #fff; padding: 18px; min-width: 0; }
+.gazette-studio-settings h2 { margin: 0 0 12px; font-size: 17px; font-weight: 800; }
+.gazette-control-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.gazette-control-grid label, .gazette-note-label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; font-weight: 700; }
+.gazette-control-grid input, .gazette-control-grid select, .gazette-note-label textarea {
+  width: 100%; min-width: 0; border: 1px solid #cbd5df; border-radius: 8px;
+  padding: 9px; color: #152e42; background: #fff; font-size: 13px;
+}
+.gazette-control-grid input[type="file"] { font-size: 11px; }
+.gazette-note-label { margin-top: 12px; }
+.gazette-page-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+.gazette-page-tabs button { padding: 7px 12px; border: 1px solid #e1d5db; color: #9a1243; border-radius: 7px; font-weight: 700; font-size: 12px; }
+.gazette-page-tabs button.active { background: var(--gazette-pink); color: #fff; border-color: var(--gazette-pink); }
+.gazette-studio-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.gazette-studio-actions button { border-radius: 8px; font-size: 12px; font-weight: 800; padding: 10px 12px; background: var(--gazette-pink); color: #fff; }
+.gazette-studio-actions button + button { background: #f0f2f5; color: #283849; }
+.gazette-studio-actions .gazette-remove-page { color: #a51638; }
+.gazette-studio-help, .gazette-studio-notice, .gazette-studio-warning, .gazette-studio-error { font-size: 12px; line-height: 1.5; margin-top: 12px; }
+.gazette-studio-help { color: #64748b; }
+.gazette-studio-notice { color: #1a6c45; }
+.gazette-studio-warning { color: #91531d; }
+.gazette-studio-error { color: #ab1232; }
+.gazette-proof-scroller { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; align-items: flex-start; padding: 22px 0 45px; background: #f0f2f5; border-radius: 12px; overflow-x: auto; }
+.gazette-proof-page {
+  box-sizing: border-box; width: 210mm; height: 297mm; flex: none; background: #fff;
+  color: #101010; box-shadow: 0 4px 22px #0a1a3033; display: grid;
+  grid-template-rows: 30mm 8mm minmax(0, 1fr) 32mm;
+  padding: 3.5mm 3.6mm 2mm; font-family: Arial, Helvetica, sans-serif;
+}
+.gazette-reference-header {
+  display: grid; grid-template-columns: 23% 1fr 25%; height: 100%;
+  align-items: center; background: var(--gazette-pink); color: #fff;
+}
+.gazette-reference-brand { padding: 3mm 2mm; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
+  border-right: 1px solid #ffffff65; font-size: 14px; line-height: 1.0; font-weight: 900; letter-spacing: -.045em; text-align: center; }
+.gazette-brand-symbol { font-size: 27px; border: 2px solid white; line-height: 21px; padding: 0 7px; margin-bottom: 2px; }
+.gazette-reference-masthead { padding: 0 3mm; display: flex; justify-content: center; flex-direction: column; }
+.gazette-reference-masthead strong { display: block; font-size: 34px; line-height: .95; font-weight: 900; letter-spacing: -.035em; }
+.gazette-reference-masthead span { display: block; font-size: 19px; font-weight: 800; letter-spacing: -.045em; margin-top: 4px; }
+.gazette-reference-promise { font-size: 8px; letter-spacing: .15em; font-weight: 900; line-height: 1.5; text-align: center; padding: 0 2mm; }
+.gazette-reference-territory { display: flex; align-items: center; justify-content: center; font-size: 11px;
+  font-weight: 900; letter-spacing: .13em; color: var(--gazette-pink); text-align: center; }
+.gazette-reference-content { box-sizing: border-box; padding: 2mm 2mm 0; min-height: 0; }
+.gazette-reference-heading { margin-bottom: 3mm; }
+.gazette-reference-rubric { color: var(--gazette-pink); font-size: 15px; font-weight: 800; font-style: italic; margin: 0 0 1mm; }
+.gazette-reference-heading h2 { color: var(--gazette-pink); font-size: 20px; line-height: 1.06; font-style: italic; font-weight: 900; margin: 0; }
+.gazette-layout-pratique .gazette-reference-heading h2 { font-size: 18px; text-transform: uppercase; }
+.gazette-reference-intro { color: #bb3362; font-size: 11px; line-height: 1.25; font-style: italic; margin: 1mm 0 0; }
+.gazette-reference-deck { color: #bd2460; text-align: center; font-style: italic; font-size: 10px; margin-top: 1mm; }
+.gazette-reference-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4mm; }
+.gazette-reference-column { min-width: 0; font-size: 10.1px; line-height: 1.27; text-align: justify; }
+.gazette-article-paragraph { white-space: pre-line; margin: 0 0 2.3mm; overflow-wrap: anywhere; }
+.gazette-article-subheading { color: var(--gazette-pink); font-style: italic; font-weight: 900; font-size: 12px; line-height: 1.1; margin: 3mm 0 1mm; text-align: left; }
+.gazette-inline-photo { width: 100%; height: 35mm; object-fit: cover; margin-top: 2mm; }
+.gazette-column-top-photo { margin-top: 0; margin-bottom: 2mm; height: 29mm; }
+.gazette-wide-photo { width: 100%; height: 34mm; object-fit: cover; margin: 0 0 3mm; }
+.gazette-practical-note { display: flex; gap: 2mm; padding: 2mm; margin-top: 2mm; background: #f9e9ec;
+  color: #2e2531; text-align: left; font-size: 9px; line-height: 1.3; }
+.gazette-practical-note strong { flex: none; font-size: 11px; font-style: italic; color: var(--gazette-pink); }
+.gazette-practical-note p { margin: 0; }
+.gazette-reference-photo-layout img { width: 100%; max-height: 145mm; object-fit: cover; }
+.gazette-reference-photo-layout h2 { color: var(--gazette-pink); font-size: 22px; font-style: italic; margin: 3mm 0 1mm; }
+.gazette-reference-photo-layout p { font-size: 12px; }
+.gazette-reference-footer { display: flex; flex-direction: column; justify-content: flex-end; }
+.gazette-reference-ad { height: 26mm; background: var(--gazette-pink); color: #fff; display: grid; grid-template-columns: 1fr 28%; padding: 1.4mm; gap: 2mm; }
+.gazette-reference-contacts { display: flex; align-items: center; flex-direction: column; justify-content: space-evenly; text-align: center; min-width: 0; }
+.gazette-reference-contacts strong { font-size: 11px; font-weight: 900; letter-spacing: .13em; }
+.gazette-reference-contacts span { font-size: 11px; letter-spacing: .2em; font-weight: 800; }
+.gazette-reference-contacts small { font-size: 7.5px; letter-spacing: .10em; font-weight: 700; }
+.gazette-reference-ad-brand { display: flex; flex-direction: column; justify-content: center; align-items: center;
+  background: #fff; color: #151515; font-size: 17px; font-weight: 900; line-height: .9; text-align: center; }
+.gazette-reference-ad-brand strong { color: var(--gazette-pink); }
+.gazette-reference-footer > p { text-align: center; font-size: 11px; color: #333; line-height: 1.5; margin: 1mm 0 0; }
+@media (max-width: 1050px) {
+  .gazette-studio-controls { grid-template-columns: 1fr; }
+}
+@media (max-width: 860px) {
+  .gazette-proof-scroller { justify-content: flex-start; padding-left: 12px; }
+  .gazette-control-grid { grid-template-columns: 1fr; }
+}
 @media print {
-  @page { size:A4 portrait; margin:0; }
-  body * { visibility:hidden !important; }
-  #gazette-print-area, #gazette-print-area * { visibility:visible !important; }
-  #gazette-print-area { position:absolute; top:0; left:0; width:210mm; min-height:297mm; margin:0; box-shadow:none; }
-  .gazette-editor-controls { display:none !important; }
+  @page { size: A4 portrait; margin: 0; }
+  body * { visibility: hidden !important; }
+  .gazette-proof-scroller, .gazette-proof-scroller * { visibility: visible !important; }
+  .gazette-proof-scroller { position: absolute; inset: 0; display: block; width: 210mm; height: auto;
+    margin: 0; padding: 0; overflow: visible; background: transparent; }
+  .gazette-proof-page { box-shadow: none; margin: 0; padding: 3.5mm 3.6mm 2mm; width: 210mm; height: 297mm;
+    break-after: page; page-break-after: always; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .gazette-proof-page:last-child { break-after: auto; page-break-after: auto; }
 }
