@@ -12,6 +12,7 @@ Rails.application.routes.draw do
           resources :leads, only: %i[index show create] do
             member do
               patch :qualify
+              patch :start
               patch :reject
               patch :convert
             end
