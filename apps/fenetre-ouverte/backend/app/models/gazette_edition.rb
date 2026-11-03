@@ -1,5 +1,6 @@
 class GazetteEdition < ApplicationRecord
   belongs_to :agency
+  has_many_attached :media_assets
 
   enum :status, { draft: 0, published: 1, archived: 2 }
 
@@ -11,6 +12,7 @@ class GazetteEdition < ApplicationRecord
   validates :pages, presence: true
   validate :validate_pages
   validate :validate_settings
+  validate :validate_assets_manifest
   validate :preserve_published_snapshot, on: :update
 
   def publish!
@@ -24,6 +26,11 @@ class GazetteEdition < ApplicationRecord
           raise ActiveRecord::RecordInvalid, self
         end
 
+        cover_blob_id = article.cover_image.blob&.id
+        if cover_blob_id && !media_assets.attachments.exists?(blob_id: cover_blob_id)
+          media_assets.attach(article.cover_image.blob)
+        end
+
         page.merge(
           "article_snapshot" => {
             "id" => article.id,
@@ -32,7 +39,7 @@ class GazetteEdition < ApplicationRecord
             "body" => article.body,
             # Ne garantit pas la persistance des médias : à consolider
             # avant l'impression d'un numéro définitif.
-            "cover_blob_id" => article.cover_image.blob&.id
+            "cover_blob_id" => cover_blob_id
           }
         )
       end
@@ -50,7 +57,36 @@ class GazetteEdition < ApplicationRecord
     self
   end
 
+  def asset_urls
+    by_blob_id = media_assets.attachments.includes(:blob).index_by(&:blob_id)
+    assets_manifest.transform_values do |blob_id|
+      AttachmentUrls.blob_path(by_blob_id[blob_id.to_i])
+    end
+  end
+
+  def printable_pages
+    by_blob_id = media_assets.attachments.includes(:blob).index_by(&:blob_id)
+    pages.map do |page|
+      snapshot = page["article_snapshot"]
+      next page unless snapshot.is_a?(Hash)
+
+      attachment = by_blob_id[snapshot["cover_blob_id"].to_i]
+      page.merge("article_snapshot" => snapshot.merge(
+        "cover_image_url" => AttachmentUrls.blob_path(attachment)
+      ))
+    end
+  end
+
   private
+
+  def validate_assets_manifest
+    valid = assets_manifest.is_a?(Hash) && assets_manifest.all? do |key, blob_id|
+      (key.in?(%w[headerLogo footerLogo]) ||
+        key.match?(/\A(?:extraImage|qrImage):[1-9]\d*\z/)) &&
+        blob_id.to_s.match?(/\A[1-9]\d*\z/)
+    end
+    errors.add(:assets_manifest, "contient des références invalides") unless valid
+  end
 
   def validate_pages
     unless pages.is_a?(Array) && pages.length.between?(1, 40)
