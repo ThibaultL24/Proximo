@@ -108,11 +108,29 @@ module Api
         end
 
         def edition_params
-          params.require(:gazette_edition).permit(
+          permitted = params.require(:gazette_edition).permit(
             :issue_label, :edition_label, :lock_version,
             settings: %i[subtitle territory banner contact legal],
             pages: %i[id articleId template rubric note leftHeading rightHeading imageCaption columnBreakAt contentStart contentEnd continuation]
           )
+
+          # Form-encoded payloads arrive as strings. Normalize known scalar
+          # fields before persisting them in jsonb; leave invalid input intact
+          # so the model can reject it, rather than silently accepting it.
+          Array(permitted[:pages]).each do |page|
+            %i[contentStart contentEnd columnBreakAt].each do |field|
+              value = page[field]
+              page[field] = value.to_i if value.present? && value.to_s.match?(/\A-?\d+\z/)
+            end
+
+            next unless page.key?(:continuation)
+
+            case page[:continuation].to_s
+            when "true", "1" then page[:continuation] = true
+            when "false", "0" then page[:continuation] = false
+            end
+          end
+          permitted
         end
 
         def expected_revision?(edition)
