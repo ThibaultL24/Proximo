@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Article } from "../../types";
 import {
-  GazetteSheet, type EditionDraft, type PageDraft,
+  GazetteSheet, type EditionDraft,
 } from "../../components/gazette/gazette-sheet";
 import { paginateGazetteArticle } from "../../lib/gazette-auto-pagination";
 import { checkGazettePrint } from "../../lib/gazette-print-check";
