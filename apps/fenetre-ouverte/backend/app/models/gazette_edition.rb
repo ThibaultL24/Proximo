@@ -19,6 +19,8 @@ class GazetteEdition < ApplicationRecord
     with_lock do
       raise ActiveRecord::RecordInvalid, self unless draft?
 
+      verify_continuation_ranges!
+
       snapshots = pages.map do |page|
         article = agency.articles.gazette.find_by(id: page["articleId"])
         unless article
@@ -83,6 +85,40 @@ class GazetteEdition < ApplicationRecord
   end
 
   private
+
+  # Do not let a draft publish with missing, duplicated or orphaned
+  # characters. The browser can repaginate drafts; published snapshots cannot.
+  def verify_continuation_ranges!
+    pages.each_with_index do |page, index|
+      start_offset = page["contentStart"]
+      end_offset = page["contentEnd"]
+      next if start_offset.nil? && end_offset.nil? && !page["continuation"]
+
+      article = agency.articles.gazette.find_by(id: page["articleId"])
+      invalid = article.nil? || start_offset.nil? || end_offset.nil?
+      if !invalid && page["continuation"]
+        previous = index.positive? ? pages[index - 1] : nil
+        invalid = previous.nil? ||
+                  previous["articleId"].to_s != page["articleId"].to_s ||
+                  previous["contentEnd"] != start_offset
+      elsif !invalid
+        invalid = start_offset != 0
+      end
+
+      following = pages[index + 1]
+      is_followed = following &&
+                    following["continuation"] &&
+                    following["articleId"].to_s == page["articleId"].to_s
+      if !invalid && !is_followed
+        invalid = end_offset != article.body.to_s.length
+      end
+
+      next unless invalid
+
+      errors.add(:pages, "ont une continuation incomplète ou non contiguë à la page #{index + 1}")
+      raise ActiveRecord::RecordInvalid, self
+    end
+  end
 
   def validate_assets_manifest
     valid = assets_manifest.is_a?(Hash) && assets_manifest.all? do |key, blob_id|
