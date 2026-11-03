@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchAdminArticles } from "../../api/admin-articles";
 import { API_ROOT } from "../../api/client";
+import { checkGazettePrint } from "../../lib/gazette-print-check";
 import type { Article } from "../../types";
 import {
   GazetteSheet, type Template, type PageDraft, type EditionDraft,
@@ -172,14 +173,9 @@ export function AdminGazetteStudioPage() {
       setError("Enregistrement impossible (doublon, conflit de version ou erreur réseau). Rechargez l'édition avant de réessayer.");
     } finally { setServerBusy(false); }
   };
-  const layoutOverflows = (): boolean => Array.from(
-    document.querySelectorAll(".gazette-reference-content")
-  ).some((element) => element.scrollHeight > element.clientHeight + 2);
-  const printProof = () => {
-    if (layoutOverflows()) {
-      setError("Le texte dépasse le format A4. Réduisez la longueur de l'article ou réorganisez les pages avant impression.");
-      return;
-    }
+  const printProof = async () => {
+    const reason = await checkGazettePrint();
+    if (reason) { setError(reason); return; }
     setError("");
     window.print();
   };
@@ -193,10 +189,8 @@ export function AdminGazetteStudioPage() {
       setError("Associez un article à chaque page avant publication.");
       return;
     }
-    if (layoutOverflows()) {
-      setError("Une page déborde du format A4. Raccourcissez l'article ou réorganisez les pages avant publication.");
-      return;
-    }
+    const printError = await checkGazettePrint();
+    if (printError) { setError(printError); return; }
     setServerBusy(true); setError(""); setServerMessage("");
     try {
       const result = await publishGazetteEdition(serverEdition);
@@ -415,7 +409,7 @@ export function AdminGazetteStudioPage() {
           <textarea disabled={serverReadOnly} rows={3} value={selectedPage.note} onChange={(event) => updatePage("note", event.target.value)} />
         </label>}
         <div className="gazette-studio-actions">
-          <button type="button" onClick={printProof}>Imprimer / Exporter en PDF A4</button>
+          <button type="button" onClick={() => void printProof()}>Imprimer / Exporter en PDF A4</button>
           <button type="button" onClick={() => { setSaved(true); window.setTimeout(() => setSaved(false), 2500); }}>Confirmer le brouillon local</button>
           {draft.pages.length > 1 && !serverReadOnly && <button type="button" className="gazette-remove-page" onClick={removePage}>Supprimer cette page</button>}
         </div>
