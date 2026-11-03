@@ -34,6 +34,7 @@ export interface GazetteEditionRecord extends GazetteEditionInput {
   lock_version: number;
   published_at: string | null;
   updated_at: string;
+  asset_urls: Record<string, string | null>;
 }
 const ROOT = "/admin/gazette_editions";
 export async function listGazetteEditions(): Promise<GazetteEditionRecord[]> {
@@ -64,5 +65,22 @@ export async function archiveGazetteEdition(payload: GazetteEditionRecord): Prom
   const { data } = await api.patch<GazetteEditionRecord>(ROOT + "/" + payload.id + "/archive", {
     lock_version: payload.lock_version,
   });
+  return data;
+}
+
+export async function uploadGazetteEditionAsset(
+  edition: GazetteEditionRecord,
+  slot: "headerLogo" | "footerLogo" | "extraImage" | "qrImage",
+  file: File,
+  pageId?: number
+): Promise<GazetteEditionRecord> {
+  const form = new FormData();
+  form.append("slot", slot);
+  form.append("file", file);
+  form.append("lock_version", String(edition.lock_version));
+  if (pageId !== undefined) form.append("page_id", String(pageId));
+  const { data } = await api.post<GazetteEditionRecord>(
+    ROOT + "/" + edition.id + "/upload_asset", form
+  );
   return data;
 }
