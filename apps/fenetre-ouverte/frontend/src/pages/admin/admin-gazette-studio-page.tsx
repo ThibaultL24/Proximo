@@ -15,6 +15,38 @@ import {
 import "./admin-gazette-studio.css";
 
 const STORAGE_KEY = "fenetre-ouverte-gazette-reference-v1";
+const TOUR_STEPS = [
+  {
+    title: "Créer ou reprendre un numéro",
+    description: "Commencez par Nouveau numéro, ou choisissez une édition déjà enregistrée. Les brouillons restent modifiables tant qu'ils ne sont pas publiés.",
+    target: "edition",
+  },
+  {
+    title: "Définir l'identité du journal",
+    description: "Indiquez le mois, le numéro, le territoire, les coordonnées et les logos du bandeau. Ces informations sont reprises automatiquement sur les feuilles A4.",
+    target: "identity",
+  },
+  {
+    title: "Choisir les articles et les gabarits",
+    description: "Une page peut utiliser Portrait local, Article pratique, Reportage, Couverture, Agenda ou Pleine page photo. Sélectionnez l'article déjà rédigé, puis ajoutez ou réorganisez les pages.",
+    target: "pages",
+  },
+  {
+    title: "Soigner la mise en page",
+    description: "Ajoutez les photos, les intertitres, le QR code et la publicité. L'aperçu reprend les deux colonnes, le bandeau rose et le pied de page du modèle papier.",
+    target: "preview",
+  },
+  {
+    title: "Enregistrer, puis publier",
+    description: "Enregistrer sur le serveur conserve le brouillon et ses médias. Figer / publier l'édition bloque ensuite les modifications du numéro et le rend consultable sur le site.",
+    target: "edition",
+  },
+  {
+    title: "Exporter la Gazette",
+    description: "Contrôlez les pages puis utilisez Imprimer / Exporter en PDF A4. Les textes trop longs nécessitent parfois la répartition automatique et une vérification du résultat.",
+    target: "pages",
+  },
+] as const;
 function mediaUrl(url?: string | null): string | undefined {
   if (!url) return undefined;
   return url.startsWith("/") ? API_ROOT + url : url;
@@ -69,6 +101,7 @@ export function AdminGazetteStudioPage() {
   const [serverEdition, setServerEdition] = useState<GazetteEditionRecord | null>(null);
   const [serverBusy, setServerBusy] = useState(false);
   const [paginating, setPaginating] = useState(false);
+  const [tourStep, setTourStep] = useState(-1);
   const [dirty, setDirty] = useState(false);
   const [pendingAssets, setPendingAssets] = useState<Record<string, File>>({});
   const [serverMessage, setServerMessage] = useState("");
@@ -95,6 +128,13 @@ export function AdminGazetteStudioPage() {
       // L'impression et l'aperçu restent disponibles.
     }
   }, [draft]);
+
+  useEffect(() => {
+    if (tourStep < 0) return;
+    const target = TOUR_STEPS[tourStep]?.target;
+    const section = document.querySelector('[data-gazette-tour="' + target + '"]');
+    section?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [tourStep]);
 
   const selectedPage = draft.pages.find((page) => page.id === selectedPageId) || draft.pages[0];
   const serverReadOnly = Boolean(serverEdition && serverEdition.status !== "draft");
@@ -346,10 +386,34 @@ export function AdminGazetteStudioPage() {
   return <section className="gazette-studio space-y-6">
     <header className="gazette-studio-heading">
       <p>FENÊTRE OUVERTE · ATELIER D'ÉDITION</p>
-      <h1>Studio Gazette</h1>
+      <div className="gazette-studio-titleline">
+        <h1>Studio Gazette</h1>
+        <button type="button" className="gazette-tour-launch" onClick={() => setTourStep(0)}>
+          Visite guidée · 1 min
+        </button>
+      </div>
       <span>Composition A4 fidèle à la Gazette d'octobre 2026 : bandeaux roses, deux colonnes, photographies et publicité en pied.</span>
     </header>
-    <div className="gazette-edition-toolbar">
+    {tourStep >= 0 && (
+      <aside className="gazette-tour-card" role="region" aria-label="Visite guidée du Studio Gazette">
+        <div className="gazette-tour-progress">
+          <span>VISITE GUIDÉE</span>
+          <span>Étape {tourStep + 1} / {TOUR_STEPS.length}</span>
+        </div>
+        <h2>{TOUR_STEPS[tourStep].title}</h2>
+        <p>{TOUR_STEPS[tourStep].description}</p>
+        <div className="gazette-tour-controls">
+          <button type="button" onClick={() => setTourStep(Math.max(0, tourStep - 1))}
+            disabled={tourStep === 0}>Précédent</button>
+          <button type="button" onClick={() => setTourStep(tourStep + 1 < TOUR_STEPS.length ? tourStep + 1 : -1)}>
+            {tourStep + 1 === TOUR_STEPS.length ? "Terminer" : "Étape suivante"}
+          </button>
+          <button type="button" className="gazette-tour-close" onClick={() => setTourStep(-1)}>Fermer</button>
+        </div>
+      </aside>
+    )}
+    <div className="gazette-edition-toolbar" data-gazette-tour="edition"
+      data-tour-active={tourStep === 0 || tourStep === 4}>
       <label>Éditions sauvegardées
         <select value={serverEdition?.id ?? ""} disabled={serverBusy}
           onChange={(event) => { if (event.target.value) void loadEdition(Number(event.target.value)); }}>
@@ -374,7 +438,8 @@ export function AdminGazetteStudioPage() {
     </p>}
     {serverMessage && <p role="status" className="gazette-studio-notice">{serverMessage}</p>}
     <div className="gazette-studio-controls">
-      <div className="gazette-studio-settings">
+      <div className="gazette-studio-settings" data-gazette-tour="identity"
+        data-tour-active={tourStep === 1}>
         <h2>Identité de l'édition</h2>
         <div className="gazette-control-grid">
           {([
@@ -400,7 +465,8 @@ export function AdminGazetteStudioPage() {
               readImage(file, (value) => { setFooterLogo(value); registerAsset("footerLogo", file); });
             }} /></label>
           </div>
-      <div className="gazette-studio-settings">
+      <div className="gazette-studio-settings" data-gazette-tour="pages"
+        data-tour-active={tourStep === 2 || tourStep === 5}>
         <h2>Composition des pages</h2>
         <div className="gazette-page-tabs">
           {draft.pages.map((page, index) => (
@@ -470,7 +536,8 @@ export function AdminGazetteStudioPage() {
         <p className="gazette-studio-help">Les textes viennent de l'éditeur d'articles. Les logos, photos et QR sont conservés après l'enregistrement du brouillon sur le serveur. Vérifiez qu'un QR téléchargé est scannable avant impression. Utilisez « Enregistrer sur le serveur » avant de figer le numéro.</p>
       </div>
     </div>
-    <div className="gazette-proof-scroller">
+    <div className="gazette-proof-scroller" data-gazette-tour="preview"
+      data-tour-active={tourStep === 3}>
       {draft.pages.map((page) => {
         const live = articles.find((article) => article.id === page.articleId);
         const article = page.article_snapshot
