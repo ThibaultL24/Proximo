@@ -78,6 +78,7 @@ Rails.application.routes.draw do
           member do
             patch :publish
             patch :archive
+            post :upload_asset
           end
         end
         resources :publication_moderations, only: %i[index] do
