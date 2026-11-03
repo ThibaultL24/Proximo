@@ -82,7 +82,7 @@ class GazetteEdition < ApplicationRecord
   def validate_assets_manifest
     valid = assets_manifest.is_a?(Hash) && assets_manifest.all? do |key, blob_id|
       (key.in?(%w[headerLogo footerLogo]) ||
-        key.match?(/\A(?:extraImage|qrImage):[1-9]\d*\z/)) &&
+        key.match?(/\A(?:extraImage|qrImage|spotlightLogo|promoImage):[1-9]\d*\z/)) &&
         blob_id.to_s.match?(/\A[1-9]\d*\z/)
     end
     errors.add(:assets_manifest, "contient des références invalides") unless valid
@@ -98,6 +98,17 @@ class GazetteEdition < ApplicationRecord
       unless page.is_a?(Hash) && TEMPLATES.include?(page["template"])
         errors.add(:pages, "ont un gabarit invalide à la page #{index + 1}")
         next
+      end
+
+      %w[rubric note leftHeading rightHeading imageCaption].each do |field|
+        value = page[field]
+        if value.present? && (!value.is_a?(String) || value.length > 2_000)
+          errors.add(:pages, "ont un champ #{field} invalide à la page #{index + 1}")
+        end
+      end
+      cut = page["columnBreakAt"]
+      unless cut.nil? || cut.to_s.match?(/\A[1-9]\d{0,2}\z/)
+        errors.add(:pages, "ont une coupure de colonne invalide à la page #{index + 1}")
       end
 
       id = page["articleId"]
