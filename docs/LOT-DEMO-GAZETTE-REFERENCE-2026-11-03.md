@@ -24,13 +24,13 @@ Document de référence communiqué : `Gazette Octobre 2026 (2)(2).pdf`, numéro
 
 - **Composition sauvegardée côté serveur** via `GazetteEdition` (numéro, mois, paramètres, pages JSONB, pièces Active Storage), avec brouillon local de secours dans `localStorage`. La branche dispose d'une API de publication et d'archivage.
 - Les logos, secondes photos et QR importés sont persistés après **Enregistrer sur le serveur** et retrouvés à l'ouverture du numéro. Les photos des articles sont conservées par référence Active Storage lors de la publication.
-- La pagination multi-feuilles existe, ainsi que l'ordre des pages, mais **la pagination automatique des textes débordants n'existe pas encore**. Une vérification du dépassement A4 bloque la publication et l'impression depuis l'atelier. Une vérification visuelle du PDF et un contrôle des images chargées restent indispensables.
+- La pagination A4 comporte un mode expérimental de répartition automatique basé sur les dimensions DOM. Les pages de continuation sont enregistrées avec leurs offsets, et l'API rejette les ruptures ou pertes de texte. La recette visuelle reste obligatoire, en particulier pour les illustrations et le résultat PDF.
 - Les gabarits sont des prévisualisations : ils ne garantissent pas encore la même qualité qu'une composition PAO professionnelle.
 - Les marques, visuels et coordonnées correspondent à un modèle fourni et doivent être validés par le client avant une diffusion publique.
 - Les QR importés doivent être testés avec un smartphone après impression.
 - Les éditions publiées et archivées deviennent consultables par les habitants via `/gazette` et `/gazette/editions/:id`. Les brouillons ne sont jamais exposés publiquement.
 - Les articles d'une édition publiée sont figés en instantanés (titre, résumé, texte et image conservée), avec protection du contenu publié contre les mises à jour ; les brouillons utilisent `lock_version` pour détecter les conflits d'édition.
-- Le PDF final et le rendu imprimé n'ont pas été comparés automatiquement aux deux pages de référence ; la maquette doit encore être approuvée par le client.
+- Un workflow Chromium produit désormais des PDF et captures à partir d'articles fictifs avec le composant React réel. Le PDF final avec les vrais articles/images n'a pas été comparé pixel à pixel aux deux pages de référence ; validation du client toujours nécessaire.
 
 ## Proximo : premier parcours démontrable
 
@@ -45,7 +45,7 @@ Document de référence communiqué : `Gazette Octobre 2026 (2)(2).pdf`, numéro
 ### Prochaines étapes produit
 
 1. Comparer la branche à la dernière version locale du Studio Gazette, **préserver** ses gabarits, pagination et archives s'ils sont déjà développés.
-2. Extraire les pages JSONB de `GazetteEdition` en objets persistés `GazettePage` / `GazetteBlock` si nécessaire pour une PAO avancée, puis ajouter la pagination automatique, les contrôles typographiques et l'export PDF serveur validé.
+2. Valider et améliorer la pagination DOM expérimentale (coupes, légendes, images et mise en page des pages de suite), puis évaluer l'extraction `GazettePage` / `GazetteBlock` pour une PAO avancée et un export PDF serveur.
 3. Remplacer l'attestation de transmission du prospect par un processus réel de confirmation/information et revoir les barèmes après validation juridique.
 4. Tester le parcours en Playwright pour chaque rôle, ainsi que l'isolation multi-organisations et la prévisualisation imprimée.
 5. Vérifier Rails, TypeScript, ESLint, le PDF A4 réel et les ressources officielles avant déploiement.
