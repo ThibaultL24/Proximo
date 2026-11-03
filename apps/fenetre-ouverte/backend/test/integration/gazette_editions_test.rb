@@ -115,6 +115,61 @@ class GazetteEditionsTest < ActionDispatch::IntegrationTest
     assert GazetteEdition.find(edition.fetch("id")).draft?
   end
 
+
+  test "public catalog only shows published editions and not foreign drafts" do
+    post @url, headers: auth(@editor), params: { gazette_edition: payload }
+    assert_response :created
+    edition = response.parsed_body
+
+    get "/api/v1/public/gazette_editions"
+    assert_response :success
+    assert_equal [], response.parsed_body
+
+    get "/api/v1/public/gazette_editions/#{edition.fetch("id")}"
+    assert_response :not_found
+
+    patch "#{@url}/#{edition.fetch("id")}/publish",
+      headers: auth(@editor), params: { lock_version: edition.fetch("lock_version") }
+    assert_response :success
+
+    # The public catalog belongs to DEFAULT_AGENCY_SLUG, not every publisher.
+    get "/api/v1/public/gazette_editions"
+    assert_response :success
+    assert_equal [], response.parsed_body
+  end
+
+  test "edition assets are stored with an editor and cannot be overwritten by another agency" do
+    post @url, headers: auth(@editor), params: { gazette_edition: payload }
+    assert_response :created
+    edition = response.parsed_body
+
+    require "tempfile"
+    require "base64"
+    image = Base64.decode64(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+iL9sAAAAASUVORK5CYII="
+    )
+    Tempfile.create(["gazette-qr", ".png"]) do |temp|
+      temp.binmode
+      temp.write(image)
+      temp.flush
+
+      upload = Rack::Test::UploadedFile.new(temp.path, "image/png")
+      post "#{@url}/#{edition.fetch("id")}/upload_asset",
+        headers: auth(@outsider),
+        params: { lock_version: edition.fetch("lock_version"), slot: "headerLogo", file: upload }
+      assert_response :not_found
+
+      upload = Rack::Test::UploadedFile.new(temp.path, "image/png")
+      post "#{@url}/#{edition.fetch("id")}/upload_asset",
+        headers: auth(@editor),
+        params: { lock_version: edition.fetch("lock_version"), slot: "headerLogo", file: upload }
+      assert_response :success
+    end
+
+    assert GazetteEdition.find(edition.fetch("id")).media_assets.attached?
+    assert response.parsed_body.fetch("asset_urls").fetch("headerLogo").present?
+  end
+
   private
 
   def payload
