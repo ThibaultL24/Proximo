@@ -11,6 +11,9 @@ export interface GazettePageData {
   rightHeading?: string;
   imageCaption?: string;
   columnBreakAt?: number | null;
+  contentStart?: number | null;
+  contentEnd?: number | null;
+  continuation?: boolean;
   article_snapshot?: {
     id: number;
     title: string;
