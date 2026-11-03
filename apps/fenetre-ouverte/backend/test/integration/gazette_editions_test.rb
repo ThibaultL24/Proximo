@@ -136,6 +136,20 @@ class GazetteEditionsTest < ActionDispatch::IntegrationTest
     get "/api/v1/public/gazette_editions"
     assert_response :success
     assert_equal [], response.parsed_body
+
+    previous_slug = ENV["DEFAULT_AGENCY_SLUG"]
+    begin
+      ENV["DEFAULT_AGENCY_SLUG"] = @agency.slug
+      get "/api/v1/public/gazette_editions"
+      assert_response :success
+      assert_equal [edition.fetch("id")], response.parsed_body.map { |row| row.fetch("id") }
+
+      get "/api/v1/public/gazette_editions/#{edition.fetch("id")}"
+      assert_response :success
+      assert_equal "Texte original", response.parsed_body.fetch("pages").first.fetch("article_snapshot").fetch("body")
+    ensure
+      previous_slug ? ENV["DEFAULT_AGENCY_SLUG"] = previous_slug : ENV.delete("DEFAULT_AGENCY_SLUG")
+    end
   end
 
   test "edition assets are stored with an editor and cannot be overwritten by another agency" do
