@@ -12,12 +12,11 @@ module Api
 
         def show
           lead = scoped_leads.find(params[:id])
-          render json: serialize(lead).merge(
-            history: lead.lead_status_events.order(:created_at).map do |event|
-              { from_status: event.from_status, to_status: event.to_status,
-                note: event.note, created_at: event.created_at }
-            end
-          )
+          history = lead.lead_status_events.order(:created_at).map do |event|
+            { from_status: event.from_status, to_status: event.to_status,
+              note: event.note, created_at: event.created_at }
+          end
+          render json: serialize(lead).merge(history: history)
         end
 
         def create
