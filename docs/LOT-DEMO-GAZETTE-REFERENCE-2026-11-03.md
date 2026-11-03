@@ -22,12 +22,15 @@ Document de référence communiqué : `Gazette Octobre 2026 (2)(2).pdf`, numéro
 
 ### Limites explicites
 
-- **Composition et sauvegarde côté navigateur uniquement** via `localStorage` ; aucune publication serveur, édition archivée ou synchronisation multi-postes dans cette branche.
-- Les images téléchargées (logos / seconde photo / QR) ne sont pas persistées et doivent être réimportées après rafraîchissement.
-- Les longs textes ne disposent pas encore d'une pagination typographique fiable. Contrôler systématiquement l'aperçu et le PDF exporté, en particulier les risques de débordement.
+- **Composition sauvegardée côté serveur** via `GazetteEdition` (numéro, mois, paramètres, pages JSONB, pièces Active Storage), avec brouillon local de secours dans `localStorage`. La branche dispose d'une API de publication et d'archivage.
+- Les logos, secondes photos et QR importés sont persistés après **Enregistrer sur le serveur** et retrouvés à l'ouverture du numéro. Les photos des articles sont conservées par référence Active Storage lors de la publication.
+- La pagination multi-feuilles existe, ainsi que l'ordre des pages, mais **la pagination automatique des textes débordants n'existe pas encore**. Une vérification du dépassement A4 bloque la publication et l'impression depuis l'atelier. Une vérification visuelle du PDF et un contrôle des images chargées restent indispensables.
 - Les gabarits sont des prévisualisations : ils ne garantissent pas encore la même qualité qu'une composition PAO professionnelle.
 - Les marques, visuels et coordonnées correspondent à un modèle fourni et doivent être validés par le client avant une diffusion publique.
 - Les QR importés doivent être testés avec un smartphone après impression.
+- Les éditions publiées et archivées deviennent consultables par les habitants via `/gazette` et `/gazette/editions/:id`. Les brouillons ne sont jamais exposés publiquement.
+- Les articles d'une édition publiée sont figés en instantanés (titre, résumé, texte et image conservée), avec protection du contenu publié contre les mises à jour ; les brouillons utilisent `lock_version` pour détecter les conflits d'édition.
+- Le PDF final et le rendu imprimé n'ont pas été comparés automatiquement aux deux pages de référence ; la maquette doit encore être approuvée par le client.
 
 ## Proximo : premier parcours démontrable
 
@@ -42,7 +45,7 @@ Document de référence communiqué : `Gazette Octobre 2026 (2)(2).pdf`, numéro
 ### Prochaines étapes produit
 
 1. Comparer la branche à la dernière version locale du Studio Gazette, **préserver** ses gabarits, pagination et archives s'ils sont déjà développés.
-2. Ajouter `GazetteEdition`, `GazettePage` et stockage de blocs médiatiques avec versionnement, export serveur vérifié et tests de débordement.
+2. Extraire les pages JSONB de `GazetteEdition` en objets persistés `GazettePage` / `GazetteBlock` si nécessaire pour une PAO avancée, puis ajouter la pagination automatique, les contrôles typographiques et l'export PDF serveur validé.
 3. Remplacer l'attestation de transmission du prospect par un processus réel de confirmation/information et revoir les barèmes après validation juridique.
 4. Tester le parcours en Playwright pour chaque rôle, ainsi que l'isolation multi-organisations et la prévisualisation imprimée.
 5. Vérifier Rails, TypeScript, ESLint, le PDF A4 réel et les ressources officielles avant déploiement.
