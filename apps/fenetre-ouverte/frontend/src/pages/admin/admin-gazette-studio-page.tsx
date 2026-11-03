@@ -165,6 +165,17 @@ export function AdminGazetteStudioPage() {
       setError("Enregistrement impossible (doublon, conflit de version ou erreur réseau). Rechargez l'édition avant de réessayer.");
     } finally { setServerBusy(false); }
   };
+  const layoutOverflows = (): boolean => Array.from(
+    document.querySelectorAll(".gazette-reference-content")
+  ).some((element) => element.scrollHeight > element.clientHeight + 2);
+  const printProof = () => {
+    if (layoutOverflows()) {
+      setError("Le texte dépasse le format A4. Réduisez la longueur de l'article ou réorganisez les pages avant impression.");
+      return;
+    }
+    setError("");
+    window.print();
+  };
   const publishOnServer = async () => {
     if (!serverEdition || serverEdition.status !== "draft") return;
     if (dirty || Object.keys(pendingAssets).length > 0) {
@@ -175,9 +186,7 @@ export function AdminGazetteStudioPage() {
       setError("Associez un article à chaque page avant publication.");
       return;
     }
-    const overflowing = Array.from(document.querySelectorAll(".gazette-reference-content"))
-      .some((element) => element.scrollHeight > element.clientHeight + 2);
-    if (overflowing) {
+    if (layoutOverflows()) {
       setError("Une page déborde du format A4. Raccourcissez l'article ou réorganisez les pages avant publication.");
       return;
     }
@@ -234,6 +243,17 @@ export function AdminGazetteStudioPage() {
       pages: [...current.pages, { id, template: "portrait", articleId: null, rubric: "À découvrir", note: "" }],
     }));
     setSelectedPageId(id);
+    setDirty(true);
+  };
+  const movePage = (offset: -1 | 1) => {
+    const index = draft.pages.findIndex((page) => page.id === selectedPage.id);
+    const target = index + offset;
+    if (index < 0 || target < 0 || target >= draft.pages.length) return;
+    setDraft((current) => {
+      const pages = [...current.pages];
+      [pages[index], pages[target]] = [pages[target], pages[index]];
+      return { ...current, pages };
+    });
     setDirty(true);
   };
   const removePage = () => {
@@ -328,6 +348,8 @@ export function AdminGazetteStudioPage() {
               onClick={() => setSelectedPageId(page.id)}>Page {index + 1}</button>
           ))}
           <button type="button" onClick={addPage}>+ Page</button>
+          <button type="button" disabled={draft.pages[0]?.id === selectedPage.id} onClick={() => movePage(-1)}>↑ Monter</button>
+          <button type="button" disabled={draft.pages[draft.pages.length - 1]?.id === selectedPage.id} onClick={() => movePage(1)}>↓ Descendre</button>
         </div>
         <div className="gazette-control-grid">
           <label>Modèle
@@ -355,7 +377,7 @@ export function AdminGazetteStudioPage() {
           <textarea rows={3} value={selectedPage.note} onChange={(event) => updatePage("note", event.target.value)} />
         </label>}
         <div className="gazette-studio-actions">
-          <button type="button" onClick={() => window.print()}>Imprimer / Exporter en PDF A4</button>
+          <button type="button" onClick={printProof}>Imprimer / Exporter en PDF A4</button>
           <button type="button" onClick={() => { setSaved(true); window.setTimeout(() => setSaved(false), 2500); }}>Confirmer le brouillon local</button>
           {draft.pages.length > 1 && <button type="button" className="gazette-remove-page" onClick={removePage}>Supprimer cette page</button>}
         </div>
