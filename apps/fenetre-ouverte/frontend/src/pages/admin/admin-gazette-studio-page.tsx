@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { fetchAdminArticles } from "../../api/admin-articles";
 import { API_ROOT } from "../../api/client";
 import { checkGazettePrint } from "../../lib/gazette-print-check";
+import { paginateGazetteArticle } from "../../lib/gazette-auto-pagination";
 import type { Article } from "../../types";
 import {
   GazetteSheet, type Template, type PageDraft, type EditionDraft,
@@ -67,6 +68,7 @@ export function AdminGazetteStudioPage() {
   const [serverEditions, setServerEditions] = useState<GazetteEditionRecord[]>([]);
   const [serverEdition, setServerEdition] = useState<GazetteEditionRecord | null>(null);
   const [serverBusy, setServerBusy] = useState(false);
+  const [paginating, setPaginating] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [pendingAssets, setPendingAssets] = useState<Record<string, File>>({});
   const [serverMessage, setServerMessage] = useState("");
@@ -103,8 +105,13 @@ export function AdminGazetteStudioPage() {
       subtitle: draft.subtitle, territory: draft.territory, banner: draft.banner,
       contact: draft.contact, legal: draft.legal,
     },
-    pages: draft.pages.map(({ id, template, articleId, rubric, note, leftHeading, rightHeading, imageCaption, columnBreakAt }) =>
-      ({ id, template, articleId, rubric, note, leftHeading, rightHeading, imageCaption, columnBreakAt })),
+    pages: draft.pages.map(({
+      id, template, articleId, rubric, note, leftHeading, rightHeading,
+      imageCaption, columnBreakAt, contentStart, contentEnd, continuation,
+    }) => ({
+      id, template, articleId, rubric, note, leftHeading, rightHeading,
+      imageCaption, columnBreakAt, contentStart, contentEnd, continuation,
+    })),
   });
   const applyEdition = (edition: GazetteEditionRecord) => {
     setDraft({
@@ -226,6 +233,48 @@ export function AdminGazetteStudioPage() {
     () => articles.find((article) => article.id === selectedPage?.articleId),
     [articles, selectedPage?.articleId]
   );
+  const autoPaginate = async () => {
+    if (serverReadOnly || !currentArticle || selectedPage.continuation) return;
+    setPaginating(true);
+    setError("");
+    try {
+      const pageIndex = draft.pages.findIndex((page) => page.id === selectedPage.id);
+      if (pageIndex < 0) return;
+      const pages = await paginateGazetteArticle(
+        draft, { ...selectedPage, contentStart: null, contentEnd: null }, currentArticle,
+        {
+          headerLogo, footerLogo,
+          extraImage: extraImages[selectedPage.id],
+          qrImage: qrImages[selectedPage.id],
+          spotlightLogo: spotlightLogos[selectedPage.id],
+          promoImage: promoImages[selectedPage.id],
+        }
+      );
+      let after = pageIndex + 1;
+      while (after < draft.pages.length &&
+        draft.pages[after].continuation &&
+        draft.pages[after].articleId === selectedPage.articleId) {
+        after += 1;
+      }
+      setDraft((current) => ({
+        ...current,
+        pages: [
+          ...current.pages.slice(0, pageIndex),
+          ...pages,
+          ...current.pages.slice(after),
+        ],
+      }));
+      setDirty(true);
+      setServerMessage(pages.length === 1
+        ? "L'article tient sur une page A4."
+        : "L'article a été réparti automatiquement sur " + pages.length + " pages. Vérifiez l'impression avant de publier.");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "La pagination automatique a échoué.");
+    } finally {
+      setPaginating(false);
+    }
+  };
+
   const updateEdition = (field: keyof Omit<EditionDraft, "pages">, value: string) => {
     if (serverReadOnly) return;
     setDraft((current) => ({ ...current, [field]: value }));
@@ -359,6 +408,8 @@ export function AdminGazetteStudioPage() {
               onClick={() => setSelectedPageId(page.id)}>Page {index + 1}</button>
           ))}
           <button type="button" disabled={serverReadOnly} onClick={addPage}>+ Page</button>
+          <button type="button" disabled={serverReadOnly || paginating || !currentArticle || Boolean(selectedPage.continuation)}
+            onClick={() => void autoPaginate()}>{paginating ? "Calcul de la pagination…" : "Répartir automatiquement l'article"}</button>
           <button type="button" disabled={serverReadOnly || draft.pages[0]?.id === selectedPage.id} onClick={() => movePage(-1)}>↑ Monter</button>
           <button type="button" disabled={serverReadOnly || draft.pages[draft.pages.length - 1]?.id === selectedPage.id} onClick={() => movePage(1)}>↓ Descendre</button>
         </div>
@@ -384,7 +435,7 @@ export function AdminGazetteStudioPage() {
           <label>Légende de photographie
             <input disabled={serverReadOnly} value={selectedPage.imageCaption || ""} onChange={(event) => updatePage("imageCaption", event.target.value)} />
           </label>
-          <label>Coupure après le paragraphe n° (vide = automatique)
+          <label>Coupure après le paragraphe n° (vide = équilibre des colonnes)
             <input disabled={serverReadOnly} type="number" min={1} max={999} value={selectedPage.columnBreakAt ?? ""}
               onChange={(event) => updatePage("columnBreakAt", event.target.value ? Number(event.target.value) : null)} />
           </label>
