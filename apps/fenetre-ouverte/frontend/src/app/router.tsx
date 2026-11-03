@@ -32,6 +32,7 @@ import { CommunesPage } from "../pages/public/communes-page";
 import { FilPage } from "../pages/public/fil-page";
 import { HomePage } from "../pages/public/home-page";
 import { GazetteEditionsPage, GazetteEditionReaderPage } from "../pages/public/gazette-editions-page";
+import { GazettePrintFixturePage } from "../pages/dev/gazette-print-fixture-page";
 import { MerchantProfilePage } from "../pages/public/merchant-profile-page";
 import { PublicationPage } from "../pages/public/publication-page";
 import { QrMerchantPage } from "../pages/public/qr-merchant-page";
@@ -57,6 +58,7 @@ export function AppRouter() {
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
+        {import.meta.env.DEV && <Route path="__qa/gazette-print" element={<GazettePrintFixturePage />} />}
         <Route element={<PublicLayout />}>
           <Route index element={<HomePage />} />
           <Route path="tarifs" element={<TarifsPage />} />
