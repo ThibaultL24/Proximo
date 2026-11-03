@@ -46,7 +46,7 @@ module Api
           page_id = params[:page_id].to_s
           key = if %w[headerLogo footerLogo].include?(slot)
                   slot
-                elsif %w[extraImage qrImage].include?(slot) &&
+                elsif %w[extraImage qrImage spotlightLogo promoImage].include?(slot) &&
                       page_id.match?(/\A[1-9]\d*\z/) &&
                       @edition.pages.any? { |page| page["id"].to_s == page_id }
                   "#{slot}:#{page_id}"
@@ -111,7 +111,7 @@ module Api
           params.require(:gazette_edition).permit(
             :issue_label, :edition_label, :lock_version,
             settings: %i[subtitle territory banner contact legal],
-            pages: %i[id articleId template rubric note]
+            pages: %i[id articleId template rubric note leftHeading rightHeading imageCaption columnBreakAt]
           )
         end
 
