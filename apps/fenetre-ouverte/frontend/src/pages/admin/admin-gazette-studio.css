@@ -1,6 +1,15 @@
 /* Gazette Octobre 2026 — composition inspirée du document imprimé fourni.
    L'identité magenta et la grille A4 sont intentionnelles, ce n'est pas le thème UI du site. */
 .gazette-studio { --gazette-pink: #e5004f; --gazette-darkpink: #c60043; color: #17253d; }
+.gazette-edition-toolbar { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; padding: 16px;
+  background: #fff; border: 1px solid #dae1e8; border-radius: 14px; }
+.gazette-edition-toolbar label { display: flex; flex-direction: column; gap: 6px; min-width: 230px; flex: 1; font-size: 12px; font-weight: 800; }
+.gazette-edition-toolbar select { border: 1px solid #cbd5df; border-radius: 8px; padding: 9px; background: #fff; width: 100%; }
+.gazette-edition-toolbar button { color: #fff; background: #073e78; font-size: 12px; font-weight: 800;
+  border-radius: 9px; padding: 11px 14px; }
+.gazette-edition-toolbar button:nth-of-type(3) { background: #df0050; }
+.gazette-edition-toolbar button:disabled { opacity: .42; cursor: not-allowed; }
+.gazette-edition-status { font-size: 13px; color: #44566b; padding: 0 4px; }
 .gazette-studio-heading { background: #093969; color: white; padding: 25px; border-radius: 22px; }
 .gazette-studio-heading p { font-size: 11px; font-weight: 800; letter-spacing: .16em; color: #ffd34b; }
 .gazette-studio-heading h1 { font-size: 30px; font-weight: 800; margin: 5px 0; }
