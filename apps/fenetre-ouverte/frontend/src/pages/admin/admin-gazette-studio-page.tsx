@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchAdminArticles } from "../../api/admin-articles";
+import { API_ROOT } from "../../api/client";
 import type { Article } from "../../types";
 import {
   GazetteSheet, type Template, type PageDraft, type EditionDraft,
@@ -12,6 +13,10 @@ import {
 import "./admin-gazette-studio.css";
 
 const STORAGE_KEY = "fenetre-ouverte-gazette-reference-v1";
+function mediaUrl(url?: string | null): string | undefined {
+  if (!url) return undefined;
+  return url.startsWith("/") ? API_ROOT + url : url;
+}
 const TEMPLATES: Record<Template, string> = {
   portrait: "Portrait local (page 1 du modèle)",
   pratique: "Article pratique (page 2 du modèle)",
@@ -107,15 +112,15 @@ export function AdminGazetteStudioPage() {
     });
     setServerEdition(edition);
     setSelectedPageId(edition.pages[0]?.id ?? 1);
-    setHeaderLogo(edition.asset_urls?.headerLogo || undefined);
-    setFooterLogo(edition.asset_urls?.footerLogo || undefined);
+    setHeaderLogo(mediaUrl(edition.asset_urls?.headerLogo));
+    setFooterLogo(mediaUrl(edition.asset_urls?.footerLogo));
     const extras: Record<number, string> = {};
     const qrs: Record<number, string> = {};
     Object.entries(edition.asset_urls || {}).forEach(([key, url]) => {
       const parts = key.split(":");
       if (parts.length === 2 && url && Number(parts[1]) > 0) {
-        if (parts[0] === "extraImage") extras[Number(parts[1])] = url;
-        if (parts[0] === "qrImage") qrs[Number(parts[1])] = url;
+        if (parts[0] === "extraImage") extras[Number(parts[1])] = mediaUrl(url) || "";
+        if (parts[0] === "qrImage") qrs[Number(parts[1])] = mediaUrl(url) || "";
       }
     });
     setExtraImages(extras); setQrImages(qrs); setPendingAssets({}); setDirty(false);
@@ -370,7 +375,7 @@ export function AdminGazetteStudioPage() {
               category: live?.category ?? "local_news",
               excerpt: page.article_snapshot.excerpt ?? undefined,
               body: page.article_snapshot.body ?? undefined,
-              cover_image_url: page.article_snapshot.cover_image_url ?? live?.cover_image_url,
+              cover_image_url: mediaUrl(page.article_snapshot.cover_image_url) ?? live?.cover_image_url,
             }
           : live;
         return <GazetteSheet key={page.id} draft={draft} page={page}
