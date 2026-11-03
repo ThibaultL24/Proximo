@@ -291,7 +291,7 @@ export function AdminGazetteStudioPage() {
         </div>
         {saved && <p role="status" className="gazette-studio-notice">Brouillon enregistré dans ce navigateur uniquement.</p>}
         {error && <p role="alert" className="gazette-studio-error">{error}</p>}
-        {currentArticle && currentArticle.body.length > 3800 && <p className="gazette-studio-warning">Article long : vérifiez visuellement le débordement dans l'aperçu d'impression. La pagination automatique et l'archivage serveur restent à consolider.</p>}
+        {currentArticle && (currentArticle.body?.length ?? 0) > 3800 && <p className="gazette-studio-warning">Article long : vérifiez visuellement le débordement dans l'aperçu d'impression. La pagination automatique et l'archivage serveur restent à consolider.</p>}
         <p className="gazette-studio-help">Les textes viennent de l'éditeur d'articles. Les logos, photos et QR importés ici sont temporaires ; ils ne survivent pas à un rechargement. Vérifiez qu'un QR téléchargé est scannable avant impression. Aucune édition n'est encore publiée depuis ce studio.</p>
       </div>
     </div>
