@@ -6,6 +6,7 @@ class CreateGazetteEditions < ActiveRecord::Migration[8.0]
       t.string :edition_label, null: false
       t.integer :status, null: false, default: 0
       t.jsonb :settings, null: false, default: {}
+      t.jsonb :assets_manifest, null: false, default: {}
       t.jsonb :pages, null: false, default: []
       t.datetime :published_at
       t.integer :lock_version, null: false, default: 0
