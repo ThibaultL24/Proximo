@@ -343,16 +343,16 @@ export function AdminGazetteStudioPage() {
             ["contact", "Coordonnées"],
             ["legal", "Mentions légales"],
           ] as const).map(([field, label]) => (
-            <label key={field}>{label}<input value={draft[field]} onChange={(event) => updateEdition(field, event.target.value)} /></label>
+            <label key={field}>{label}<input disabled={serverReadOnly} value={draft[field]} onChange={(event) => updateEdition(field, event.target.value)} /></label>
           ))}
         </div>
       </div>
           <div className="gazette-control-grid gazette-logo-controls">
-            <label>Logo d'en-tête (optionnel)<input type="file" accept="image/*" onChange={(event) => {
+            <label>Logo d'en-tête (optionnel)<input disabled={serverReadOnly} type="file" accept="image/*" onChange={(event) => {
               const file = event.target.files?.[0];
               readImage(file, (value) => { setHeaderLogo(value); registerAsset("headerLogo", file); });
             }} /></label>
-            <label>Logo du pied publicitaire (optionnel)<input type="file" accept="image/*" onChange={(event) => {
+            <label>Logo du pied publicitaire (optionnel)<input disabled={serverReadOnly} type="file" accept="image/*" onChange={(event) => {
               const file = event.target.files?.[0];
               readImage(file, (value) => { setFooterLogo(value); registerAsset("footerLogo", file); });
             }} /></label>
@@ -364,25 +364,46 @@ export function AdminGazetteStudioPage() {
             <button key={page.id} type="button" className={page.id === selectedPage.id ? "active" : ""}
               onClick={() => setSelectedPageId(page.id)}>Page {index + 1}</button>
           ))}
-          <button type="button" onClick={addPage}>+ Page</button>
-          <button type="button" disabled={draft.pages[0]?.id === selectedPage.id} onClick={() => movePage(-1)}>↑ Monter</button>
-          <button type="button" disabled={draft.pages[draft.pages.length - 1]?.id === selectedPage.id} onClick={() => movePage(1)}>↓ Descendre</button>
+          <button type="button" disabled={serverReadOnly} onClick={addPage}>+ Page</button>
+          <button type="button" disabled={serverReadOnly || draft.pages[0]?.id === selectedPage.id} onClick={() => movePage(-1)}>↑ Monter</button>
+          <button type="button" disabled={serverReadOnly || draft.pages[draft.pages.length - 1]?.id === selectedPage.id} onClick={() => movePage(1)}>↓ Descendre</button>
         </div>
         <div className="gazette-control-grid">
           <label>Modèle
-            <select value={selectedPage.template} onChange={(event) => updatePage("template", event.target.value as Template)}>
+            <select disabled={serverReadOnly} value={selectedPage.template} onChange={(event) => updatePage("template", event.target.value as Template)}>
               {(Object.keys(TEMPLATES) as Template[]).map((key) => <option value={key} key={key}>{TEMPLATES[key]}</option>)}
             </select>
           </label>
           <label>Article importé
-            <select value={selectedPage.articleId ?? ""} onChange={(event) => updatePage("articleId", event.target.value ? Number(event.target.value) : null)}>
+            <select disabled={serverReadOnly} value={selectedPage.articleId ?? ""} onChange={(event) => updatePage("articleId", event.target.value ? Number(event.target.value) : null)}>
               <option value="">Sélectionner un article</option>
               {articles.map((article) => <option key={article.id} value={article.id}>{article.title}</option>)}
             </select>
           </label>
-          <label>Rubrique ou sous-titre<input value={selectedPage.rubric} onChange={(event) => updatePage("rubric", event.target.value)} /></label>
-          <label>Seconde photographie (facultative)<input type="file" accept="image/*" onChange={(event) => loadImage(event.target.files?.[0])} /></label>
-          <label>QR code existant (image facultative)<input type="file" accept="image/*" onChange={(event) => {
+          <label>Rubrique ou sous-titre<input disabled={serverReadOnly} value={selectedPage.rubric} onChange={(event) => updatePage("rubric", event.target.value)} /></label>
+          <label>Intertitre colonne gauche
+            <input disabled={serverReadOnly} value={selectedPage.leftHeading || ""} onChange={(event) => updatePage("leftHeading", event.target.value)} />
+          </label>
+          <label>Intertitre colonne droite
+            <input disabled={serverReadOnly} value={selectedPage.rightHeading || ""} onChange={(event) => updatePage("rightHeading", event.target.value)} />
+          </label>
+          <label>Légende de photographie
+            <input disabled={serverReadOnly} value={selectedPage.imageCaption || ""} onChange={(event) => updatePage("imageCaption", event.target.value)} />
+          </label>
+          <label>Coupure après le paragraphe n° (vide = automatique)
+            <input disabled={serverReadOnly} type="number" min={1} max={999} value={selectedPage.columnBreakAt ?? ""}
+              onChange={(event) => updatePage("columnBreakAt", event.target.value ? Number(event.target.value) : null)} />
+          </label>
+          {selectedPage.template === "portrait" && <label>Logo du commerce présenté
+            <input disabled={serverReadOnly} type="file" accept="image/png,image/jpeg,image/webp"
+              onChange={(event) => loadPageAsset("spotlightLogo", event.target.files?.[0])} />
+          </label>}
+          {selectedPage.template === "pratique" && <label>Encart publicitaire illustré
+            <input disabled={serverReadOnly} type="file" accept="image/png,image/jpeg,image/webp"
+              onChange={(event) => loadPageAsset("promoImage", event.target.files?.[0])} />
+          </label>}
+          <label>Seconde photographie (facultative)<input disabled={serverReadOnly} type="file" accept="image/*" onChange={(event) => loadImage(event.target.files?.[0])} /></label>
+          <label>QR code existant (image facultative)<input disabled={serverReadOnly} type="file" accept="image/*" onChange={(event) => {
             const file = event.target.files?.[0];
             readImage(file, (value) => {
               setQrImages((images) => ({ ...images, [selectedPage.id]: value }));
@@ -391,17 +412,17 @@ export function AdminGazetteStudioPage() {
           }} /></label>
         </div>
         {selectedPage.template === "pratique" && <label className="gazette-note-label">Encadré « Bon à savoir »
-          <textarea rows={3} value={selectedPage.note} onChange={(event) => updatePage("note", event.target.value)} />
+          <textarea disabled={serverReadOnly} rows={3} value={selectedPage.note} onChange={(event) => updatePage("note", event.target.value)} />
         </label>}
         <div className="gazette-studio-actions">
           <button type="button" onClick={printProof}>Imprimer / Exporter en PDF A4</button>
           <button type="button" onClick={() => { setSaved(true); window.setTimeout(() => setSaved(false), 2500); }}>Confirmer le brouillon local</button>
-          {draft.pages.length > 1 && <button type="button" className="gazette-remove-page" onClick={removePage}>Supprimer cette page</button>}
+          {draft.pages.length > 1 && !serverReadOnly && <button type="button" className="gazette-remove-page" onClick={removePage}>Supprimer cette page</button>}
         </div>
         {saved && <p role="status" className="gazette-studio-notice">Brouillon enregistré dans ce navigateur uniquement.</p>}
         {error && <p role="alert" className="gazette-studio-error">{error}</p>}
-        {currentArticle && (currentArticle.body?.length ?? 0) > 3800 && <p className="gazette-studio-warning">Article long : vérifiez visuellement le débordement dans l'aperçu d'impression. La pagination automatique et l'archivage serveur restent à consolider.</p>}
-        <p className="gazette-studio-help">Les textes viennent de l'éditeur d'articles. Les logos, photos et QR sont conservés après l'enregistrement du brouillon sur le serveur. Vérifiez qu'un QR téléchargé est scannable avant impression. Aucune édition n'est encore publiée depuis ce studio.</p>
+        {currentArticle && (currentArticle.body?.length ?? 0) > 3800 && <p className="gazette-studio-warning">Article long : vérifiez visuellement le débordement dans l'aperçu d'impression. La découpe automatique d'un article sur plusieurs pages reste à consolider.</p>}
+        <p className="gazette-studio-help">Les textes viennent de l'éditeur d'articles. Les logos, photos et QR sont conservés après l'enregistrement du brouillon sur le serveur. Vérifiez qu'un QR téléchargé est scannable avant impression. Utilisez « Enregistrer sur le serveur » avant de figer le numéro.</p>
       </div>
     </div>
     <div className="gazette-proof-scroller">
