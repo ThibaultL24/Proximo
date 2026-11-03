@@ -3,7 +3,7 @@ import { fetchAdminArticles } from "../../api/admin-articles";
 import type { Article } from "../../types";
 import {
   listGazetteEditions, getGazetteEdition, createGazetteEdition, updateGazetteEdition,
-  publishGazetteEdition, archiveGazetteEdition,
+  publishGazetteEdition, archiveGazetteEdition, uploadGazetteEditionAsset,
   type GazetteEditionRecord, type GazetteEditionInput,
 } from "../../api/gazette-editions";
 import "./admin-gazette-studio.css";
@@ -17,7 +17,7 @@ type PageDraft = {
   note: string;
   article_snapshot?: {
     id: number; title: string; excerpt?: string | null;
-    body?: string | null; cover_blob_id?: number | null;
+    body?: string | null; cover_blob_id?: number | null; cover_image_url?: string | null;
   };
 };
 type EditionDraft = {
@@ -182,6 +182,8 @@ export function AdminGazetteStudioPage() {
   const [serverEditions, setServerEditions] = useState<GazetteEditionRecord[]>([]);
   const [serverEdition, setServerEdition] = useState<GazetteEditionRecord | null>(null);
   const [serverBusy, setServerBusy] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const [pendingAssets, setPendingAssets] = useState<Record<string, File>>({});
   const [serverMessage, setServerMessage] = useState("");
 
   useEffect(() => {
@@ -228,6 +230,18 @@ export function AdminGazetteStudioPage() {
     });
     setServerEdition(edition);
     setSelectedPageId(edition.pages[0]?.id ?? 1);
+    setHeaderLogo(edition.asset_urls?.headerLogo || undefined);
+    setFooterLogo(edition.asset_urls?.footerLogo || undefined);
+    const extras: Record<number, string> = {};
+    const qrs: Record<number, string> = {};
+    Object.entries(edition.asset_urls || {}).forEach(([key, url]) => {
+      const parts = key.split(":");
+      if (parts.length === 2 && url && Number(parts[1]) > 0) {
+        if (parts[0] === "extraImage") extras[Number(parts[1])] = url;
+        if (parts[0] === "qrImage") qrs[Number(parts[1])] = url;
+      }
+    });
+    setExtraImages(extras); setQrImages(qrs); setPendingAssets({}); setDirty(false);
     setServerMessage("Édition rechargée depuis le serveur.");
     setError("");
   };
@@ -252,14 +266,29 @@ export function AdminGazetteStudioPage() {
         ? await updateGazetteEdition(serverEdition, payload)
         : await createGazetteEdition(payload);
       setServerEdition(result);
+      let saved = result;
+      for (const [key, file] of Object.entries(pendingAssets)) {
+        const [slot, pageId] = key.split(":");
+        saved = await uploadGazetteEditionAsset(
+          saved, slot as "headerLogo" | "footerLogo" | "extraImage" | "qrImage",
+          file, pageId ? Number(pageId) : undefined
+        );
+        setServerEdition(saved);
+      }
+      setPendingAssets({});
+      setDirty(false);
       await refreshEditions();
-      setServerMessage("Brouillon enregistré sur le serveur, version " + result.lock_version + ".");
+      setServerMessage("Brouillon et médias enregistrés sur le serveur, version " + saved.lock_version + ".");
     } catch {
       setError("Enregistrement impossible (doublon, conflit de version ou erreur réseau). Rechargez l'édition avant de réessayer.");
     } finally { setServerBusy(false); }
   };
   const publishOnServer = async () => {
     if (!serverEdition || serverEdition.status !== "draft") return;
+    if (dirty || Object.keys(pendingAssets).length > 0) {
+      setError("Enregistrez d'abord toutes les modifications et les images sur le serveur.");
+      return;
+    }
     if (draft.pages.some((page) => !page.articleId)) {
       setError("Associez un article à chaque page avant publication.");
       return;
@@ -292,6 +321,9 @@ export function AdminGazetteStudioPage() {
   };
   const newEdition = () => {
     setServerEdition(null);
+    setHeaderLogo(undefined); setFooterLogo(undefined);
+    setExtraImages({}); setQrImages({}); setPendingAssets({});
+    setDirty(true);
     setDraft((current) => ({ ...current,
       issue: "", edition: "", pages: current.pages.map(({ article_snapshot: _snapshot, ...page }) => page),
     }));
@@ -304,12 +336,14 @@ export function AdminGazetteStudioPage() {
   );
   const updateEdition = (field: keyof Omit<EditionDraft, "pages">, value: string) => {
     setDraft((current) => ({ ...current, [field]: value }));
+    setDirty(true);
   };
   const updatePage = (field: keyof Omit<PageDraft, "id">, value: PageDraft[typeof field]) => {
     setDraft((current) => ({
       ...current,
       pages: current.pages.map((page) => page.id === selectedPage.id ? { ...page, [field]: value } : page),
     }));
+    setDirty(true);
   };
   const addPage = () => {
     const id = Math.max(0, ...draft.pages.map((page) => page.id)) + 1;
@@ -318,12 +352,14 @@ export function AdminGazetteStudioPage() {
       pages: [...current.pages, { id, template: "portrait", articleId: null, rubric: "À découvrir", note: "" }],
     }));
     setSelectedPageId(id);
+    setDirty(true);
   };
   const removePage = () => {
     if (draft.pages.length < 2) return;
     const remaining = draft.pages.filter((page) => page.id !== selectedPage.id);
     setDraft((current) => ({ ...current, pages: remaining }));
     setSelectedPageId(remaining[0].id);
+    setDirty(true);
   };
   const readImage = (file: File | undefined, onReady: (data: string) => void) => {
     if (!file) return;
@@ -335,7 +371,15 @@ export function AdminGazetteStudioPage() {
     reader.onload = () => { if (typeof reader.result === "string") onReady(reader.result); };
     reader.readAsDataURL(file);
   };
-  const loadImage = (file?: File) => readImage(file, (value) => setExtraImages((images) => ({ ...images, [selectedPage.id]: value })));
+  const registerAsset = (key: string, file: File | undefined) => {
+    if (!file) return;
+    setPendingAssets((assets) => ({ ...assets, [key]: file }));
+    setDirty(true);
+  };
+  const loadImage = (file?: File) => readImage(file, (value) => {
+    setExtraImages((images) => ({ ...images, [selectedPage.id]: value }));
+    if (file) registerAsset("extraImage:" + selectedPage.id, file);
+  });
 
   return <section className="gazette-studio space-y-6">
     <header className="gazette-studio-heading">
@@ -364,7 +408,7 @@ export function AdminGazetteStudioPage() {
         onClick={() => void archiveOnServer()}>Archiver</button>
     </div>
     {serverEdition && <p className="gazette-edition-status">Numéro {serverEdition.issue_label} · {serverEdition.status} · version {serverEdition.lock_version}.
-      {serverReadOnly ? " Textes figés : créer un nouveau numéro pour modifier." : " Les modifications sont locales tant que vous n'enregistrez pas."}
+      {serverReadOnly ? " Textes figés : créer un nouveau numéro pour modifier." : dirty ? " Modifications non enregistrées." : " Brouillon synchronisé avec le serveur."}
     </p>}
     {serverMessage && <p role="status" className="gazette-studio-notice">{serverMessage}</p>}
     <div className="gazette-studio-controls">
@@ -385,8 +429,14 @@ export function AdminGazetteStudioPage() {
         </div>
       </div>
           <div className="gazette-control-grid gazette-logo-controls">
-            <label>Logo d'en-tête (optionnel)<input type="file" accept="image/*" onChange={(event) => readImage(event.target.files?.[0], setHeaderLogo)} /></label>
-            <label>Logo du pied publicitaire (optionnel)<input type="file" accept="image/*" onChange={(event) => readImage(event.target.files?.[0], setFooterLogo)} /></label>
+            <label>Logo d'en-tête (optionnel)<input type="file" accept="image/*" onChange={(event) => {
+              const file = event.target.files?.[0];
+              readImage(file, (value) => { setHeaderLogo(value); registerAsset("headerLogo", file); });
+            }} /></label>
+            <label>Logo du pied publicitaire (optionnel)<input type="file" accept="image/*" onChange={(event) => {
+              const file = event.target.files?.[0];
+              readImage(file, (value) => { setFooterLogo(value); registerAsset("footerLogo", file); });
+            }} /></label>
           </div>
       <div className="gazette-studio-settings">
         <h2>Composition des pages</h2>
@@ -411,7 +461,13 @@ export function AdminGazetteStudioPage() {
           </label>
           <label>Rubrique ou sous-titre<input value={selectedPage.rubric} onChange={(event) => updatePage("rubric", event.target.value)} /></label>
           <label>Seconde photographie (facultative)<input type="file" accept="image/*" onChange={(event) => loadImage(event.target.files?.[0])} /></label>
-          <label>QR code existant (image facultative)<input type="file" accept="image/*" onChange={(event) => readImage(event.target.files?.[0], (value) => setQrImages((images) => ({ ...images, [selectedPage.id]: value })))} /></label>
+          <label>QR code existant (image facultative)<input type="file" accept="image/*" onChange={(event) => {
+            const file = event.target.files?.[0];
+            readImage(file, (value) => {
+              setQrImages((images) => ({ ...images, [selectedPage.id]: value }));
+              registerAsset("qrImage:" + selectedPage.id, file);
+            });
+          }} /></label>
         </div>
         {selectedPage.template === "pratique" && <label className="gazette-note-label">Encadré « Bon à savoir »
           <textarea rows={3} value={selectedPage.note} onChange={(event) => updatePage("note", event.target.value)} />
@@ -424,7 +480,7 @@ export function AdminGazetteStudioPage() {
         {saved && <p role="status" className="gazette-studio-notice">Brouillon enregistré dans ce navigateur uniquement.</p>}
         {error && <p role="alert" className="gazette-studio-error">{error}</p>}
         {currentArticle && (currentArticle.body?.length ?? 0) > 3800 && <p className="gazette-studio-warning">Article long : vérifiez visuellement le débordement dans l'aperçu d'impression. La pagination automatique et l'archivage serveur restent à consolider.</p>}
-        <p className="gazette-studio-help">Les textes viennent de l'éditeur d'articles. Les logos, photos et QR importés ici sont temporaires ; ils ne survivent pas à un rechargement. Vérifiez qu'un QR téléchargé est scannable avant impression. Aucune édition n'est encore publiée depuis ce studio.</p>
+        <p className="gazette-studio-help">Les textes viennent de l'éditeur d'articles. Les logos, photos et QR sont conservés après l'enregistrement du brouillon sur le serveur. Vérifiez qu'un QR téléchargé est scannable avant impression. Aucune édition n'est encore publiée depuis ce studio.</p>
       </div>
     </div>
     <div className="gazette-proof-scroller">
@@ -437,7 +493,7 @@ export function AdminGazetteStudioPage() {
               category: live?.category ?? "local_news",
               excerpt: page.article_snapshot.excerpt ?? undefined,
               body: page.article_snapshot.body ?? undefined,
-              cover_image_url: live?.cover_image_url,
+              cover_image_url: page.article_snapshot.cover_image_url ?? live?.cover_image_url,
             }
           : live;
         return <GazetteSheet key={page.id} draft={draft} page={page}
