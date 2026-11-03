@@ -31,6 +31,7 @@ import { CommuneDetailPage } from "../pages/public/commune-detail-page";
 import { CommunesPage } from "../pages/public/communes-page";
 import { FilPage } from "../pages/public/fil-page";
 import { HomePage } from "../pages/public/home-page";
+import { GazetteEditionsPage, GazetteEditionReaderPage } from "../pages/public/gazette-editions-page";
 import { MerchantProfilePage } from "../pages/public/merchant-profile-page";
 import { PublicationPage } from "../pages/public/publication-page";
 import { QrMerchantPage } from "../pages/public/qr-merchant-page";
@@ -80,7 +81,8 @@ export function AppRouter() {
           <Route path="gazette/territoire/:region/:department" element={<Navigate to="/communes" replace />} />
           <Route path="gazette/territoire/:region" element={<Navigate to="/communes" replace />} />
           <Route path="gazette/immo" element={<Navigate to="/fil" replace />} />
-          <Route path="gazette" element={<Navigate to="/fil" replace />} />
+          <Route path="gazette" element={<GazetteEditionsPage />} />
+          <Route path="gazette/editions/:id" element={<GazetteEditionReaderPage />} />
           <Route path="gazette/:slug" element={<ArticlePage />} />
 
           <Route path="connexion" element={<LoginPage />} />
