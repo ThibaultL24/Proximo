@@ -21,6 +21,7 @@ Rails.application.routes.draw do
       end
 
       namespace :public do
+        resources :gazette_editions, only: %i[index show]
         get "feed", to: "feed#index"
         resources :sectors, only: %i[index show], param: :slug
         get "places", to: "places#index"
