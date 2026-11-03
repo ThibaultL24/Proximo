@@ -111,7 +111,7 @@ module Api
           params.require(:gazette_edition).permit(
             :issue_label, :edition_label, :lock_version,
             settings: %i[subtitle territory banner contact legal],
-            pages: %i[id articleId template rubric note leftHeading rightHeading imageCaption columnBreakAt]
+            pages: %i[id articleId template rubric note leftHeading rightHeading imageCaption columnBreakAt contentStart contentEnd continuation]
           )
         end
 
