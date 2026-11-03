@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchAdminArticles } from "../../api/admin-articles";
 import type { Article } from "../../types";
+import {
+  listGazetteEditions, getGazetteEdition, createGazetteEdition, updateGazetteEdition,
+  publishGazetteEdition, archiveGazetteEdition,
+  type GazetteEditionRecord, type GazetteEditionInput,
+} from "../../api/gazette-editions";
 import "./admin-gazette-studio.css";
 
 type Template = "portrait" | "pratique" | "reportage" | "couverture" | "agenda" | "photo";
@@ -10,6 +15,10 @@ type PageDraft = {
   template: Template;
   rubric: string;
   note: string;
+  article_snapshot?: {
+    id: number; title: string; excerpt?: string | null;
+    body?: string | null; cover_blob_id?: number | null;
+  };
 };
 type EditionDraft = {
   issue: string;
@@ -170,6 +179,10 @@ export function AdminGazetteStudioPage() {
   const [footerLogo, setFooterLogo] = useState<string>();
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [serverEditions, setServerEditions] = useState<GazetteEditionRecord[]>([]);
+  const [serverEdition, setServerEdition] = useState<GazetteEditionRecord | null>(null);
+  const [serverBusy, setServerBusy] = useState(false);
+  const [serverMessage, setServerMessage] = useState("");
 
   useEffect(() => {
     fetchAdminArticles({ scope: "gazette" }).then((data) => {
@@ -178,6 +191,11 @@ export function AdminGazetteStudioPage() {
         ? { ...current, pages: current.pages.map((page, index) => ({ ...page, articleId: data[index % data.length].id })) }
         : current);
     }).catch(() => setError("Impossible de charger les articles de la Gazette."));
+  }, []);
+
+  useEffect(() => {
+    listGazetteEditions().then(setServerEditions)
+      .catch(() => setError("Impossible de consulter les éditions déjà sauvegardées."));
   }, []);
 
   useEffect(() => {
@@ -190,6 +208,96 @@ export function AdminGazetteStudioPage() {
   }, [draft]);
 
   const selectedPage = draft.pages.find((page) => page.id === selectedPageId) || draft.pages[0];
+  const serverReadOnly = Boolean(serverEdition && serverEdition.status !== "draft");
+  const buildPayload = (): GazetteEditionInput => ({
+    issue_label: draft.issue,
+    edition_label: draft.edition,
+    settings: {
+      subtitle: draft.subtitle, territory: draft.territory, banner: draft.banner,
+      contact: draft.contact, legal: draft.legal,
+    },
+    pages: draft.pages.map(({ id, template, articleId, rubric, note }) =>
+      ({ id, template, articleId, rubric, note })),
+  });
+  const applyEdition = (edition: GazetteEditionRecord) => {
+    setDraft({
+      issue: edition.issue_label, edition: edition.edition_label,
+      subtitle: edition.settings.subtitle, territory: edition.settings.territory,
+      banner: edition.settings.banner, contact: edition.settings.contact,
+      legal: edition.settings.legal, pages: edition.pages,
+    });
+    setServerEdition(edition);
+    setSelectedPageId(edition.pages[0]?.id ?? 1);
+    setServerMessage("Édition rechargée depuis le serveur.");
+    setError("");
+  };
+  const refreshEditions = async () => {
+    setServerEditions(await listGazetteEditions());
+  };
+  const loadEdition = async (id: number) => {
+    setServerBusy(true);
+    try { applyEdition(await getGazetteEdition(id)); }
+    catch { setError("Impossible de charger cette édition."); }
+    finally { setServerBusy(false); }
+  };
+  const saveOnServer = async () => {
+    if (serverReadOnly) {
+      setError("Ce numéro est figé. Choisissez « Nouveau numéro » pour créer une autre édition.");
+      return;
+    }
+    setServerBusy(true); setError(""); setServerMessage("");
+    try {
+      const payload = buildPayload();
+      const result = serverEdition
+        ? await updateGazetteEdition(serverEdition, payload)
+        : await createGazetteEdition(payload);
+      setServerEdition(result);
+      await refreshEditions();
+      setServerMessage("Brouillon enregistré sur le serveur, version " + result.lock_version + ".");
+    } catch {
+      setError("Enregistrement impossible (doublon, conflit de version ou erreur réseau). Rechargez l'édition avant de réessayer.");
+    } finally { setServerBusy(false); }
+  };
+  const publishOnServer = async () => {
+    if (!serverEdition || serverEdition.status !== "draft") return;
+    if (draft.pages.some((page) => !page.articleId)) {
+      setError("Associez un article à chaque page avant publication.");
+      return;
+    }
+    const overflowing = Array.from(document.querySelectorAll(".gazette-reference-content"))
+      .some((element) => element.scrollHeight > element.clientHeight + 2);
+    if (overflowing) {
+      setError("Une page déborde du format A4. Raccourcissez l'article ou réorganisez les pages avant publication.");
+      return;
+    }
+    setServerBusy(true); setError(""); setServerMessage("");
+    try {
+      const result = await publishGazetteEdition(serverEdition);
+      applyEdition(result);
+      await refreshEditions();
+      setServerMessage("Édition figée. Les textes des articles sont maintenant archivés en instantané.");
+    } catch { setError("Publication refusée : vérifiez les articles et la dernière version du brouillon."); }
+    finally { setServerBusy(false); }
+  };
+  const archiveOnServer = async () => {
+    if (!serverEdition || serverEdition.status !== "published") return;
+    setServerBusy(true); setError("");
+    try {
+      const result = await archiveGazetteEdition(serverEdition);
+      applyEdition(result);
+      await refreshEditions();
+      setServerMessage("Édition archivée. Son contenu est conservé.");
+    } catch { setError("Archivage impossible."); }
+    finally { setServerBusy(false); }
+  };
+  const newEdition = () => {
+    setServerEdition(null);
+    setDraft((current) => ({ ...current,
+      issue: "", edition: "", pages: current.pages.map(({ article_snapshot: _snapshot, ...page }) => page),
+    }));
+    setServerMessage("Nouveau numéro : renseignez un numéro et un mois avant l'enregistrement.");
+    setError("");
+  };
   const currentArticle = useMemo(
     () => articles.find((article) => article.id === selectedPage?.articleId),
     [articles, selectedPage?.articleId]
@@ -235,6 +343,30 @@ export function AdminGazetteStudioPage() {
       <h1>Studio Gazette</h1>
       <span>Composition A4 fidèle à la Gazette d'octobre 2026 : bandeaux roses, deux colonnes, photographies et publicité en pied.</span>
     </header>
+    <div className="gazette-edition-toolbar">
+      <label>Éditions sauvegardées
+        <select value={serverEdition?.id ?? ""} disabled={serverBusy}
+          onChange={(event) => { if (event.target.value) void loadEdition(Number(event.target.value)); }}>
+          <option value="">Brouillon local / nouveau numéro</option>
+          {serverEditions.map((edition) => (
+            <option key={edition.id} value={edition.id}>
+              {edition.issue_label} · {edition.edition_label} · {edition.status}
+            </option>
+          ))}
+        </select>
+      </label>
+      <button type="button" disabled={serverBusy} onClick={newEdition}>Nouveau numéro</button>
+      <button type="button" disabled={serverBusy || serverReadOnly || !draft.issue.trim() || !draft.edition.trim()}
+        onClick={() => void saveOnServer()}>Enregistrer sur le serveur</button>
+      <button type="button" disabled={serverBusy || !serverEdition || serverEdition.status !== "draft"}
+        onClick={() => void publishOnServer()}>Figer / publier l'édition</button>
+      <button type="button" disabled={serverBusy || serverEdition?.status !== "published"}
+        onClick={() => void archiveOnServer()}>Archiver</button>
+    </div>
+    {serverEdition && <p className="gazette-edition-status">Numéro {serverEdition.issue_label} · {serverEdition.status} · version {serverEdition.lock_version}.
+      {serverReadOnly ? " Textes figés : créer un nouveau numéro pour modifier." : " Les modifications sont locales tant que vous n'enregistrez pas."}
+    </p>}
+    {serverMessage && <p role="status" className="gazette-studio-notice">{serverMessage}</p>}
     <div className="gazette-studio-controls">
       <div className="gazette-studio-settings">
         <h2>Identité de l'édition</h2>
@@ -296,12 +428,22 @@ export function AdminGazetteStudioPage() {
       </div>
     </div>
     <div className="gazette-proof-scroller">
-      {draft.pages.map((page) => (
-        <GazetteSheet key={page.id} draft={draft} page={page}
-          article={articles.find((article) => article.id === page.articleId)}
-          extraImage={extraImages[page.id]} qrImage={qrImages[page.id]}
-          headerLogo={headerLogo} footerLogo={footerLogo} />
-      ))}
+      {draft.pages.map((page) => {
+        const live = articles.find((article) => article.id === page.articleId);
+        const article = page.article_snapshot
+          ? {
+              id: page.article_snapshot.id,
+              title: page.article_snapshot.title, slug: live?.slug ?? "",
+              category: live?.category ?? "local_news",
+              excerpt: page.article_snapshot.excerpt ?? undefined,
+              body: page.article_snapshot.body ?? undefined,
+              cover_image_url: live?.cover_image_url,
+            }
+          : live;
+        return <GazetteSheet key={page.id} draft={draft} page={page}
+          article={article} extraImage={extraImages[page.id]} qrImage={qrImages[page.id]}
+          headerLogo={headerLogo} footerLogo={footerLogo} />;
+      })}
     </div>
   </section>;
 }
