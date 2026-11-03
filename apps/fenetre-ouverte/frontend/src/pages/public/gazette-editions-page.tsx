@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api, API_ROOT } from "../../api/client";
+import { checkGazettePrint } from "../../lib/gazette-print-check";
 import { GazetteSheet, type EditionDraft } from "../../components/gazette/gazette-sheet";
 import type { GazetteEditionRecord } from "../../api/gazette-editions";
 
@@ -54,6 +55,13 @@ export function GazetteEditionReaderPage() {
   const { id } = useParams();
   const [edition, setEdition] = useState<PublicEdition | null>(null);
   const [error, setError] = useState("");
+  const [printError, setPrintError] = useState("");
+  const printGazette = async () => {
+    const reason = await checkGazettePrint();
+    if (reason) { setPrintError(reason); return; }
+    setPrintError("");
+    window.print();
+  };
 
   useEffect(() => {
     if (!id || !/^\d+$/.test(id)) { setError("Numéro introuvable."); return; }
@@ -78,10 +86,11 @@ export function GazetteEditionReaderPage() {
         <Link to="/gazette" className="text-sm text-[#093969]">← Toutes les éditions</Link>
         <h1 className="mt-1 font-serif text-2xl font-bold">{edition.issue_label} · {edition.edition_label}</h1>
       </div>
-      <button type="button" className="rounded-xl bg-[#e5004f] px-5 py-3 text-sm font-bold text-white" onClick={() => window.print()}>
+      <button type="button" className="rounded-xl bg-[#e10249] px-5 py-3 text-sm font-bold text-white" onClick={() => void printGazette()}>
         Imprimer / Enregistrer en PDF
       </button>
     </div>
+    {printError && <p role="alert" className="gazette-print-warning mx-auto max-w-4xl">{printError}</p>}
     <div className="gazette-proof-scroller">
       {edition.pages.map((page) => {
         const source = page.article_snapshot;
