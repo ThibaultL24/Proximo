@@ -13,6 +13,9 @@ export type PageDraft = {
   rightHeading?: string;
   imageCaption?: string;
   columnBreakAt?: number | null;
+  contentStart?: number | null;
+  contentEnd?: number | null;
+  continuation?: boolean;
   article_snapshot?: {
     id: number;
     title: string;
@@ -76,13 +79,17 @@ export function GazetteSheet({
   spotlightLogo?: string;
   promoImage?: string;
 }) {
+  const fullBody = article?.body || "";
+  const start = Math.max(0, Math.min(fullBody.length, page.contentStart ?? 0));
+  const end = Math.max(start, Math.min(fullBody.length, page.contentEnd ?? fullBody.length));
+  const visibleBody = fullBody.slice(start, end);
   const [left, right] = splitGazetteColumns(
-    gazetteParagraphs(article?.body || ""), page.columnBreakAt,
+    gazetteParagraphs(visibleBody), page.columnBreakAt,
   );
-  const cover = article?.cover_image_url;
+  const cover = page.continuation ? undefined : article?.cover_image_url;
   const headline = article?.title || "Choisissez un article pour composer cette page";
-  const isPortrait = page.template === "portrait";
-  const isPractical = page.template === "pratique";
+  const isPortrait = page.template === "portrait" && !page.continuation;
+  const isPractical = page.template === "pratique" && !page.continuation;
   const isPhoto = page.template === "photo";
   const isCover = page.template === "couverture";
   const isStory = page.template === "reportage";
@@ -111,7 +118,7 @@ export function GazetteSheet({
               <div className="gazette-portrait-heading">
                 <p className="gazette-reference-rubric">{page.rubric || "L'histoire des"}</p>
                 <h2>{headline}</h2>
-                {article?.excerpt && <p className="gazette-reference-intro">{article.excerpt}</p>}
+                {!page.continuation && article?.excerpt && <p className="gazette-reference-intro">{article.excerpt}</p>}
               </div>
               <div className="gazette-portrait-intro">
                 {spotlightLogo && <img className="gazette-spotlight-logo" src={spotlightLogo} alt="Logo du commerce présenté" />}
@@ -173,7 +180,7 @@ export function GazetteSheet({
             <div className="gazette-reference-heading">
               <p className="gazette-reference-rubric">{page.rubric}</p>
               <h2>{headline}</h2>
-              {article?.excerpt && <p className="gazette-reference-intro">{article.excerpt}</p>}
+              {!page.continuation && article?.excerpt && <p className="gazette-reference-intro">{article.excerpt}</p>}
             </div>
             {(isCover || isStory) && cover && <img src={cover} className="gazette-wide-photo" alt="" />}
             <div className="gazette-reference-columns">
