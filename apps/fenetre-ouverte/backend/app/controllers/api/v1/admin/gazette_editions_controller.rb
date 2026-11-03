@@ -3,7 +3,7 @@ module Api
     module Admin
       class GazetteEditionsController < ApplicationController
         before_action :authenticate_admin!
-        before_action :set_edition, only: %i[show update publish archive]
+        before_action :set_edition, only: %i[show update publish archive upload_asset]
 
         def index
           render json: scoped_editions.order(updated_at: :desc).map { |edition| serialize(edition) }
@@ -33,6 +33,44 @@ module Api
           else
             render json: { errors: @edition.errors.full_messages }, status: :unprocessable_entity
           end
+        rescue ActiveRecord::StaleObjectError
+          conflict
+        end
+
+        def upload_asset
+          return immutable_error unless @edition.draft?
+          return conflict unless expected_revision?(@edition)
+
+          upload = params[:file]
+          slot = params[:slot].to_s
+          page_id = params[:page_id].to_s
+          key = if %w[headerLogo footerLogo].include?(slot)
+                  slot
+                elsif %w[extraImage qrImage].include?(slot) &&
+                      page_id.match?(/\A[1-9]\d*\z/) &&
+                      @edition.pages.any? { |page| page["id"].to_s == page_id }
+                  "#{slot}:#{page_id}"
+                end
+
+          unless key && upload.is_a?(ActionDispatch::Http::UploadedFile) &&
+                 upload.size.between?(1, 5_000_000) &&
+                 %w[image/png image/jpeg image/webp].include?(upload.content_type)
+            return render json: { error: "Image ou emplacement invalide" },
+                          status: :unprocessable_entity
+          end
+
+          @edition.with_lock do
+            blob = ActiveStorage::Blob.create_and_upload!(
+              io: upload.tempfile, filename: upload.original_filename,
+              content_type: upload.content_type
+            )
+            @edition.media_assets.attach(blob)
+            @edition.update!(assets_manifest: @edition.assets_manifest.merge(key => blob.id))
+          end
+
+          render json: serialize(@edition.reload)
+        rescue ActiveRecord::RecordInvalid => e
+          render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
         rescue ActiveRecord::StaleObjectError
           conflict
         end
@@ -95,9 +133,12 @@ module Api
 
         def serialize(edition)
           edition.as_json(only: %i[
-            id issue_label edition_label status settings pages
+            id issue_label edition_label status settings
             lock_version published_at created_at updated_at
-          ])
+          ]).merge(
+            "pages" => edition.printable_pages,
+            "asset_urls" => edition.asset_urls
+          )
         end
       end
     end
