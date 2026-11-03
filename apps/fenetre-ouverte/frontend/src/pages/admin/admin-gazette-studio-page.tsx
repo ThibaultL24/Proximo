@@ -34,8 +34,8 @@ const INITIAL: EditionDraft = {
   contact: "06 15 92 27 87 - 06 42 40 19 27",
   legal: "ENREGISTRÉ AU TRIBUNAL DE PRIVAS - RSAC518821392",
   pages: [
-    { id: 1, articleId: null, template: "portrait", rubric: "L'histoire des", note: "" },
-    { id: 2, articleId: null, template: "pratique", rubric: "COMPRENDRE LES ENJEUX ET LES SOLUTIONS", note: "BON À SAVOIR : Avant d'engager des travaux, renseignez-vous auprès d'un organisme public ou d'un conseiller compétent." },
+    { id: 1, articleId: null, template: "portrait", rubric: "L'histoire des", note: "", leftHeading: "Du côté de Cédric, les arbres d'Aizac", rightHeading: "Du côté de Dorine, la terre de mon papa" },
+    { id: 2, articleId: null, template: "pratique", rubric: "COMPRENDRE LES ENJEUX ET LES SOLUTIONS", leftHeading: "Pourquoi un logement devient-il énergivore ?", rightHeading: "Un enjeu pour les propriétaires", note: "BON À SAVOIR : Avant d'engager des travaux, renseignez-vous auprès d'un organisme public ou d'un conseiller compétent." },
   ],
 };
 
@@ -57,6 +57,8 @@ export function AdminGazetteStudioPage() {
   const [selectedPageId, setSelectedPageId] = useState(1);
   const [extraImages, setExtraImages] = useState<Record<number, string>>({});
   const [qrImages, setQrImages] = useState<Record<number, string>>({});
+  const [spotlightLogos, setSpotlightLogos] = useState<Record<number, string>>({});
+  const [promoImages, setPromoImages] = useState<Record<number, string>>({});
   const [headerLogo, setHeaderLogo] = useState<string>();
   const [footerLogo, setFooterLogo] = useState<string>();
   const [error, setError] = useState("");
@@ -100,8 +102,8 @@ export function AdminGazetteStudioPage() {
       subtitle: draft.subtitle, territory: draft.territory, banner: draft.banner,
       contact: draft.contact, legal: draft.legal,
     },
-    pages: draft.pages.map(({ id, template, articleId, rubric, note }) =>
-      ({ id, template, articleId, rubric, note })),
+    pages: draft.pages.map(({ id, template, articleId, rubric, note, leftHeading, rightHeading, imageCaption, columnBreakAt }) =>
+      ({ id, template, articleId, rubric, note, leftHeading, rightHeading, imageCaption, columnBreakAt })),
   });
   const applyEdition = (edition: GazetteEditionRecord) => {
     setDraft({
@@ -116,14 +118,19 @@ export function AdminGazetteStudioPage() {
     setFooterLogo(mediaUrl(edition.asset_urls?.footerLogo));
     const extras: Record<number, string> = {};
     const qrs: Record<number, string> = {};
+    const logos: Record<number, string> = {};
+    const promos: Record<number, string> = {};
     Object.entries(edition.asset_urls || {}).forEach(([key, url]) => {
       const parts = key.split(":");
       if (parts.length === 2 && url && Number(parts[1]) > 0) {
         if (parts[0] === "extraImage") extras[Number(parts[1])] = mediaUrl(url) || "";
         if (parts[0] === "qrImage") qrs[Number(parts[1])] = mediaUrl(url) || "";
+        if (parts[0] === "spotlightLogo") logos[Number(parts[1])] = mediaUrl(url) || "";
+        if (parts[0] === "promoImage") promos[Number(parts[1])] = mediaUrl(url) || "";
       }
     });
-    setExtraImages(extras); setQrImages(qrs); setPendingAssets({}); setDirty(false);
+    setExtraImages(extras); setQrImages(qrs);
+    setSpotlightLogos(logos); setPromoImages(promos); setPendingAssets({}); setDirty(false);
     setServerMessage("Édition rechargée depuis le serveur.");
     setError("");
   };
@@ -152,7 +159,7 @@ export function AdminGazetteStudioPage() {
       for (const [key, file] of Object.entries(pendingAssets)) {
         const [slot, pageId] = key.split(":");
         saved = await uploadGazetteEditionAsset(
-          saved, slot as "headerLogo" | "footerLogo" | "extraImage" | "qrImage",
+          saved, slot as "headerLogo" | "footerLogo" | "extraImage" | "qrImage" | "spotlightLogo" | "promoImage",
           file, pageId ? Number(pageId) : undefined
         );
         setServerEdition(saved);
@@ -213,7 +220,7 @@ export function AdminGazetteStudioPage() {
   const newEdition = () => {
     setServerEdition(null);
     setHeaderLogo(undefined); setFooterLogo(undefined);
-    setExtraImages({}); setQrImages({}); setPendingAssets({});
+    setExtraImages({}); setQrImages({}); setSpotlightLogos({}); setPromoImages({}); setPendingAssets({});
     setDirty(true);
     setDraft((current) => ({ ...current,
       issue: "", edition: "", pages: current.pages.map(({ article_snapshot: _snapshot, ...page }) => page),
@@ -226,10 +233,12 @@ export function AdminGazetteStudioPage() {
     [articles, selectedPage?.articleId]
   );
   const updateEdition = (field: keyof Omit<EditionDraft, "pages">, value: string) => {
+    if (serverReadOnly) return;
     setDraft((current) => ({ ...current, [field]: value }));
     setDirty(true);
   };
   const updatePage = (field: keyof Omit<PageDraft, "id">, value: PageDraft[typeof field]) => {
+    if (serverReadOnly) return;
     setDraft((current) => ({
       ...current,
       pages: current.pages.map((page) => page.id === selectedPage.id ? { ...page, [field]: value } : page),
@@ -237,6 +246,7 @@ export function AdminGazetteStudioPage() {
     setDirty(true);
   };
   const addPage = () => {
+    if (serverReadOnly) return;
     const id = Math.max(0, ...draft.pages.map((page) => page.id)) + 1;
     setDraft((current) => ({
       ...current,
@@ -246,6 +256,7 @@ export function AdminGazetteStudioPage() {
     setDirty(true);
   };
   const movePage = (offset: -1 | 1) => {
+    if (serverReadOnly) return;
     const index = draft.pages.findIndex((page) => page.id === selectedPage.id);
     const target = index + offset;
     if (index < 0 || target < 0 || target >= draft.pages.length) return;
@@ -257,14 +268,14 @@ export function AdminGazetteStudioPage() {
     setDirty(true);
   };
   const removePage = () => {
-    if (draft.pages.length < 2) return;
+    if (serverReadOnly || draft.pages.length < 2) return;
     const remaining = draft.pages.filter((page) => page.id !== selectedPage.id);
     setDraft((current) => ({ ...current, pages: remaining }));
     setSelectedPageId(remaining[0].id);
     setDirty(true);
   };
   const readImage = (file: File | undefined, onReady: (data: string) => void) => {
-    if (!file) return;
+    if (serverReadOnly || !file) return;
     if (!file.type.startsWith("image/") || file.size > 5_000_000) {
       setError("Choisissez une image de moins de 5 Mo.");
       return;
@@ -274,13 +285,19 @@ export function AdminGazetteStudioPage() {
     reader.readAsDataURL(file);
   };
   const registerAsset = (key: string, file: File | undefined) => {
-    if (!file) return;
+    if (serverReadOnly || !file) return;
     setPendingAssets((assets) => ({ ...assets, [key]: file }));
     setDirty(true);
   };
   const loadImage = (file?: File) => readImage(file, (value) => {
     setExtraImages((images) => ({ ...images, [selectedPage.id]: value }));
     if (file) registerAsset("extraImage:" + selectedPage.id, file);
+  });
+  const loadPageAsset = (slot: "spotlightLogo" | "promoImage", file?: File) => readImage(file, (value) => {
+    const pageId = selectedPage.id;
+    if (slot === "spotlightLogo") setSpotlightLogos((images) => ({ ...images, [pageId]: value }));
+    else setPromoImages((images) => ({ ...images, [pageId]: value }));
+    if (file) registerAsset(slot + ":" + pageId, file);
   });
 
   return <section className="gazette-studio space-y-6">
@@ -402,6 +419,7 @@ export function AdminGazetteStudioPage() {
           : live;
         return <GazetteSheet key={page.id} draft={draft} page={page}
           article={article} extraImage={extraImages[page.id]} qrImage={qrImages[page.id]}
+          spotlightLogo={spotlightLogos[page.id]} promoImage={promoImages[page.id]}
           headerLogo={headerLogo} footerLogo={footerLogo} />;
       })}
     </div>
