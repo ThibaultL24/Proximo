@@ -13,6 +13,7 @@ export interface GazettePageData {
     excerpt?: string | null;
     body?: string | null;
     cover_blob_id?: number | null;
+    cover_image_url?: string | null;
   };
 }
 export interface GazetteEditionSettings {
