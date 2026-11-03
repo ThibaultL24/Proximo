@@ -26,6 +26,11 @@ class GazetteEdition < ApplicationRecord
           raise ActiveRecord::RecordInvalid, self
         end
 
+        if page["contentEnd"] && page["contentEnd"] > article.body.to_s.length
+          errors.add(:pages, "contiennent une coupure de texte dépassant la longueur de l'article")
+          raise ActiveRecord::RecordInvalid, self
+        end
+
         cover_blob_id = article.cover_image.blob&.id
         if cover_blob_id && !media_assets.attachments.exists?(blob_id: cover_blob_id)
           media_assets.attach(article.cover_image.blob)
@@ -109,6 +114,18 @@ class GazetteEdition < ApplicationRecord
       cut = page["columnBreakAt"]
       unless cut.nil? || cut.to_s.match?(/\A[1-9]\d{0,2}\z/)
         errors.add(:pages, "ont une coupure de colonne invalide à la page #{index + 1}")
+      end
+
+      start_offset = page["contentStart"]
+      end_offset = page["contentEnd"]
+      if !start_offset.nil? && !(start_offset.is_a?(Integer) && start_offset >= 0)
+        errors.add(:pages, "ont un début de continuation invalide à la page #{index + 1}")
+      end
+      if !end_offset.nil? && !(end_offset.is_a?(Integer) && end_offset > (start_offset || 0))
+        errors.add(:pages, "ont une fin de continuation invalide à la page #{index + 1}")
+      end
+      if !page["continuation"].nil? && ![true, false].include?(page["continuation"])
+        errors.add(:pages, "ont un indicateur de continuation invalide à la page #{index + 1}")
       end
 
       id = page["articleId"]
