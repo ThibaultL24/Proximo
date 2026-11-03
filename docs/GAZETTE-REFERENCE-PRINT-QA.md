@@ -53,13 +53,21 @@ photo au milieu du texte de gauche, intertitres à droite, publicité illustrée
 7. Comparer les marges, les titres, les photos et la densité du texte aux deux
    pages de référence. Scanner le QR imprimé.
 8. Tester les rôles, refus d'accès aux brouillons et archives.
+9. Exécuter la recette Chromium automatique : la route DEV uniquement
+   /__qa/gazette-print est utilisée par le workflow « Gazette A4 visual QA ».
+   Le workflow conserve un PDF A4 et une capture pour une édition fictive de
+   référence et pour une édition avec pages de continuation.
+   Ces fichiers ne sont PAS une preuve du rendu avec les vraies données du client.
 
 ## Limites
 
 - Les gabarits suivent la structure du client, mais ne sont pas pixel-perfect.
   La police de manchette est une substitution.
-- Il manque toujours une pagination automatique typographique fiable :
-  le choix et l'ordre des pages ainsi que la coupure des colonnes sont manuels.
+- Un mode expérimental « Répartir automatiquement l'article » découpe désormais
+  le texte aux limites des mots, après mesure DOM du gabarit A4 dans Chromium.
+  Les pages de suite sont conservées avec leurs positions de début et de fin.
+  La validation manuelle des coupures et du rendu reste impérative : la mise en
+  page complexe des photographies et des encarts ne remplace pas une PAO.
 - L'export PDF passe encore par l'impression du navigateur.
 - Une recette graphique en navigateur connecté à une base de démonstration est
   indispensable. Les builds et tests Rails ne prouvent pas la fidélité visuelle.
