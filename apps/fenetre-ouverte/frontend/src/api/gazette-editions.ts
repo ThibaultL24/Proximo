@@ -7,6 +7,10 @@ export interface GazettePageData {
   articleId: number | null;
   rubric: string;
   note: string;
+  leftHeading?: string;
+  rightHeading?: string;
+  imageCaption?: string;
+  columnBreakAt?: number | null;
   article_snapshot?: {
     id: number;
     title: string;
@@ -71,7 +75,7 @@ export async function archiveGazetteEdition(payload: GazetteEditionRecord): Prom
 
 export async function uploadGazetteEditionAsset(
   edition: GazetteEditionRecord,
-  slot: "headerLogo" | "footerLogo" | "extraImage" | "qrImage",
+  slot: "headerLogo" | "footerLogo" | "extraImage" | "qrImage" | "spotlightLogo" | "promoImage",
   file: File,
   pageId?: number
 ): Promise<GazetteEditionRecord> {
