@@ -191,7 +191,7 @@ class GazetteEditionsTest < ActionDispatch::IntegrationTest
       { id: 1, template: "portrait", articleId: @article.id,
         rubric: "Portrait", note: "", contentStart: 0, contentEnd: 20, continuation: false },
       { id: 2, template: "reportage", articleId: @article.id,
-        rubric: "Suite de l'article", note: "", contentStart: 20, contentEnd: 62, continuation: true }
+        rubric: "Suite de l'article", note: "", contentStart: 20, contentEnd: 60, continuation: true }
     ]
 
     post @url, headers: auth(@editor), params: { gazette_edition: input }
@@ -205,7 +205,7 @@ class GazetteEditionsTest < ActionDispatch::IntegrationTest
 
     printed = response.parsed_body.fetch("pages")
     assert_equal [0, 20], printed.map { |page| page.fetch("contentStart") }
-    assert_equal [20, 62], printed.map { |page| page.fetch("contentEnd") }
+    assert_equal [20, 60], printed.map { |page| page.fetch("contentEnd") }
     assert_equal [false, true], printed.map { |page| page.fetch("continuation") }
     assert_equal printed.first.fetch("article_snapshot").fetch("body"),
                  printed.last.fetch("article_snapshot").fetch("body")
