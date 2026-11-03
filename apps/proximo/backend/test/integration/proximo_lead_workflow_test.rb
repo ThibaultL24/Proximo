@@ -92,6 +92,32 @@ class ProximoLeadWorkflowTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+
+  test "qualified lead can be taken in charge with an audit trail before conversion" do
+    patch "#{@lead_url}/qualify", params: { note: "Contact confirme" }, headers: auth(@owner)
+    assert_response :success
+
+    patch "#{@lead_url}/start", params: { note: "Rendez-vous planifie" }, headers: auth(@owner)
+    assert_response :success
+    assert_equal "in_progress", @lead.reload.status
+
+    get @lead_url, headers: auth(@owner)
+    assert_response :success
+    assert_equal %w[qualified in_progress], response.parsed_body.fetch("history").map { |event| event.fetch("to_status") }
+
+    patch "#{@lead_url}/convert", headers: auth(@owner)
+    assert_response :success
+    assert_equal "converted", @lead.reload.status
+    assert_equal 1, Commission.where(lead_id: @lead.id).count
+  end
+
+  test "organization endpoint shows the logged-in member role" do
+    get "/api/v1/proximo/organizations", headers: auth(@member)
+    assert_response :success
+    organization = response.parsed_body.find { |entry| entry.fetch("id") == @organization.id }
+    assert_equal "member", organization.fetch("membership_role")
+  end
+
   private
 
   def auth(user)
