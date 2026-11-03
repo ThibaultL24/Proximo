@@ -184,6 +184,59 @@ class GazetteEditionsTest < ActionDispatch::IntegrationTest
     assert response.parsed_body.fetch("asset_urls").fetch("headerLogo").present?
   end
 
+  test "continuation pages persist with source offsets and a shared immutable snapshot" do
+    @article.update!(body: "Premier paragraphe. Second paragraphe. Troisième paragraphe.")
+    input = payload
+    input[:pages] = [
+      { id: 1, template: "portrait", articleId: @article.id,
+        rubric: "Portrait", note: "", contentStart: 0, contentEnd: 20, continuation: false },
+      { id: 2, template: "reportage", articleId: @article.id,
+        rubric: "Suite de l'article", note: "", contentStart: 20, contentEnd: 62, continuation: true }
+    ]
+
+    post @url, headers: auth(@editor), params: { gazette_edition: input }
+    assert_response :created
+    edition = response.parsed_body
+    assert_equal 2, edition.fetch("pages").length
+
+    patch "#{@url}/#{edition.fetch("id")}/publish",
+      headers: auth(@editor), params: { lock_version: edition.fetch("lock_version") }
+    assert_response :success
+
+    printed = response.parsed_body.fetch("pages")
+    assert_equal [0, 20], printed.map { |page| page.fetch("contentStart") }
+    assert_equal [20, 62], printed.map { |page| page.fetch("contentEnd") }
+    assert_equal [false, true], printed.map { |page| page.fetch("continuation") }
+    assert_equal printed.first.fetch("article_snapshot").fetch("body"),
+                 printed.last.fetch("article_snapshot").fetch("body")
+  end
+
+  test "invalid continuation range is rejected at publication" do
+    input = payload
+    input[:pages] = [
+      { id: 1, template: "portrait", articleId: @article.id,
+        rubric: "Portrait", note: "", contentStart: 0, contentEnd: 10_000, continuation: false }
+    ]
+    post @url, headers: auth(@editor), params: { gazette_edition: input }
+    assert_response :created
+    edition = response.parsed_body
+
+    patch "#{@url}/#{edition.fetch("id")}/publish",
+      headers: auth(@editor), params: { lock_version: edition.fetch("lock_version") }
+    assert_response :unprocessable_entity
+    assert GazetteEdition.find(edition.fetch("id")).draft?
+  end
+
+  test "negative continuation offsets are rejected during draft creation" do
+    input = payload
+    input[:pages] = [
+      { id: 1, template: "portrait", articleId: @article.id,
+        rubric: "Portrait", note: "", contentStart: -1, contentEnd: 12, continuation: false }
+    ]
+    post @url, headers: auth(@editor), params: { gazette_edition: input }
+    assert_response :unprocessable_entity
+  end
+
   private
 
   def payload
