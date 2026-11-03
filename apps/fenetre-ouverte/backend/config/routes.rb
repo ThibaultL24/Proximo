@@ -74,6 +74,12 @@ Rails.application.routes.draw do
       end
 
       namespace :admin do
+        resources :gazette_editions, only: %i[index show create update] do
+          member do
+            patch :publish
+            patch :archive
+          end
+        end
         resources :publication_moderations, only: %i[index] do
           member do
             patch :approve
