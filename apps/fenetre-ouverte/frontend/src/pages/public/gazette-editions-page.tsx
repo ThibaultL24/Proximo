@@ -94,6 +94,8 @@ export function GazetteEditionReaderPage() {
           headerLogo={mediaUrl(edition.asset_urls?.headerLogo)}
           footerLogo={mediaUrl(edition.asset_urls?.footerLogo)}
           extraImage={mediaUrl(edition.asset_urls?.["extraImage:" + page.id])}
+          spotlightLogo={mediaUrl(edition.asset_urls?.["spotlightLogo:" + page.id])}
+          promoImage={mediaUrl(edition.asset_urls?.["promoImage:" + page.id])}
           qrImage={mediaUrl(edition.asset_urls?.["qrImage:" + page.id])} />;
       })}
     </div>
