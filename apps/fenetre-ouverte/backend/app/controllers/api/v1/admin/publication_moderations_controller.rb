@@ -24,7 +24,7 @@ module Api
           # directement sur un service tiers ni ne dépend de son temps de réponse.
           if @publication.requested_syndication? && @publication.merchant.subscription_active?
             begin
-              selected = @publication.requested_providers & Social::Config::V1_PROVIDERS
+              selected = @publication.requested_providers & Social::Config::DELIVERY_PROVIDERS
               SocialPublishOrchestrator.call(publication: @publication, providers: selected) if selected.any?
             rescue StandardError => e
               Rails.logger.error("Social dispatch after approval: #{e.class} #{e.message}")
