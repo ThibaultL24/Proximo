@@ -7,26 +7,28 @@ require "stringio"
 module Social
   module Adapters
     class Base
-      Result = Struct.new(:status, :external_post_id, :error_message, keyword_init: true)
+      Result = Struct.new(:status, :external_post_id, :error_message, :external_url, keyword_init: true)
 
-      def self.publish(account:, body:, image_url: nil, image_io: nil, image_filename: nil, image_content_type: nil)
+      def self.publish(account:, body:, image_url: nil, image_io: nil, image_filename: nil, image_content_type: nil, delivery_slug: nil)
         new(
           account:,
           body:,
           image_url:,
           image_io:,
           image_filename:,
-          image_content_type:
+          image_content_type:,
+          delivery_slug:
         ).publish
       end
 
-      def initialize(account:, body:, image_url: nil, image_io: nil, image_filename: nil, image_content_type: nil)
+      def initialize(account:, body:, image_url: nil, image_io: nil, image_filename: nil, image_content_type: nil, delivery_slug: nil)
         @account = account
         @body = body
         @image_url = image_url
         @image_io = image_io
         @image_filename = image_filename
         @image_content_type = image_content_type
+        @delivery_slug = delivery_slug
       end
 
       def publish
@@ -35,7 +37,7 @@ module Social
 
       private
 
-      attr_reader :account, :body, :image_url, :image_io, :image_filename, :image_content_type
+      attr_reader :account, :body, :image_url, :image_io, :image_filename, :image_content_type, :delivery_slug
 
       def demo_result
         Result.new(
