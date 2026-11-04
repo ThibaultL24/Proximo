@@ -94,7 +94,7 @@ class WordpressDistributionTest < ActionDispatch::IntegrationTest
       body: "Article déjà approuvé", requested_syndication: true,
       requested_providers: ["wordpress"]
     )
-    post = publication.social_posts.create!(provider: :wordpress, status: :pending)
+    post = publication.social_posts.create!(provider: :wordpress, status: :pending, destination_url: "https://commerce.fr")
     calls = 0
     publisher = ->(**_args) do
       calls += 1
@@ -118,18 +118,107 @@ class WordpressDistributionTest < ActionDispatch::IntegrationTest
       external_id: "https://commerce.fr", status: :connected
     )
     fake = Object.new
-    def fake.publish!(title:, html:)
+    def fake.publish!(title:, html:, slug:)
       raise "unsafe HTML" if html.include?("<script>")
       raise "missing escaped text" unless html.include?("&lt;script&gt;")
       { "id" => 83, "status" => "publish" }
     end
     with_stubbed_class_method(Social::WordpressClient, :new, ->(**_args) { fake }) do
       result = Social::Adapters::Wordpress.publish(
-        account: account, body: "Marché <script>alert(1)</script>", image_url: nil
+        account: account, body: "Marché <script>alert(1)</script>", image_url: nil, delivery_slug: "fenetre-ouverte-1-1-1"
       )
       assert_equal :published, result.status
       assert_equal "83", result.external_post_id
     end
+  end
+
+  test "manual verification retrieves a lost WordPress response without creating another article" do
+    account = @merchant.social_accounts.create!(
+      provider: :wordpress, account_name: "editor",
+      access_token: "app-secret", external_id: "https://commerce.fr",
+      status: :connected
+    )
+    publication = @merchant.publications.create!(
+      agency: @agency, status: :published, category: :commerces,
+      body: "Marché artisanal"
+    )
+    post = publication.social_posts.create!(
+      provider: :wordpress, status: :uncertain,
+      destination_url: account.external_id, error_message: "Réponse perdue"
+    )
+    fake = Object.new
+    def fake.find_published(slug:)
+      { "id" => 145, "status" => "publish", "link" => "https://commerce.fr/mon-article" }
+    end
+
+    with_stubbed_class_method(Social::WordpressClient, :new, ->(**_args) { fake }) do
+      post "/api/v1/merchant/social_posts/#{post.id}/verify_wordpress", headers: auth(@merchant_user)
+    end
+    assert_response :success
+    assert_equal "published", response.parsed_body.fetch("status")
+    assert_equal "https://commerce.fr/mon-article", post.reload.external_url
+    assert_equal "145", post.external_post_id
+    assert publication.reload.syndicated?
+  end
+
+  test "a merchant cannot verify another merchant's WordPress delivery" do
+    other = create_merchant!(agency: @agency, sector: @sector)
+    publication = other.publications.create!(
+      agency: @agency, status: :published, category: :commerces, body: "Autre commerçant"
+    )
+    external = publication.social_posts.create!(
+      provider: :wordpress, status: :uncertain, destination_url: "https://commerce.fr"
+    )
+    post "/api/v1/merchant/social_posts/#{external.id}/verify_wordpress",
+      headers: auth(@merchant_user)
+    assert_response :not_found
+    assert external.reload.uncertain?
+  end
+
+  test "a changed blog cannot be used to confirm a previous delivery" do
+    @merchant.social_accounts.create!(
+      provider: :wordpress, account_name: "editor",
+      access_token: "app-secret", external_id: "https://autre-commerce.fr",
+      status: :connected
+    )
+    publication = @merchant.publications.create!(
+      agency: @agency, status: :published, category: :commerces, body: "Article"
+    )
+    external = publication.social_posts.create!(
+      provider: :wordpress, status: :uncertain, destination_url: "https://commerce.fr"
+    )
+    post "/api/v1/merchant/social_posts/#{external.id}/verify_wordpress",
+      headers: auth(@merchant_user)
+    assert_response :conflict
+    assert external.reload.uncertain?
+  end
+
+  test "an uncertain WordPress delivery is not re-sent by a repeated job" do
+    account = @merchant.social_accounts.create!(
+      provider: :wordpress, account_name: "editor",
+      access_token: "app-secret", external_id: "https://commerce.fr",
+      status: :connected
+    )
+    publication = @merchant.publications.create!(
+      agency: @agency, status: :published, category: :commerces, body: "Article"
+    )
+    external = publication.social_posts.create!(
+      provider: :wordpress, status: :pending, destination_url: account.external_id
+    )
+    calls = 0
+    uncertain = ->(**_args) do
+      calls += 1
+      Social::Adapters::Base::Result.new(status: :uncertain, external_post_id: nil,
+                                         error_message: "Réponse inconnue")
+    end
+    with_stubbed_class_method(Social::Adapters::Wordpress, :publish, uncertain) do
+      SocialPublishJob.perform_now(external.id)
+      SocialPublishJob.perform_now(external.id)
+    end
+    assert_equal 1, calls
+    assert external.reload.uncertain?
+    assert_nil external.published_at
+    assert_equal false, publication.reload.syndicated
   end
 
   private
