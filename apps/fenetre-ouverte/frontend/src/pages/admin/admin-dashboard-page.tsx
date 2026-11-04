@@ -108,7 +108,7 @@ export function AdminDashboardPage() {
       </Card>
 
       {stats && (
-        <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <AdminStatCard
             label="Commerçants"
             value={stats.merchants.published}
@@ -122,13 +122,6 @@ export function AdminDashboardPage() {
             hint={`${stats.qr_scans.this_week} cette semaine · ${stats.qr_scans.unique} uniques`}
             icon={<IconQr />}
             accent="brass"
-          />
-          <AdminStatCard
-            label="Recommandations"
-            value={stats.leads.total}
-            hint={`${stats.leads.this_month} ce mois-ci`}
-            icon={<IconUsers />}
-            accent="alert"
           />
           <AdminStatCard
             label="Contenus publiés"
