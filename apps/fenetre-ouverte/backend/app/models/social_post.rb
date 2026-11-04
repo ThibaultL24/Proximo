@@ -10,7 +10,7 @@ class SocialPost < ApplicationRecord
     tiktok: 4
   }
 
-  enum :status, { pending: 0, published: 1, failed: 2, skipped: 3 }
+  enum :status, { pending: 0, published: 1, failed: 2, skipped: 3, processing: 4 }
 
   validates :provider, uniqueness: { scope: :publication_id }
 end
