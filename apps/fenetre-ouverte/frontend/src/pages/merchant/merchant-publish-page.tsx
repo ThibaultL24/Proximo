@@ -4,7 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { createMerchantPublication, fetchMerchantPublications } from "../../api/merchant-publications";
 import {
   connectWordpress, disconnectWordpress, fetchWordpressConnection,
-  type WordpressConnection,
+  verifyWordpressDelivery, type WordpressConnection,
 } from "../../api/merchant-wordpress";
 import { fetchDistributionChannels, type DistributionChannel } from "../../api/distribution-channels";
 import {
@@ -47,6 +47,7 @@ export function MerchantPublishPage() {
     site_url: "", username: "", application_password: "", authorized: false,
   });
   const [blogBusy, setBlogBusy] = useState(false);
+  const [verifyingPost, setVerifyingPost] = useState<number | null>(null);
   const [copySuccess, setCopySuccess] = useState<number | null>(null);
   const [selected, setSelected] = useState<SocialProvider[]>([]);
   const [message, setMessage] = useState("");
@@ -211,6 +212,21 @@ export function MerchantPublishPage() {
       setError("Publication impossible. Vérifiez votre abonnement actif.");
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function verifyWordpressPost(postId: number) {
+    setVerifyingPost(postId);
+    setError("");
+    setMessage("");
+    try {
+      const result = await verifyWordpressDelivery(postId);
+      setMessage(result.message);
+      setPublications(await fetchMerchantPublications());
+    } catch {
+      setError("Vérification impossible : contrôlez la connexion du blog et réessayez sans republier.");
+    } finally {
+      setVerifyingPost(null);
     }
   }
 
@@ -444,6 +460,29 @@ export function MerchantPublishPage() {
             <p className="mt-1 text-xs text-ink-muted">
               Sur les réseaux, signature ajoutée : — via Fenêtre Ouverte · 07700
             </p>
+            {wordpress?.connected && selected.includes("wordpress") && (
+              <section aria-label="Aperçu WordPress avant modération"
+                className="mt-5 rounded-xl border border-[#cbd9e8] bg-white p-5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-bold text-[#0b4c93]">Aperçu WordPress</h3>
+                  <Badge variant="soon">Non publié · validation obligatoire</Badge>
+                </div>
+                <p className="mt-1 text-xs text-ink-muted">
+                  Destination : {wordpress.site_url}. Aucun envoi n'a lieu depuis cet aperçu.
+                </p>
+                <h4 className="mt-4 text-lg font-bold text-ink">
+                  {body.trim().split("\n")[0].slice(0, 100) || "Titre extrait de la première ligne"}
+                </h4>
+                <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-ink">
+                  {body.trim() || "Le texte de votre article apparaîtra ici."}
+                </p>
+                <p className="mt-3 text-xs text-ink-muted">— via Fenêtre Ouverte · 07700</p>
+                <p className="mt-3 text-xs text-ink-muted">
+                  Publication publique seulement après approbation de Jean-Michel.
+                  L'import de la photo en image à la une WordPress n'est pas encore disponible.
+                </p>
+              </section>
+            )}
 
             <label className="mt-4 block text-sm font-medium text-ink">
               Photo (optionnel)
@@ -532,6 +571,19 @@ export function MerchantPublishPage() {
                           {SOCIAL_POST_STATUS_LABELS[post.status] || post.status}
                           {post.error_message ? ` — ${post.error_message}` : ""}
                         </Badge>
+                        {post.external_url?.startsWith("https://") && (
+                          <a href={post.external_url} target="_blank" rel="noopener noreferrer"
+                            className="ml-2 text-xs font-semibold text-[#0b4c93] underline">
+                            Voir l'article publié
+                          </a>
+                        )}
+                        {post.provider === "wordpress" && post.status === "uncertain" && (
+                          <button type="button" disabled={verifyingPost === post.id}
+                            onClick={() => void verifyWordpressPost(post.id)}
+                            className="ml-2 text-xs font-semibold text-[#0b4c93] underline disabled:opacity-50">
+                            {verifyingPost === post.id ? "Vérification…" : "Vérifier sur WordPress sans republier"}
+                          </button>
+                        )}
                       </li>
                     ))}
                   </ul>
