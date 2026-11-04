@@ -15,6 +15,14 @@ class SocialPublisher
       return :skipped
     end
 
+    if account.demo? || account.access_token.blank? || !Social::Config.configured?(account.provider)
+      social_post.update!(
+        status: :skipped, external_post_id: nil, published_at: nil,
+        error_message: "Mode démo ou autorisation API absente : aucune diffusion réelle"
+      )
+      return :skipped
+    end
+
     unless Social::Config.v1_provider?(social_post.provider)
       social_post.update!(status: :skipped, error_message: "Réseau non supporté en V1")
       return :skipped
@@ -46,8 +54,8 @@ class SocialPublisher
       error_message: result.error_message
     )
 
-    if account.demo? || !Social::Config.configured?(account.provider)
-      Rails.logger.info("[SocialPublisher] Demo/live-fallback #{social_post.provider}: #{body.to_s.truncate(80)}")
+    if result.status.to_sym == :published
+      social_post.publication.update!(syndicated: true)
     end
 
     result.status
