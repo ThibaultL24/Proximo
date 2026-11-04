@@ -50,6 +50,7 @@ Rails.application.routes.draw do
         resources :leads, only: %i[index create]
         resources :publications, only: %i[index create]
         get "social_channels", to: "social_channels#index"
+        resource :wordpress_connection, only: %i[show create destroy], controller: "wordpress_connections"
         resources :social_accounts, only: %i[index create destroy], param: :provider do
           member do
             post :connect
