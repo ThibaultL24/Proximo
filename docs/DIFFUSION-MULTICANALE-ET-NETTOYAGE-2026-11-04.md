@@ -22,7 +22,9 @@
 
 **Limites avant production :**
 - Connecter réellement les plateformes avec OAuth et revue des droits, vérifier les quotas/permissions, renouvellement des tokens et règles propres à chaque média.
-- **Stockage des tokens sociaux existants à auditer et chiffrer au repos** ; le code antérieur les utilise en attributs simples.
+- Les nouveaux jetons OAuth sont chiffrés à l'écriture avec `PlatformSecrets` (clé issue de `secret_key_base`). La lecture des anciennes lignes en clair reste compatible pendant la transition.
+- **Migration préalable à la production** : sauvegarder la base et exécuter `bin/rails social:encrypt_legacy_tokens` une fois, puis vérifier que chaque valeur est préfixée `enc:v1:`. La tâche est idempotente ; conserver une politique sûre de sauvegarde et rotation de la clé Rails.
+- Les paramètres complets des callbacks OAuth ne sont plus écrits dans les logs.
 - Configurer une file de tâches *persistante* et gérer les retries sans double diffusion (en cas de timeout après envoi externe, demander une vérification manuelle).
 - Ne jamais déployer la version à usage commercial avant validation de l'identité des comptes et des contenus publiés.
 - La modération éditoriale actuelle conditionne la diffusion multiréseaux à `subscription_active?` ; la refonte de paiement reste séparée.
