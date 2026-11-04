@@ -18,7 +18,6 @@ import {
   AdminTableHead,
   AdminTableRow,
 } from "../../components/admin/admin-ui";
-import { linkButtonClass } from "../../components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/use-auth";
 import { LEAD_STATUS_COLORS, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS } from "../../lib/lead-labels";
