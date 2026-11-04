@@ -5,9 +5,10 @@ if [ -z "${LD_PRELOAD+x}" ]; then
   export LD_PRELOAD
 fi
 
-if [ "$RAILS_ENV" = "production" ]; then
+if [ "${RAILS_ENV:-}" = "production" ]; then
+  # SAFE: migrate the application's dedicated database only.
+  # NEVER seed test accounts, example passwords or fictional posts on boot.
   ./bin/rails db:prepare
-  ./bin/rails db:seed >> log/seed.log 2>&1 &
 fi
 
 exec "${@}"
