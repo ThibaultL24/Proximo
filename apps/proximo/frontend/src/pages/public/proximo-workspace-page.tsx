@@ -4,18 +4,29 @@ import { api } from "../../api/client";
 import { useAuth } from "../../hooks/use-auth";
 import "./proximo-design.css";
 
-interface Organization { id:number; name:string; slug:string; }
+interface Organization { id:number; name:string; slug:string; membership_role?: "owner" | "manager" | "member"; }
 interface Dossier { id:number; full_name:string; project_type:string; property_city?:string; mandate_status:string; created_at:string; }
 interface LeadSummary { id:number; status:string; contact_name:string; lead_type:string; property_city?:string; }
 export function Shell({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const navigation = [
+  const [canManage, setCanManage] = useState(false);
+  useEffect(() => {
+    let active = true;
+    api.get<Organization[]>("/proximo/organizations")
+      .then(({data}) => {
+        if (active) setCanManage(data.some(o => o.membership_role === "owner" || o.membership_role === "manager"));
+      })
+      .catch(() => { if (active) setCanManage(false); });
+    return () => { active = false; };
+  }, []);
+  const navigation: Array<{to:string;label:string;symbol:string;end:boolean;managerOnly?:boolean}> = [
     { to: "/espace", label: "Vue d'ensemble", symbol: "▦", end: true },
     { to: "/recommandations", label: "Recommandations", symbol: "◎", end: false },
-    { to: "/annonces", label: "Diffusion d'annonces", symbol: "▣", end: false },
-    { to: "/espace#dossiers", label: "Dossiers clients", symbol: "▤", end: false },
-    { to: "/dossiers/nouveau", label: "Nouvelle fiche client", symbol: "+", end: false },
+    { to: "/annonces", label: "Diffusion d'annonces", symbol: "▣", end: false, managerOnly:true },
+    { to: "/gestion", label: "Administration agence", symbol: "⌘", end: false, managerOnly:true },
+    { to: "/espace#dossiers", label: "Dossiers clients", symbol: "▤", end: false, managerOnly:true },
+    { to: "/dossiers/nouveau", label: "Nouvelle fiche client", symbol: "+", end: false, managerOnly:true },
   ];
 
   return <div className="proximo-ui proximo-app-shell min-h-screen">
@@ -23,7 +34,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       <Link to="/espace" className="proximo-logo proximo-sidebar-brand">PROXIMO<span>.</span></Link>
       <div className="proximo-sidebar-subtitle">ESPACE IMMOBILIER</div>
       <nav className="proximo-app-nav" aria-label="Navigation métier">
-        {navigation.map((item) => {
+        {navigation.filter(item => !item.managerOnly || canManage).map((item) => {
           if (item.to.includes("#")) {
             return <Link key={item.label} to={item.to} className="proximo-app-navlink">
               <span aria-hidden="true">{item.symbol}</span>{item.label}
@@ -133,7 +144,8 @@ export function ProximoWorkspacePage() {
         </select>
       </label>
       <Link to="/recommandations" className="proximo-primary">Voir les recommandations ↗</Link>
-      {selected && <Link to={`/dossiers/nouveau?organization_id=${selected}`}
+      {selected && organizations.some(org => org.id === selected && org.membership_role !== "member") &&
+        <Link to={`/dossiers/nouveau?organization_id=${selected}`}
         className="proximo-outline">+ Nouvelle fiche client</Link>}
     </div>
     {error && <p role="alert" className="mt-5 rounded-xl border border-red-300/30 bg-red-500/10 p-4 text-sm text-red-100">{error}</p>}
