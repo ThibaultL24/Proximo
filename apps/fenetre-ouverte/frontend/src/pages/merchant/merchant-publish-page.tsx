@@ -2,6 +2,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { createMerchantPublication, fetchMerchantPublications } from "../../api/merchant-publications";
+import {
+  connectWordpress, disconnectWordpress, fetchWordpressConnection,
+  type WordpressConnection,
+} from "../../api/merchant-wordpress";
 import { fetchDistributionChannels, type DistributionChannel } from "../../api/distribution-channels";
 import {
   connectSocialProvider,
@@ -36,6 +40,11 @@ export function MerchantPublishPage() {
   const [publications, setPublications] = useState<Publication[]>([]);
   const [providers, setProviders] = useState<SocialProviderStatus[]>([]);
   const [channels, setChannels] = useState<DistributionChannel[]>([]);
+  const [wordpress, setWordpress] = useState<WordpressConnection | null>(null);
+  const [blogForm, setBlogForm] = useState({
+    site_url: "", username: "", application_password: "", authorized: false,
+  });
+  const [blogBusy, setBlogBusy] = useState(false);
   const [copySuccess, setCopySuccess] = useState<number | null>(null);
   const [selected, setSelected] = useState<SocialProvider[]>([]);
   const [message, setMessage] = useState("");
@@ -45,15 +54,20 @@ export function MerchantPublishPage() {
   const [connecting, setConnecting] = useState<SocialProvider | null>(null);
 
   async function loadAll() {
-    const [pubs, social, catalog] = await Promise.all([
+    const [pubs, social, catalog, blog] = await Promise.all([
       fetchMerchantPublications(),
       fetchSocialAccounts(),
       fetchDistributionChannels(),
+      fetchWordpressConnection(),
     ]);
+    setWordpress(blog);
     setChannels(catalog);
     setPublications(pubs);
     setProviders(social.providers);
-    setSelected(social.providers.filter((p) => p.connected).map((p) => p.provider));
+    setSelected([
+      ...social.providers.filter((p) => p.connected).map((p) => p.provider),
+      ...(blog.connected ? (["wordpress"] as SocialProvider[]) : []),
+    ]);
   }
 
   useEffect(() => {
@@ -130,6 +144,41 @@ export function MerchantPublishPage() {
     } catch {
       setError(`Impossible de déconnecter ${labelFor(provider)}.`);
     }
+  }
+
+  async function handleWordpressConnect(event: React.FormEvent) {
+    event.preventDefault();
+    setError(""); setMessage(""); setBlogBusy(true);
+    try {
+      const result = await connectWordpress(blogForm);
+      setWordpress(result);
+      setBlogForm({ site_url: "", username: "", application_password: "", authorized: false });
+      setSelected(current => [...new Set([...current, "wordpress" as SocialProvider])]);
+      setMessage("Blog WordPress vérifié. Vous pouvez maintenant le sélectionner pour une publication après modération.");
+      const updated = await fetchDistributionChannels();
+      setChannels(updated);
+    } catch (err: unknown) {
+      const detail = err && typeof err === "object" && "response" in err
+        ? (err as { response?: { data?: { error?: string } } }).response?.data?.error
+        : undefined;
+      setError(detail || "Échec de la connexion : vérifiez l'URL publique, le rôle WordPress et le mot de passe d'application.");
+    } finally {
+      setBlogForm(current => ({ ...current, application_password: "" }));
+      setBlogBusy(false);
+    }
+  }
+
+  async function handleWordpressDisconnect() {
+    setBlogBusy(true); setError(""); setMessage("");
+    try {
+      await disconnectWordpress();
+      setWordpress({ connected: false, site_url: null, username: null });
+      setSelected(current => current.filter(provider => provider !== "wordpress"));
+      setChannels(await fetchDistributionChannels());
+      setMessage("Blog déconnecté. Les anciennes publications WordPress ne sont pas supprimées.");
+    } catch {
+      setError("La déconnexion du blog a échoué.");
+    } finally { setBlogBusy(false); }
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -298,6 +347,61 @@ export function MerchantPublishPage() {
               </p>
             )}
           </AdminPanelCard>
+
+          <AdminPanelCard title="Blog WordPress — connexion officielle">
+            {wordpress?.connected ? (
+              <div className="space-y-3">
+                <p className="text-sm font-semibold text-petrol">Blog autorisé</p>
+                <p className="break-all text-sm text-ink-muted">{wordpress.site_url}</p>
+                <p className="text-xs text-ink-muted">Utilisateur : {wordpress.username}</p>
+                <label className="flex items-start gap-2 text-sm">
+                  <input type="checkbox" className="mt-1" checked={selected.includes("wordpress")}
+                    onChange={() => toggleProvider("wordpress")} />
+                  Publier aussi sur ce blog après approbation de Jean-Michel
+                </label>
+                <p className="text-xs text-ink-muted">
+                  Un article public est créé sur votre blog uniquement si vous cochez cette option.
+                  Votre compte WordPress doit posséder les droits de publication nécessaires.
+                </p>
+                <button type="button" disabled={blogBusy} onClick={() => void handleWordpressDisconnect()}
+                  className={linkButtonClass("outline", "text-xs")}>Déconnecter le blog</button>
+              </div>
+            ) : (
+              <form onSubmit={event => void handleWordpressConnect(event)} className="space-y-3">
+                <p className="text-xs leading-relaxed text-ink-muted">
+                  Pour votre propre site WordPress auto-hébergé : dans Profil → Mots de passe d'application,
+                  créez un mot de passe révocable dédié à Fenêtre Ouverte. N'utilisez jamais votre mot
+                  de passe principal.
+                </p>
+                <label className="block text-sm font-medium text-ink">Adresse HTTPS du blog
+                  <input required type="url" placeholder="https://mon-commerce.fr"
+                    className="mt-1 w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm"
+                    value={blogForm.site_url}
+                    onChange={event => setBlogForm(current => ({...current,site_url:event.target.value}))}/>
+                </label>
+                <label className="block text-sm font-medium text-ink">Identifiant WordPress
+                  <input required autoComplete="username"
+                    className="mt-1 w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm"
+                    value={blogForm.username}
+                    onChange={event => setBlogForm(current => ({...current,username:event.target.value}))}/>
+                </label>
+                <label className="block text-sm font-medium text-ink">Mot de passe d'application
+                  <input required type="password" autoComplete="new-password"
+                    className="mt-1 w-full rounded-md border border-line bg-surface px-3 py-2.5 text-sm"
+                    value={blogForm.application_password}
+                    onChange={event => setBlogForm(current => ({...current,application_password:event.target.value}))}/>
+                </label>
+                <label className="flex items-start gap-2 text-xs text-ink-muted">
+                  <input required type="checkbox" checked={blogForm.authorized}
+                    onChange={event => setBlogForm(current => ({...current, authorized:event.target.checked}))} />
+                  Je confirme administrer ce site et avoir le droit d'y publier.
+                </label>
+                <button type="submit" disabled={blogBusy} className={linkButtonClass("accent", "text-xs")}>
+                  {blogBusy ? "Vérification…" : "Vérifier et connecter ce blog"}
+                </button>
+              </form>
+            )}
+          </AdminPanelCard>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 lg:col-span-3">
@@ -440,5 +544,6 @@ export function MerchantPublishPage() {
 }
 
 function labelFor(provider: string) {
+  if (provider === "wordpress") return "WordPress";
   return SOCIAL_PROVIDERS.find((p) => p.id === provider)?.label || provider;
 }
