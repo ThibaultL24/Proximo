@@ -16,8 +16,16 @@ module Social
         paragraphs = body.to_s.strip.split(/\n\s*\n/).map do |paragraph|
           "<p>#{CGI.escapeHTML(paragraph).gsub("\n", "<br>")}</p>"
         end
+        html = paragraphs.join("\n")
+        if public_image_url?
+          # L'image est affichée via son URL HTTPS Fenêtre Ouverte.
+          # Pas d'import WordPress Media tant que les droits et quotas ne sont pas validés.
+          src = CGI.escapeHTML(image_url)
+          html = %(<figure><img src="#{src}" alt="Illustration de la publication locale" loading="lazy"></figure>\n) + html
+        end
+
         posted = client.publish!(
-          title: title.presence || "Actualité locale", html: paragraphs.join("\n"), slug: delivery_slug
+          title: title.presence || "Actualité locale", html: html, slug: delivery_slug
         )
         url = posted["link"].to_s
         url = nil unless url.start_with?("https://")
