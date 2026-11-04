@@ -66,7 +66,33 @@ await page.route("**/api/v1/**", route => {
   if (p === "/api/v1/admin/profile_reviews") return send(route, []);
   if (p === "/api/v1/admin/gazette_editions") return send(route, []);
   if (p === "/api/v1/admin/articles") return send(route, [article]);
-  if (p === "/api/v1/public/gazette_editions") return send(route, []);
+  if (p === "/api/v1/public/gazette_editions") return send(route, [
+    { id:7, issue_label:"N° 7", edition_label:"Octobre 2026", status:"published",
+      published_at:"2026-10-01T10:00:00Z" },
+    { id:6, issue_label:"N° 6", edition_label:"Septembre 2026", status:"archived",
+      published_at:"2026-09-01T10:00:00Z" },
+  ]);
+  if (p === "/api/v1/public/gazette_editions/7") return send(route, {
+    id:7, issue_label:"N° 7", edition_label:"Octobre 2026", status:"published",
+    published_at:"2026-10-01T10:00:00Z",
+    settings:{
+      subtitle:"de Martine et Jean-Michel",
+      territory:"SECTEUR DRÔME - ARDÈCHE, VAUCLUSE ET SES ENVIRONS",
+      banner:"ANNONCEUR DE DÉMONSTRATION",
+      contact:"Coordonnées fictives",
+      legal:"EXEMPLE TECHNIQUE, NON DESTINÉ À L'IMPRESSION",
+    },
+    pages:[
+      { id:1, template:"portrait", articleId:41, rubric:"L'histoire des",
+        note:"", leftHeading:"Une histoire de proximité",
+        article_snapshot:{
+          id:41, title:article.title, excerpt:article.excerpt,
+          body:article.body, cover_image_url:article.cover_image_url,
+        },
+      },
+    ],
+    asset_urls:{},
+  });
   if (/invoice/i.test(p)) return send(route, { invoices: [] });
   if (/subscription/i.test(p)) return send(route, { active: true, status: "active" });
   return send(route, []);
@@ -108,6 +134,7 @@ try {
   role = "client";
   await scene("http://127.0.0.1:5173/", /La vie locale/, "01-habitant-accueil");
   await scene("http://127.0.0.1:5173/gazette", "La Gazette", "02-habitant-gazette");
+  await scene("http://127.0.0.1:5173/gazette/editions/7", /N° 7/, "03-habitant-edition-publiee");
   role = "merchant";
   await scene("http://127.0.0.1:5173/espace-commercant", /Votre vitrine locale/, "03-commercant-cockpit");
   role = "admin";
