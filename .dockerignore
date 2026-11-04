@@ -12,3 +12,18 @@ frontend/dist
 docs
 *.md
 !frontend/README.md
+
+# Isolated apps: don't ship local tokens, databases, uploads or dev builds.
+**/node_modules
+**/dist
+**/tmp
+**/log
+**/storage
+**/.bundle
+**/vendor/bundle
+**/config/master.key
+**/config/credentials/*.key
+**/.DS_Store
+**/coverage
+**/playwright-report
+**/qa-output
