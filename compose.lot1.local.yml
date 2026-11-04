@@ -1,0 +1,35 @@
+# Environnements PostgreSQL jetables de demonstration : aucun volume de production.
+services:
+  fo-db:
+    image: postgres:16
+    ports: ["127.0.0.1:55432:5432"]
+    environment:
+      POSTGRES_USER: lot1
+      POSTGRES_PASSWORD: lot1-local-only
+      POSTGRES_DB: fenetre_ouverte_development
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lot1 -d fenetre_ouverte_development"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - fo_lot1_data:/var/lib/postgresql/data
+
+  proximo-db:
+    image: postgres:16
+    ports: ["127.0.0.1:55433:5432"]
+    environment:
+      POSTGRES_USER: lot1
+      POSTGRES_PASSWORD: lot1-local-only
+      POSTGRES_DB: proximo_development
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lot1 -d proximo_development"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - proximo_lot1_data:/var/lib/postgresql/data
+
+volumes:
+  fo_lot1_data:
+  proximo_lot1_data:

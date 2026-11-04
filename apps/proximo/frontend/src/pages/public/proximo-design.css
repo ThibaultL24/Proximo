@@ -1,0 +1,75 @@
+.proximo-ui { background:#0a0b0b; color:#fafafa; font-family:Inter,"Segoe UI",system-ui,sans-serif; overflow-x:hidden; }
+.proximo-wrap { max-width:1160px; margin:0 auto; padding-left:24px; padding-right:24px; }
+.proximo-nav { height:82px; border-bottom:1px solid #ffffff19; display:flex; align-items:center; justify-content:space-between; gap:16px; max-width:1240px; margin:0 auto; padding:0 24px; }
+.proximo-logo { font:900 22px/1 system-ui,sans-serif; letter-spacing:-.075em; }
+.proximo-logo span { color:#eafa4f; }
+.proximo-kicker { color:#eafa64; font-size:11px; font-weight:800; letter-spacing:.18em; }
+.proximo-dot { display:inline-block; width:7px; height:7px; border-radius:100%; background:#eafa64; box-shadow:0 0 14px #eafa64; margin-right:8px; }
+.proximo-outline { display:inline-flex; align-items:center; justify-content:center; gap:12px; padding:13px 18px; border-radius:12px; border:1px solid #ffffff3b; font-size:13px; font-weight:700; color:white; background:#ffffff08; transition:.2s; }
+.proximo-outline:hover { background:#ffffff18; border-color:#ffffff80; }
+.proximo-primary { display:inline-flex; gap:24px; align-items:center; justify-content:center; padding:15px 23px; border-radius:12px; background:#eafa64; color:#060708; font-size:14px; font-weight:800; box-shadow:0 0 33px #defa5328; transition:.2s; }
+.proximo-primary:hover { transform:translateY(-2px); box-shadow:0 0 45px #defa534a; }
+.proximo-hero { position:relative; isolation:isolate; background:linear-gradient(150deg,#0c0d0d,#111413 60%,#171a0d); }
+.proximo-hero-glow { position:absolute; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse 45% 70% at 75% 50%,#d8f93f12,transparent 75%),linear-gradient(130deg,transparent 70%,#eafa6409); }
+.proximo-gradient-text { background:linear-gradient(120deg,#ffffff 0%,#f4ff84 75%); background-clip:text; color:transparent; }
+.proximo-window { border:1px solid #ffffff24; border-radius:24px; background:linear-gradient(145deg,#ffffff15,#ffffff06); padding:27px; box-shadow:0 30px 90px #00000095, 0 0 60px #eafa6409; backdrop-filter:blur(20px); }
+.proximo-feature { border:1px solid #ffffff1b; border-radius:20px; background:linear-gradient(130deg,#ffffff0b,#ffffff04); padding:32px; transition:transform .25s,border-color .25s; }
+.proximo-feature:hover { transform:translateY(-4px); border-color:#eafa6470; }
+.proximo-plan { border:1px solid #ffffff27; border-radius:24px; background:#141515; padding:30px; }
+.proximo-plan-featured { border-color:#eafa64; background:linear-gradient(150deg,#24271c,#151615); box-shadow:0 0 60px #eafa6413; }
+.proximo-panel { border:1px solid #ffffff22; border-radius:20px; background:#ffffff0b; padding:24px; }
+.proximo-input { width:100%; border:1px solid #ffffff32; border-radius:12px; background:#ffffff0d; color:white; padding:13px 15px; font-size:14px; outline:none; }
+.proximo-input:focus { border-color:#eafa64; box-shadow:0 0 0 2px #eafa642c; }
+.proximo-input option { color:#000; }
+.proximo-form-label { display:block; font-size:12px; font-weight:700; color:#ffffffb5; margin-bottom:7px; }
+
+
+/* Cockpit authentique : reprend la hiérarchie de la démo, mais conserve
+   exclusivement les vraies routes et les données de l'API Rails. */
+.proximo-ui h1, .proximo-ui h2, .proximo-ui h3 { font-family:Inter,"Segoe UI",system-ui,sans-serif; }
+.proximo-app-shell { display:grid; grid-template-columns:252px minmax(0,1fr); background:#0b1019; }
+.proximo-app-sidebar { position:sticky; top:0; height:100vh; min-height:0; display:flex; flex-direction:column;
+  background:#080f19; border-right:1px solid #ffffff18; padding:32px 18px 24px; }
+.proximo-sidebar-brand { padding:0 14px; font-size:26px; }
+.proximo-sidebar-subtitle { color:#718199; font-size:10px; font-weight:800; letter-spacing:.15em;
+  margin:10px 14px 36px; }
+.proximo-app-nav { display:flex; flex-direction:column; gap:7px; }
+.proximo-app-navlink { display:flex; align-items:center; gap:12px; color:#bcc9d9; font-size:13px; font-weight:700;
+  padding:13px 14px; border:1px solid transparent; border-radius:11px; transition:background .2s,color .2s; }
+.proximo-app-navlink > span { display:grid; place-items:center; width:22px; height:22px; font-size:17px;
+  border:1px solid #64748b65; border-radius:7px; flex:none; }
+.proximo-app-navlink:hover { background:#142438; color:#fff; }
+.proximo-app-navlink.is-active { background:#1a344f; border-color:#355d80; color:#f3ffad; }
+.proximo-app-navlink.is-active > span { color:#eafa64; border-color:#eafa6480; }
+.proximo-sidebar-bottom { margin-top:auto; padding:20px 12px 0; border-top:1px solid #ffffff14;
+  font-size:11px; color:#8296b0; line-height:1.55; }
+.proximo-sidebar-public { display:block; margin-top:12px; color:#ecfa77; font-weight:700; }
+.proximo-app-main { min-width:0; }
+.proximo-app-topbar { height:82px; border-bottom:1px solid #ffffff1a; display:flex; align-items:center;
+  justify-content:space-between; gap:15px; padding:0 36px; }
+.proximo-app-topbar-label { color:#c7d6e7; font-size:12px; letter-spacing:.08em; font-weight:750; }
+.proximo-app-content { width:min(100%,1280px); margin:0 auto; padding:38px 36px 70px; }
+.proximo-app-content .proximo-wrap { max-width:none; padding-left:0; padding-right:0; }
+.proximo-stat { background:linear-gradient(150deg,#153250,#11253d); border:1px solid #315174; border-radius:18px; padding:24px; }
+.proximo-stat-label { color:#a5bed6; font-size:11px; text-transform:uppercase; letter-spacing:.1em; font-weight:850; }
+.proximo-stat-value { display:block; color:white; font-size:32px; font-weight:850; margin-top:14px; line-height:1; }
+.proximo-workflow { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+.proximo-workflow-step { background:#12253b; border:1px solid #294864; border-radius:13px; padding:17px; }
+.proximo-workflow-step strong { font-size:14px; display:block; margin:10px 0 4px; }
+.proximo-workflow-step p { color:#97abc0; font-size:12px; line-height:1.55; }
+.proximo-workflow-step-index { font-size:11px; color:#eafa64; font-weight:850; letter-spacing:.1em; }
+@media (max-width:1000px) {
+  .proximo-app-shell { grid-template-columns:1fr; }
+  .proximo-app-sidebar { position:static; height:auto; padding:18px 20px; border-right:0; border-bottom:1px solid #ffffff1a; }
+  .proximo-sidebar-brand { padding:0; }
+  .proximo-sidebar-subtitle,.proximo-sidebar-bottom { display:none; }
+  .proximo-app-nav { flex-direction:row; overflow-x:auto; margin-top:16px; gap:6px; }
+  .proximo-app-navlink { white-space:nowrap; padding:10px 12px; }
+  .proximo-app-topbar { height:62px; padding:0 20px; }
+  .proximo-app-content { padding:28px 20px 60px; }
+}
+@media (max-width:620px) {
+  .proximo-workflow { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .proximo-app-topbar-label { font-size:11px; }
+  .proximo-app-navlink { font-size:12px; }
+}

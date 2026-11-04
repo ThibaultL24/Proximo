@@ -1,0 +1,192 @@
+class GazetteEdition < ApplicationRecord
+  belongs_to :agency
+  has_many_attached :media_assets
+
+  enum :status, { draft: 0, published: 1, archived: 2 }
+
+  TEMPLATES = %w[portrait pratique reportage couverture agenda photo].freeze
+  SETTINGS = %w[subtitle territory banner contact legal].freeze
+
+  validates :issue_label, :edition_label, presence: true
+  validates :issue_label, uniqueness: { scope: :agency_id }
+  validates :pages, presence: true
+  validate :validate_pages
+  validate :validate_settings
+  validate :validate_assets_manifest
+  validate :preserve_published_snapshot, on: :update
+
+  def publish!
+    with_lock do
+      raise ActiveRecord::RecordInvalid, self unless draft?
+
+      verify_continuation_ranges!
+
+      snapshots = pages.map do |page|
+        article = agency.articles.gazette.find_by(id: page["articleId"])
+        unless article
+          errors.add(:pages, "contiennent un article manquant ou hors du territoire")
+          raise ActiveRecord::RecordInvalid, self
+        end
+
+        if page["contentEnd"] && page["contentEnd"] > article.body.to_s.length
+          errors.add(:pages, "contiennent une coupure de texte dépassant la longueur de l'article")
+          raise ActiveRecord::RecordInvalid, self
+        end
+
+        cover_blob_id = article.cover_image.blob&.id
+        if cover_blob_id && !media_assets.attachments.exists?(blob_id: cover_blob_id)
+          media_assets.attach(article.cover_image.blob)
+        end
+
+        page.merge(
+          "article_snapshot" => {
+            "id" => article.id,
+            "title" => article.title,
+            "excerpt" => article.excerpt,
+            "body" => article.body,
+            # Ne garantit pas la persistance des médias : à consolider
+            # avant l'impression d'un numéro définitif.
+            "cover_blob_id" => cover_blob_id
+          }
+        )
+      end
+
+      update!(pages: snapshots, status: :published, published_at: Time.current)
+    end
+    self
+  end
+
+  def archive!
+    with_lock do
+      raise ActiveRecord::RecordInvalid, self unless published?
+      update!(status: :archived)
+    end
+    self
+  end
+
+  def asset_urls
+    by_blob_id = media_assets.attachments.includes(:blob).index_by(&:blob_id)
+    assets_manifest.transform_values do |blob_id|
+      AttachmentUrls.blob_path(by_blob_id[blob_id.to_i])
+    end
+  end
+
+  def printable_pages
+    by_blob_id = media_assets.attachments.includes(:blob).index_by(&:blob_id)
+    pages.map do |page|
+      snapshot = page["article_snapshot"]
+      next page unless snapshot.is_a?(Hash)
+
+      attachment = by_blob_id[snapshot["cover_blob_id"].to_i]
+      page.merge("article_snapshot" => snapshot.merge(
+        "cover_image_url" => AttachmentUrls.blob_path(attachment)
+      ))
+    end
+  end
+
+  private
+
+  # Do not let a draft publish with missing, duplicated or orphaned
+  # characters. The browser can repaginate drafts; published snapshots cannot.
+  def verify_continuation_ranges!
+    pages.each_with_index do |page, index|
+      start_offset = page["contentStart"]
+      end_offset = page["contentEnd"]
+      next if start_offset.nil? && end_offset.nil? && !page["continuation"]
+
+      article = agency.articles.gazette.find_by(id: page["articleId"])
+      invalid = article.nil? || start_offset.nil? || end_offset.nil?
+      if !invalid && page["continuation"]
+        previous = index.positive? ? pages[index - 1] : nil
+        invalid = previous.nil? ||
+                  previous["articleId"].to_s != page["articleId"].to_s ||
+                  previous["contentEnd"] != start_offset
+      elsif !invalid
+        invalid = start_offset != 0
+      end
+
+      following = pages[index + 1]
+      is_followed = following &&
+                    following["continuation"] &&
+                    following["articleId"].to_s == page["articleId"].to_s
+      if !invalid && !is_followed
+        invalid = end_offset != article.body.to_s.length
+      end
+
+      next unless invalid
+
+      errors.add(:pages, "ont une continuation incomplète ou non contiguë à la page #{index + 1}")
+      raise ActiveRecord::RecordInvalid, self
+    end
+  end
+
+  def validate_assets_manifest
+    valid = assets_manifest.is_a?(Hash) && assets_manifest.all? do |key, blob_id|
+      (key.in?(%w[headerLogo footerLogo]) ||
+        key.match?(/\A(?:extraImage|qrImage|spotlightLogo|promoImage):[1-9]\d*\z/)) &&
+        blob_id.to_s.match?(/\A[1-9]\d*\z/)
+    end
+    errors.add(:assets_manifest, "contient des références invalides") unless valid
+  end
+
+  def validate_pages
+    unless pages.is_a?(Array) && pages.length.between?(1, 40)
+      errors.add(:pages, "doivent contenir entre 1 et 40 pages")
+      return
+    end
+
+    pages.each_with_index do |page, index|
+      unless page.is_a?(Hash) && TEMPLATES.include?(page["template"])
+        errors.add(:pages, "ont un gabarit invalide à la page #{index + 1}")
+        next
+      end
+
+      %w[rubric note leftHeading rightHeading imageCaption].each do |field|
+        value = page[field]
+        if value.present? && (!value.is_a?(String) || value.length > 2_000)
+          errors.add(:pages, "ont un champ #{field} invalide à la page #{index + 1}")
+        end
+      end
+      cut = page["columnBreakAt"]
+      unless cut.nil? || cut.to_s.match?(/\A[1-9]\d{0,2}\z/)
+        errors.add(:pages, "ont une coupure de colonne invalide à la page #{index + 1}")
+      end
+
+      start_offset = page["contentStart"]
+      end_offset = page["contentEnd"]
+      if !start_offset.nil? && !(start_offset.is_a?(Integer) && start_offset >= 0)
+        errors.add(:pages, "ont un début de continuation invalide à la page #{index + 1}")
+      end
+      if !end_offset.nil? && !(end_offset.is_a?(Integer) && end_offset > (start_offset || 0))
+        errors.add(:pages, "ont une fin de continuation invalide à la page #{index + 1}")
+      end
+      if !page["continuation"].nil? && ![true, false].include?(page["continuation"])
+        errors.add(:pages, "ont un indicateur de continuation invalide à la page #{index + 1}")
+      end
+
+      id = page["articleId"]
+      next if id.blank?
+
+      unless id.to_s.match?(/\A[1-9]\d*\z/) && agency&.articles&.gazette&.exists?(id: id)
+        errors.add(:pages, "référencent un article non autorisé à la page #{index + 1}")
+      end
+    end
+  end
+
+  def validate_settings
+    unless settings.is_a?(Hash) && (settings.keys - SETTINGS).empty? &&
+           settings.values.all? { |value| value.is_a?(String) && value.length <= 500 }
+      errors.add(:settings, "contiennent des champs non autorisés")
+    end
+  end
+
+  def preserve_published_snapshot
+    old_status = status_in_database
+    return unless %w[published archived].include?(old_status)
+
+    allowed = old_status == "published" && status == "archived" &&
+              (changes_to_save.keys - %w[status updated_at lock_version]).empty?
+
+    errors.add(:base, "une édition publiée est immuable") unless allowed
+  end
+end
