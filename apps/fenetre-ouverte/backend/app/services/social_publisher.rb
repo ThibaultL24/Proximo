@@ -28,6 +28,11 @@ class SocialPublisher
       return :skipped
     end
 
+    if social_post.wordpress? && social_post.destination_url != account.external_id
+      social_post.update!(status: :skipped, error_message: "La connexion WordPress a changé depuis la validation")
+      return :skipped
+    end
+
     signed_body = SocialSignature.call(publication: social_post.publication)
     body = truncate(signed_body, social_post.provider)
     image = attached_image
@@ -44,12 +49,14 @@ class SocialPublisher
       image_url: absolute_image_url,
       image_io: image && StringIO.new(image[:bytes]),
       image_filename: image&.dig(:filename),
-      image_content_type: image&.dig(:content_type)
+      image_content_type: image&.dig(:content_type),
+      delivery_slug: social_post.wordpress? ? social_post.wordpress_delivery_slug : nil
     )
 
     social_post.update!(
       status: result.status,
       external_post_id: result.external_post_id,
+      external_url: result.external_url,
       published_at: result.status.to_sym == :published ? Time.current : nil,
       error_message: result.error_message
     )
