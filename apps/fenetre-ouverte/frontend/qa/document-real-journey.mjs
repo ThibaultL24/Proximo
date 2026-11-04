@@ -205,7 +205,14 @@ try {
   await scene("http://127.0.0.1:5173/communes", "Les communes du 07700", "01e-habitant-communes");
   await scene("http://127.0.0.1:5173/gazette", "La Gazette", "02-habitant-gazette");
   await scene("http://127.0.0.1:5173/gazette/editions/7", /N° 7/, "03-habitant-edition-publiee");
-  await scene("http://127.0.0.1:5173/fil/post/120", /Nous vous retrouvons samedi/, "02b-habitant-publication");
+  // La page publication utilise un paragraphe comme corps, pas un H1.
+  pageErrors = [];
+  await page.goto("http://127.0.0.1:5173/fil/post/120", { waitUntil:"domcontentloaded" });
+  await page.getByText(publication.body, { exact:true }).first().waitFor({timeout:30000});
+  await overlay();
+  await page.waitForTimeout(700);
+  if (pageErrors.length) throw new Error("Page publication : " + pageErrors.join("; "));
+  await page.screenshot({path:path.join(output,"02b-habitant-publication.png"), fullPage:true});
   role = "client";
   await scene("http://127.0.0.1:5173/espace-client", /Bienvenue/, "02c-habitant-espace");
   role = "merchant";
