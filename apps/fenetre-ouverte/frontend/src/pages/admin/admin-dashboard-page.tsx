@@ -21,45 +21,56 @@ import type { AdminStats } from "../../types";
 
 const tiles = [
   {
-    to: "/admin/analytics",
-    title: "Analytics",
-    description: "Indicateurs : scans QR, leads, commissions et contenus publiés.",
-    icon: <IconChart />,
-    accent: "petrol" as const,
-  },
-  {
-    to: "/admin/leads",
-    title: "Recommandations",
-    description: "Qualifier, refuser et convertir les contacts transmis par les commerçants.",
+    to: "/admin/moderation",
+    title: "Modération",
+    description: "Relire les publications des commerçants et valider les modifications de fiches.",
     icon: <IconUsers />,
     accent: "alert" as const,
   },
   {
     to: "/admin/commercants",
-    title: "Commerçants",
-    description: "Créer, modifier et publier les fiches de l'annuaire partenaire.",
+    title: "Fiches commerçantes",
+    description: "Mettre à jour l'annuaire et vérifier les informations visibles des habitants.",
     icon: <IconShop />,
     accent: "success" as const,
   },
   {
     to: "/admin/articles",
-    title: "Gazette",
-    description: "Publier actus de quartier et portraits de commerçants.",
+    title: "Rédaction Gazette",
+    description: "Créer et corriger les articles avant leur mise en page pour l'édition papier.",
     icon: <IconNewspaper />,
     accent: "brass" as const,
   },
   {
-    to: "/admin/immo",
-    title: "Articles immo",
-    description: "Contenus techniques et éditoriaux agence — réservé au détenteur de l'app.",
-    icon: <IconBuilding />,
+    to: "/admin/gazette-studio",
+    title: "Studio Gazette",
+    description: "Composer le numéro A4, importer les photos, enregistrer et publier l'édition.",
+    icon: <IconFile />,
     accent: "petrol" as const,
   },
   {
-    to: "/admin/commissions",
-    title: "Commissions",
-    description: "Suivre, approuver et marquer les commissions dues aux commerçants.",
-    icon: <IconEuro />,
+    to: "/admin/analytics",
+    title: "Statistiques du territoire",
+    description: "Consulter les scans QR et les indicateurs de diffusion disponibles.",
+    icon: <IconChart />,
+    accent: "petrol" as const,
+  },
+];
+
+const legacyTiles = [
+  {
+    to: "/admin/leads", title: "Recommandations historiques",
+    description: "Module conservé pendant la séparation avec Proximo.", icon: <IconUsers />,
+    accent: "alert" as const,
+  },
+  {
+    to: "/admin/immo", title: "Anciens articles immo",
+    description: "Contenus hérités du monolithe, à réconcilier.", icon: <IconBuilding />,
+    accent: "petrol" as const,
+  },
+  {
+    to: "/admin/commissions", title: "Commissions historiques",
+    description: "Module en attente de séparation complète avec Proximo.", icon: <IconEuro />,
     accent: "sand" as const,
   },
 ];
@@ -77,26 +88,24 @@ export function AdminDashboardPage() {
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brass/20 blur-3xl" />
         <div className="absolute -bottom-16 left-1/3 h-32 w-32 rounded-full bg-white/5 blur-2xl" />
         <div className="relative px-6 py-8 sm:px-8 sm:py-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-brass-light">Back-office</p>
-          <h1 className="mt-2 font-serif text-3xl font-semibold sm:text-4xl">Vue d&apos;ensemble</h1>
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-brass-light">FENÊTRE OUVERTE · PILOTAGE LOCAL</p>
+          <h1 className="mt-2 font-serif text-3xl font-semibold sm:text-4xl">Piloter la vie locale</h1>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-sand/90 sm:text-base">
-            Pilotez l&apos;annuaire, la gazette et le pipeline immobilier depuis un seul espace.
+            Animez les communes, validez les contenus des commerçants et préparez la prochaine édition de la Gazette depuis un même espace.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/admin/analytics" className={linkButtonClass("accent")}>
-              Voir les analytics
+            <Link to="/admin/moderation" className={linkButtonClass("accent")}>
+              Modérer les publications
             </Link>
             <Link
-              to="/admin/leads"
+              to="/admin/gazette-studio"
               className="inline-flex items-center justify-center rounded-lg border border-white/25 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
             >
-              Pipeline leads
+              Ouvrir le Studio Gazette
             </Link>
           </div>
         </div>
       </Card>
-
-      <AgencySubscriptionCard />
 
       {stats && (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -131,11 +140,29 @@ export function AdminDashboardPage() {
         </div>
       )}
 
+      <section className="space-y-4" aria-label="Le parcours de publication">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-brass">Votre parcours éditorial</p>
+          <h2 className="mt-1 font-serif text-2xl font-semibold text-petrol">De la proposition au journal publié</h2>
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          {[
+            { number:"01", title:"Relire", body:"Valider les fiches et les posts proposés.", href:"/admin/moderation" },
+            { number:"02", title:"Rédiger", body:"Préparer les articles et les portraits.", href:"/admin/articles" },
+            { number:"03", title:"Composer", body:"Assembler le numéro dans le Studio A4.", href:"/admin/gazette-studio" },
+          ].map(step => <Link key={step.number} to={step.href}
+            className="rounded-2xl border border-[#cbd9e8] bg-white p-5 transition hover:border-[#0b4c93] hover:shadow-md">
+            <span className="text-xs font-extrabold tracking-widest text-[#db7c19]">ÉTAPE {step.number}</span>
+            <h3 className="mt-3 text-lg font-extrabold text-[#0b4c93]">{step.title}</h3>
+            <p className="mt-1 text-sm text-ink-muted">{step.body}</p>
+          </Link>)}
+        </div>
+      </section>
       <div>
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-brass">Raccourcis</p>
-            <h2 className="font-serif text-2xl font-semibold text-petrol">Modules du back-office</h2>
+            <h2 className="font-serif text-2xl font-semibold text-petrol">Vos outils éditoriaux</h2>
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -144,6 +171,14 @@ export function AdminDashboardPage() {
           ))}
         </div>
       </div>
+      <details className="rounded-xl border border-line bg-white p-5">
+        <summary className="cursor-pointer text-sm font-bold text-petrol">Modules hérités de l'ancien produit immobilier</summary>
+        <p className="mt-2 text-xs text-ink-muted">Conservés pour la compatibilité, ils ne font pas partie du parcours éditorial principal.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {legacyTiles.map(tile => <AdminNavTile key={tile.to} {...tile} />)}
+        </div>
+        <div className="mt-5"><AgencySubscriptionCard /></div>
+      </details>
     </section>
   );
 }
