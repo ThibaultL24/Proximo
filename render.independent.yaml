@@ -1,0 +1,123 @@
+# Isolated deployment Blueprint. NOT the root render.yaml currently used by
+# the existing Fenêtre Ouverte monolith. Applying this is a separate, paid
+# infrastructure decision. Do not auto-sync without approving the costs.
+#
+# ONE full-stack web service (Vite + Rails) AND ONE Postgres per product.
+# No shared database, session token, or application secret.
+#
+# Create a Render Blueprint using this filename explicitly, after approving
+# two paid PostgreSQL instances. Reconfirm service names before applying.
+
+services:
+  - type: web
+    name: proximo-v2
+    runtime: docker
+    region: frankfurt
+    plan: free
+    branch: main
+    autoDeploy: false
+    dockerContext: .
+    dockerfilePath: ./apps/proximo/Dockerfile
+    healthCheckPath: /up
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: RAILS_MAX_THREADS
+        value: "3"
+      - key: RAILS_SERVE_STATIC_FILES
+        value: "true"
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: PROXIMO_JWT_SECRET
+        generateValue: true
+      - key: PROXIMO_DATABASE_URL
+        fromDatabase:
+          name: proximo-postgres-v2
+          property: connectionString
+      - key: APP_HOST
+        fromService:
+          type: web
+          name: proximo-v2
+          envVarKey: RENDER_EXTERNAL_HOSTNAME
+      - key: FRONTEND_ORIGIN
+        fromService:
+          type: web
+          name: proximo-v2
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: proximo-v2
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: BACKEND_URL
+        fromService:
+          type: web
+          name: proximo-v2
+          envVarKey: RENDER_EXTERNAL_URL
+
+  - type: web
+    name: fenetre-ouverte-v2
+    runtime: docker
+    region: frankfurt
+    plan: free
+    branch: main
+    autoDeploy: false
+    dockerContext: .
+    dockerfilePath: ./apps/fenetre-ouverte/Dockerfile
+    healthCheckPath: /up
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: RAILS_MAX_THREADS
+        value: "3"
+      - key: RAILS_SERVE_STATIC_FILES
+        value: "true"
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: FENETRE_OUVERTE_JWT_SECRET
+        generateValue: true
+      - key: FENETRE_OUVERTE_DATABASE_URL
+        fromDatabase:
+          name: fenetre-ouverte-postgres-v2
+          property: connectionString
+      - key: APP_HOST
+        fromService:
+          type: web
+          name: fenetre-ouverte-v2
+          envVarKey: RENDER_EXTERNAL_HOSTNAME
+      - key: FRONTEND_ORIGIN
+        fromService:
+          type: web
+          name: fenetre-ouverte-v2
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: fenetre-ouverte-v2
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: BACKEND_URL
+        fromService:
+          type: web
+          name: fenetre-ouverte-v2
+          envVarKey: RENDER_EXTERNAL_URL
+
+databases:
+  # The free plan can provide only one 30-day Postgres database per workspace.
+  # Two durable independent databases therefore require PAID plans.
+  # At current Render pricing: $6/month EACH plus storage over 1 GB.
+  # Do not apply this Blueprint without explicit budget approval.
+  - name: proximo-postgres-v2
+    region: frankfurt
+    plan: 0.1c-256mb
+    databaseName: proximo_prod
+    postgresMajorVersion: "17"
+
+  - name: fenetre-ouverte-postgres-v2
+    region: frankfurt
+    plan: 0.1c-256mb
+    databaseName: fenetre_ouverte_prod
+    postgresMajorVersion: "17"

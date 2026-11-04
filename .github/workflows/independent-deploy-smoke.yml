@@ -1,0 +1,99 @@
+name: Independent Proximo + Fenêtre Ouverte deployment smoke tests
+
+on:
+  push:
+    branches:
+      - deploy/two-independent-apps-2026-11-04
+    paths:
+      - "apps/proximo/**"
+      - "apps/fenetre-ouverte/**"
+      - ".dockerignore"
+      - ".github/workflows/independent-deploy-smoke.yml"
+      - "render.independent.yaml"
+  pull_request:
+    paths:
+      - "apps/proximo/**"
+      - "apps/fenetre-ouverte/**"
+      - ".dockerignore"
+      - ".github/workflows/independent-deploy-smoke.yml"
+      - "render.independent.yaml"
+
+jobs:
+  docker_and_runtime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [proximo, fenetre-ouverte]
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: isolated_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: isolated-test-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d isolated_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build React + Rails production Docker image
+        run: |
+          docker build --file "apps/${{ matrix.app }}/Dockerfile" \
+            --tag "isolated-${{ matrix.app }}:ci" .
+
+      - name: Boot independent Rails app with its own temporary PostgreSQL database
+        env:
+          PRODUCT: ${{ matrix.app }}
+        run: |
+          set -euo pipefail
+          if [ "$PRODUCT" = "proximo" ]; then
+            DATABASE_ENV="PROXIMO_DATABASE_URL"
+            JWT_ENV="PROXIMO_JWT_SECRET"
+            APP_LABEL="Proximo API"
+          else
+            DATABASE_ENV="FENETRE_OUVERTE_DATABASE_URL"
+            JWT_ENV="FENETRE_OUVERTE_JWT_SECRET"
+            APP_LABEL="Fenêtre Ouverte API"
+          fi
+          echo "Testing ${PRODUCT} in full production mode"
+          docker run -d --name "isolated-app" --network host \
+            -e "RAILS_ENV=production" \
+            -e "PORT=10000" \
+            -e "APP_HOST=localhost" \
+            -e "SECRET_KEY_BASE=only-for-github-actions-smoke-tests-4c0b2de8bd9c09" \
+            -e "${JWT_ENV}=ci-only-product-specific-signing-key-001" \
+            -e "${DATABASE_ENV}=postgresql://postgres:isolated-test-only@127.0.0.1:5432/isolated_ci" \
+            "isolated-${PRODUCT}:ci"
+          ready=0
+          for i in $(seq 1 100); do
+            if curl --silent --fail "http://localhost:10000/up" >/dev/null 2>&1; then
+              ready=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then
+            docker logs isolated-app
+            exit 1
+          fi
+          curl --fail --silent --show-error -H "X-Forwarded-Proto: https" \
+            "http://localhost:10000/api/v1/health" > /tmp/health-response.json
+          grep -F "$APP_LABEL" /tmp/health-response.json
+          curl --fail --silent --show-error -H "X-Forwarded-Proto: https" \
+            "http://localhost:10000/" > /tmp/react-landing.html
+          grep -F 'id="root"' /tmp/react-landing.html
+          grep -E '/assets/.*\.js' /tmp/react-landing.html
+          echo "Production-mode Rails API and real Vite React frontend OK"
+      - name: Print Docker logs on failure
+        if: failure()
+        run: docker logs isolated-app || true
+      - name: Shutdown
+        if: always()
+        run: docker rm -f isolated-app || true
