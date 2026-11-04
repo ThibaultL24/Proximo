@@ -39,9 +39,9 @@ module Social
 
       def demo_result
         Result.new(
-          status: :published,
-          external_post_id: "demo-#{account.provider}-#{SecureRandom.hex(4)}",
-          error_message: nil
+          status: :skipped,
+          external_post_id: nil,
+          error_message: "Simulation uniquement : aucun réseau externe contacté"
         )
       end
 
