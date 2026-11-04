@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { createMerchantPublication, fetchMerchantPublications } from "../../api/merchant-publications";
+import { fetchDistributionChannels, type DistributionChannel } from "../../api/distribution-channels";
 import {
   connectSocialProvider,
   disconnectSocialAccount,
@@ -34,6 +35,8 @@ export function MerchantPublishPage() {
   const [image, setImage] = useState<File | null>(null);
   const [publications, setPublications] = useState<Publication[]>([]);
   const [providers, setProviders] = useState<SocialProviderStatus[]>([]);
+  const [channels, setChannels] = useState<DistributionChannel[]>([]);
+  const [copySuccess, setCopySuccess] = useState<number | null>(null);
   const [selected, setSelected] = useState<SocialProvider[]>([]);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -42,10 +45,12 @@ export function MerchantPublishPage() {
   const [connecting, setConnecting] = useState<SocialProvider | null>(null);
 
   async function loadAll() {
-    const [pubs, social] = await Promise.all([
+    const [pubs, social, catalog] = await Promise.all([
       fetchMerchantPublications(),
       fetchSocialAccounts(),
+      fetchDistributionChannels(),
     ]);
+    setChannels(catalog);
     setPublications(pubs);
     setProviders(social.providers);
     setSelected(social.providers.filter((p) => p.connected).map((p) => p.provider));
@@ -84,7 +89,7 @@ export function MerchantPublishPage() {
     [configuredProviders]
   );
 
-  const hasAnyPageConfigured = configuredProviders.length > 0;
+  const hasAnyPageConfigured = configuredProviders.some((p) => p.page_configured);
 
   function toggleProvider(provider: SocialProvider) {
     setSelected((current) =>
@@ -102,7 +107,7 @@ export function MerchantPublishPage() {
         window.location.href = result.url;
         return;
       }
-      setMessage(`${labelFor(provider)} connecté en mode démo (ajoutez les clés API pour le live).`);
+      setMessage(`${labelFor(provider)} est disponible en mode simulation uniquement : aucune publication extérieure ne sera envoyée.`);
       await loadAll();
     } catch (err: unknown) {
       const apiError =
@@ -150,11 +155,23 @@ export function MerchantPublishPage() {
         selected.length > 0
           ? ` + ${selected.length} réseau${selected.length > 1 ? "x" : ""}.`
           : ".";
-      setMessage(`Publication envoyée à la modération. La diffusion sur le fil et les réseaux${networkNote} sera déclenchée après validation.`);
+      setMessage(`Publication envoyée à la modération. Après validation, elle apparaîtra sur Fenêtre Ouverte ; les ${networkNote === "." ? "réseaux ne sont pas sélectionnés" : "diffusions externes demandées seront traitées séparément et suivies dans l'historique"}.`);
     } catch {
       setError("Publication impossible. Vérifiez votre abonnement actif.");
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function copyPublication(publication: Publication) {
+    const link = window.location.origin + "/fil/post/" + publication.id;
+    const text = publication.body + "\n\n" + link;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(publication.id);
+      setError("");
+    } catch {
+      setError("Impossible de copier automatiquement. Sélectionnez le texte de la publication.");
     }
   }
 
@@ -164,13 +181,29 @@ export function MerchantPublishPage() {
     <section className="space-y-8">
       <AdminPageHeader
         eyebrow="Fenêtre Ouverte"
-        title="Publier"
-        description="Partagez vos nouveautés dans le réseau local. Vos publications sont relues par l'administration avant toute diffusion sur le fil et les réseaux connectés."
+        title="Atelier de diffusion"
+        description="Rédigez une seule fois, faites valider par la rédaction, puis suivez chaque réseau autorisé. Les réseaux non connectés restent des possibilités de partage manuel."
         backTo=""
       />
 
-      <MerchantSubscriptionCard />
-
+      <div className="grid gap-3 md:grid-cols-4" aria-label="Étapes de publication">
+        {[
+          ["01", "Rédiger", "Texte, photo et rubrique"],
+          ["02", "Sélectionner", "Comptes réellement autorisés"],
+          ["03", "Faire valider", "Contrôle éditorial de Jean-Michel"],
+          ["04", "Distribuer", "Statut par plateforme et partage"],
+        ].map(([number, title, description]) => (
+          <div key={number} className="rounded-xl border border-[#d5e0ee] bg-white p-4">
+            <span className="text-xs font-extrabold tracking-widest text-[#d17a15]">ÉTAPE {number}</span>
+            <h2 className="mt-2 text-base font-extrabold text-[#0b4c93]">{title}</h2>
+            <p className="mt-1 text-xs leading-relaxed text-ink-muted">{description}</p>
+          </div>
+        ))}
+      </div>
+      <details className="rounded-xl border border-line bg-white p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-petrol">Abonnement et conditions de publication</summary>
+        <div className="mt-3"><MerchantSubscriptionCard /></div>
+      </details>
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="space-y-4 lg:col-span-2">
           <AdminPanelCard title="Réseaux connectés">
@@ -180,7 +213,7 @@ export function MerchantPublishPage() {
                 Ma fiche vitrine
               </Link>
               , puis connectez chaque réseau. Avec les clés plateforme (super-admin), Connecter ouvre OAuth
-              Meta / TikTok. Sans clés, connexion <strong>démo</strong> (syndication simulée).
+              Meta / TikTok. Sans autorisations valides, une connexion <strong>démo</strong> ne publie jamais réellement.
             </p>
 
             {!hasAnyPageConfigured && (
@@ -335,6 +368,32 @@ export function MerchantPublishPage() {
         </form>
       </div>
 
+      <AdminPanelCard title="Autres canaux de diffusion — transparence des possibilités">
+        <p className="mb-4 text-sm text-ink-muted">
+          Ces destinations ne sont pas toutes connectées. Elles n'autorisent aucun envoi automatique
+          avant intégration officielle, consentement du compte et éventuel accord sur les frais.
+          Vous pouvez néanmoins copier une publication déjà validée pour la partager vous-même.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {channels.map((channel) => (
+            <div key={channel.id} className="rounded-xl border border-line bg-white p-4">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <strong className="text-sm text-petrol">{channel.label}</strong>
+                <Badge variant={channel.connected_live ? "featured" : "default"}>
+                  {channel.connected_live ? "Compte autorisé"
+                    : channel.demo ? "Simulation"
+                    : channel.mode === "oauth" ? "Connexion à préparer"
+                    : channel.mode === "paid" ? "API payante"
+                    : channel.mode === "partner" ? "Blog autorisé"
+                    : "Intégration future"}
+                </Badge>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-ink-muted">{channel.notes}</p>
+            </div>
+          ))}
+        </div>
+      </AdminPanelCard>
+
       {publications.length > 0 && (
         <AdminPanelCard title="Historique">
           <div className="space-y-3">
@@ -349,6 +408,15 @@ export function MerchantPublishPage() {
                     <Badge variant="featured">Syndiqué</Badge>
                   )}
                 </div>
+                {publication.status === "published" && (
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <button type="button" onClick={() => void copyPublication(publication)}
+                      className={linkButtonClass("outline", "text-xs")}>
+                      Copier le texte et le lien pour un partage manuel
+                    </button>
+                    {copySuccess === publication.id && <span className="text-xs text-success">Copié</span>}
+                  </div>
+                )}
                 {publication.social_posts?.length > 0 && (
                   <ul className="mt-3 flex flex-wrap gap-2">
                     {publication.social_posts.map((post) => (
