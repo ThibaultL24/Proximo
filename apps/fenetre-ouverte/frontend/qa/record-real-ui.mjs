@@ -26,6 +26,8 @@ const context = await browser.newContext({
   recordVideo: { dir: output, size: { width: 1440, height: 900 } },
 });
 const page = await context.newPage();
+let pageErrors = [];
+page.on("pageerror", error => pageErrors.push(error.message));
 await page.addInitScript(() => localStorage.setItem("fenetre_ouverte_token", "test-token-local"));
 
 await page.route("**/api/v1/**", route => {
@@ -65,7 +67,7 @@ await page.route("**/api/v1/**", route => {
   if (p === "/api/v1/admin/gazette_editions") return send(route, []);
   if (p === "/api/v1/admin/articles") return send(route, [article]);
   if (p === "/api/v1/public/gazette_editions") return send(route, []);
-  if (/invoice/i.test(p)) return send(route, []);
+  if (/invoice/i.test(p)) return send(route, { invoices: [] });
   if (/subscription/i.test(p)) return send(route, { active: true, status: "active" });
   return send(route, []);
 });
@@ -87,11 +89,19 @@ async function overlay() {
   });
 }
 async function scene(url, heading, name) {
+  pageErrors = [];
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: heading }).first().waitFor({ timeout: 30000 });
   await page.waitForTimeout(950);
   await overlay();
   await page.waitForTimeout(1350);
+  if (pageErrors.length > 0) {
+    throw new Error(name + " : erreur React détectée : " + pageErrors.join(" ; "));
+  }
+  const screenVisible = await page.getByRole("heading", { name: heading }).first().isVisible();
+  if (!screenVisible) {
+    throw new Error(name + " : écran React vide ou masqué, capture refusée");
+  }
   await page.screenshot({ path: path.join(output, name + ".png") });
 }
 try {
