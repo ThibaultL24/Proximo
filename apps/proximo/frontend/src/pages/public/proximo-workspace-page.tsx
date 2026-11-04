@@ -1,20 +1,54 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../api/client";
 import { useAuth } from "../../hooks/use-auth";
 import "./proximo-design.css";
 
 interface Organization { id:number; name:string; slug:string; }
 interface Dossier { id:number; full_name:string; project_type:string; property_city?:string; mandate_status:string; created_at:string; }
-export function Shell({ children }: {children:React.ReactNode}) {
-  const {user,logout}=useAuth();
-  const navigate=useNavigate();
-  return <div className="proximo-ui min-h-screen">
-    <header className="proximo-nav">
-      <Link to="/" className="proximo-logo">PROXIMO<span>.</span></Link>
-      <div className="flex items-center gap-4 text-sm"><span className="hidden text-white/50 sm:inline">{user?.email}</span><button onClick={() => {logout();navigate("/");}} className="proximo-outline" type="button">Déconnexion</button></div>
-    </header>
-    <main className="proximo-wrap py-12">{children}</main>
+export function Shell({ children }: { children: React.ReactNode }) {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const navigation = [
+    { to: "/espace", label: "Vue d'ensemble", symbol: "▦", end: true },
+    { to: "/recommandations", label: "Recommandations", symbol: "◎", end: false },
+    { to: "/espace#dossiers", label: "Dossiers clients", symbol: "▤", end: false },
+    { to: "/dossiers/nouveau", label: "Nouvelle fiche client", symbol: "+", end: false },
+  ];
+
+  return <div className="proximo-ui proximo-app-shell min-h-screen">
+    <aside className="proximo-app-sidebar" aria-label="Navigation de Proximo">
+      <Link to="/espace" className="proximo-logo proximo-sidebar-brand">PROXIMO<span>.</span></Link>
+      <div className="proximo-sidebar-subtitle">ESPACE IMMOBILIER</div>
+      <nav className="proximo-app-nav" aria-label="Navigation métier">
+        {navigation.map((item) => {
+          if (item.to.includes("#")) {
+            return <Link key={item.label} to={item.to} className="proximo-app-navlink">
+              <span aria-hidden="true">{item.symbol}</span>{item.label}
+            </Link>;
+          }
+          return <NavLink key={item.to} to={item.to} end={item.end}
+            className={({ isActive }) => "proximo-app-navlink" + (isActive ? " is-active" : "")}>
+            <span aria-hidden="true">{item.symbol}</span>{item.label}
+          </NavLink>;
+        })}
+      </nav>
+      <div className="proximo-sidebar-bottom">
+        <p>Réseau, prospects et dossiers dans un seul espace.</p>
+        <Link to="/" className="proximo-sidebar-public">Découvrir Proximo ↗</Link>
+      </div>
+    </aside>
+    <div className="proximo-app-main">
+      <header className="proximo-app-topbar">
+        <span className="proximo-app-topbar-label">Votre espace professionnel</span>
+        <div className="flex items-center gap-4 text-sm">
+          <span className="hidden max-w-[230px] truncate text-white/50 sm:inline">{user?.email}</span>
+          <button type="button" onClick={() => { logout(); navigate("/"); }}
+            className="proximo-outline">Déconnexion</button>
+        </div>
+      </header>
+      <main className="proximo-app-content">{children}</main>
+    </div>
   </div>;
 }
 export function ProximoLoginPage() {
