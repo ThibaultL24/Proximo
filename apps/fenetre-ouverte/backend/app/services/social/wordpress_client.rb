@@ -12,6 +12,7 @@ require "base64"
 module Social
   class WordpressClient
     class Error < StandardError; end
+    class DeliveryUncertain < Error; end
 
     BLOCKED_NETWORKS = %w[
       0.0.0.0/8 10.0.0.0/8 100.64.0.0/10 127.0.0.0/8
@@ -55,19 +56,41 @@ module Social
     def verify!
       result = request(:get, "/wp-json/wp/v2/users/me?context=edit")
       raise Error, "WordPress ne reconnaît pas cet utilisateur" if result["id"].blank?
+      unless result.dig("capabilities", "publish_posts") == true
+        raise Error, "Ce compte WordPress n'a pas le droit de publier des articles"
+      end
       result.slice("id", "name", "slug")
     end
 
-    def publish!(title:, html:)
+    def self.normalize_slug(value)
+      slug = value.to_s
+      raise Error, "Identifiant WordPress invalide" unless slug.match?(/\A[a-z0-9]+(?:-[a-z0-9]+)*\z/) && slug.length <= 150
+
+      slug
+    end
+
+    def find_published(slug:)
+      safe_slug = self.class.normalize_slug(slug)
+      posts = request(:get, "/wp-json/wp/v2/posts?context=edit&status=publish&slug=#{safe_slug}")
+      raise Error, "Réponse de recherche WordPress invalide" unless posts.is_a?(Array)
+
+      post = posts.find { |item| item.is_a?(Hash) && item["slug"] == safe_slug && item["status"] == "publish" }
+      post&.slice("id", "slug", "link", "status")
+    end
+
+    def publish!(title:, html:, slug:)
+      safe_slug = self.class.normalize_slug(slug)
+      existing = find_published(slug: safe_slug)
+      return existing.merge("already_present" => true) if existing
+
       result = request(:post, "/wp-json/wp/v2/posts", {
-        title: title, content: html, status: "publish"
+        title: title, content: html, slug: safe_slug, status: "publish"
       })
-      raise Error, "WordPress n'a pas renvoyé de référence de publication" if result["id"].blank?
-      unless result["status"] == "publish"
-        raise Error, "WordPress n'a pas confirmé la publication publique"
+      if result["id"].blank? || result["status"] != "publish" || result["slug"] != safe_slug
+        raise DeliveryUncertain, "Vérifiez le site WordPress : l'article n'a pas pu être confirmé"
       end
 
-      result.slice("id", "link", "status")
+      result.slice("id", "slug", "link", "status")
     end
 
     private
@@ -106,11 +129,20 @@ module Social
       when 401, 403
         raise Error, "WordPress a refusé l'autorisation du compte"
       else
+        if method == :post && response.code.to_i >= 500
+          raise DeliveryUncertain, "Le site WordPress a renvoyé une erreur serveur après l'envoi"
+        end
         raise Error, "WordPress a refusé l'opération (HTTP #{response.code})"
       end
-    rescue SocketError, Timeout::Error, Errno::ECONNREFUSED, OpenSSL::SSL::SSLError
+    rescue SocketError, Timeout::Error, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError, OpenSSL::SSL::SSLError
+      if method == :post
+        raise DeliveryUncertain, "Réponse perdue après envoi à WordPress : ne pas republier sans vérifier"
+      end
       raise Error, "Site WordPress inaccessible via HTTPS"
     rescue JSON::ParserError
+      if method == :post
+        raise DeliveryUncertain, "Réponse WordPress illisible après l'envoi : vérification nécessaire"
+      end
       raise Error, "Réponse WordPress non valide"
     end
 
