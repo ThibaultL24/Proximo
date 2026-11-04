@@ -11,7 +11,12 @@ class SocialPost < ApplicationRecord
     wordpress: 5
   }
 
-  enum :status, { pending: 0, published: 1, failed: 2, skipped: 3, processing: 4 }
+  enum :status, { pending: 0, published: 1, failed: 2, skipped: 3, processing: 4, uncertain: 5 }
 
   validates :provider, uniqueness: { scope: :publication_id }
+
+  def wordpress_delivery_slug
+    record = publication
+    "fenetre-ouverte-#{record.agency_id}-#{record.merchant_id}-#{record.id}"
+  end
 end
