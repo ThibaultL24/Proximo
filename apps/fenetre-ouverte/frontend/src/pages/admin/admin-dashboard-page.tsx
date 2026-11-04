@@ -3,9 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchAdminStats } from "../../api/admin-stats";
 import {
-  IconBuilding,
   IconChart,
-  IconEuro,
   IconFile,
   IconNewspaper,
   IconQr,
@@ -54,24 +52,6 @@ const tiles = [
     description: "Consulter les scans QR et les indicateurs de diffusion disponibles.",
     icon: <IconChart />,
     accent: "petrol" as const,
-  },
-];
-
-const legacyTiles = [
-  {
-    to: "/admin/leads", title: "Recommandations historiques",
-    description: "Module conservé pendant la séparation avec Proximo.", icon: <IconUsers />,
-    accent: "alert" as const,
-  },
-  {
-    to: "/admin/immo", title: "Anciens articles immo",
-    description: "Contenus hérités du monolithe, à réconcilier.", icon: <IconBuilding />,
-    accent: "petrol" as const,
-  },
-  {
-    to: "/admin/commissions", title: "Commissions historiques",
-    description: "Module en attente de séparation complète avec Proximo.", icon: <IconEuro />,
-    accent: "sand" as const,
   },
 ];
 
@@ -125,8 +105,8 @@ export function AdminDashboardPage() {
           />
           <AdminStatCard
             label="Contenus publiés"
-            value={stats.articles.gazette + stats.articles.immo}
-            hint={`${stats.articles.gazette} gazette · ${stats.articles.immo} immo`}
+            value={stats.articles.gazette}
+            hint="Articles de la Gazette"
             icon={<IconFile />}
             accent="petrol"
           />
@@ -165,11 +145,7 @@ export function AdminDashboardPage() {
         </div>
       </div>
       <details className="rounded-xl border border-line bg-white p-5">
-        <summary className="cursor-pointer text-sm font-bold text-petrol">Modules hérités de l'ancien produit immobilier</summary>
-        <p className="mt-2 text-xs text-ink-muted">Conservés pour la compatibilité, ils ne font pas partie du parcours éditorial principal.</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {legacyTiles.map(tile => <AdminNavTile key={tile.to} {...tile} />)}
-        </div>
+        <summary className="cursor-pointer text-sm font-bold text-petrol">Gestion administrative de l'abonnement</summary>
         <div className="mt-5"><AgencySubscriptionCard /></div>
       </details>
     </section>
