@@ -1,0 +1,98 @@
+name: Capture authentic React demo videos
+
+on:
+  pull_request:
+    paths:
+      - "apps/proximo/frontend/**"
+      - "apps/fenetre-ouverte/frontend/**"
+      - ".github/workflows/authentic-demo-videos.yml"
+  workflow_dispatch:
+
+jobs:
+  capture_proximo:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/proximo/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/proximo/frontend/package-lock.json
+      - name: Install frontend and Chromium QA
+        run: |
+          npm ci
+          npm install --no-save --package-lock=false playwright@1.57.0
+          npx playwright install --with-deps chromium
+      - name: Run real Vite frontend
+        run: |
+          nohup npm run dev -- --host 127.0.0.1 > /tmp/proximo-ui-demo.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:5174/espace >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/proximo-ui-demo.log
+          exit 1
+      - name: Record real Proximo pages (mocked API only)
+        run: node qa/record-real-ui.mjs
+      - name: Convert browser recording to MP4
+        run: |
+          if command -v ffmpeg >/dev/null 2>&1; then
+            ffmpeg -hide_banner -loglevel error -y -i qa-output/real-ui/proximo-react-authentique.webm \
+              -c:v libx264 -pix_fmt yuv420p -movflags +faststart qa-output/real-ui/proximo-react-authentique.mp4
+          fi
+      - name: Upload actual React video and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proximo-true-react-ui-demo
+          path: apps/proximo/frontend/qa-output/real-ui/*
+          if-no-files-found: warn
+          retention-days: 10
+
+  capture_fenetre_ouverte:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/fenetre-ouverte/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/fenetre-ouverte/frontend/package-lock.json
+      - name: Install frontend and Chromium QA
+        run: |
+          npm ci
+          npm install --no-save --package-lock=false playwright@1.57.0
+          npx playwright install --with-deps chromium
+      - name: Run real Vite frontend
+        run: |
+          nohup npm run dev -- --host 127.0.0.1 > /tmp/fenetre-ouverte-ui-demo.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:5173/ >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/fenetre-ouverte-ui-demo.log
+          exit 1
+      - name: Record real Fenêtre Ouverte pages (mocked API only)
+        run: node qa/record-real-ui.mjs
+      - name: Convert browser recording to MP4
+        run: |
+          if command -v ffmpeg >/dev/null 2>&1; then
+            ffmpeg -hide_banner -loglevel error -y -i qa-output/real-ui/fenetre-ouverte-react-authentique.webm \
+              -c:v libx264 -pix_fmt yuv420p -movflags +faststart qa-output/real-ui/fenetre-ouverte-react-authentique.mp4
+          fi
+      - name: Upload actual React video and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fenetre-ouverte-true-react-ui-demo
+          path: apps/fenetre-ouverte/frontend/qa-output/real-ui/*
+          if-no-files-found: warn
+          retention-days: 10
