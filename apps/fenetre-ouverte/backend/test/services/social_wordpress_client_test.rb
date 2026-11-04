@@ -19,7 +19,7 @@ class SocialWordpressClientTest < ActiveSupport::TestCase
     attr_reader :last_request
 
     def initialize(response)
-      @responses = Array(response)
+      @responses = response.is_a?(Array) ? response.dup : [response]
     end
 
     def request(req)
