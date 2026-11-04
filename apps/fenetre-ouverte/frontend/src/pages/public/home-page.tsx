@@ -55,7 +55,7 @@ export function HomePage() {
         {[
           { icon: "✦", title: "Le fil du territoire", body: "Les nouvelles, les découvertes et les événements qui rythment nos communes.", href: "/fil", cta: "Lire les publications" },
           { icon: "⌂", title: "Nos commerçants", body: "Leur univers, leurs nouveautés, leurs photos et leurs adresses, accessibles aussi par QR code.", href: "/commerces", cta: "Trouver une adresse" },
-          { icon: "▤", title: "La Gazette", body: "Des portraits, des reportages et des histoires locales sélectionnés par la rédaction.", href: "/fil?kind=article", cta: "Ouvrir la Gazette" },
+          { icon: "▤", title: "La Gazette", body: "Des portraits, des reportages et des histoires locales sélectionnés par la rédaction.", href: "/gazette", cta: "Lire les numéros" },
         ].map(item => (
           <Link key={item.title} to={item.href} className="fo-card fo-hover group block p-6">
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#fff1cd] text-2xl font-bold text-[#0b4c93]">{item.icon}</span>
@@ -105,7 +105,7 @@ export function HomePage() {
             <p className="text-xs font-extrabold uppercase tracking-widest text-[#dd810f]">La Gazette</p>
             <h3 className="mt-2 font-sans text-xl font-extrabold">Les histoires qui nous rapprochent</h3>
             <p className="mt-3 text-sm text-ink-muted">Portraits de producteurs, patrimoine, vie locale : des articles sélectionnés et mis en page avec soin.</p>
-            <Link to="/fil?kind=article" className="mt-4 inline-block text-sm font-bold text-[#0b4c93]">Lire les articles →</Link>
+            <Link to="/gazette" className="mt-4 inline-block text-sm font-bold text-[#0b4c93]">Découvrir les éditions de la Gazette →</Link>
           </div>
         </aside>
       </section>
