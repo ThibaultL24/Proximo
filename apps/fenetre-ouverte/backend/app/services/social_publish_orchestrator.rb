@@ -20,7 +20,7 @@ class SocialPublishOrchestrator
 
     posts = accounts.map do |account|
       post = publication.social_posts.find_or_initialize_by(provider: account.provider)
-      next post if post.published? || post.pending? || post.processing?
+      next post if post.persisted? && (post.published? || post.pending? || post.processing?)
 
       post.status = :pending
       post.error_message = nil
