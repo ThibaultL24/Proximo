@@ -19,12 +19,14 @@ class SocialWordpressClientTest < ActiveSupport::TestCase
     attr_reader :last_request
 
     def initialize(response)
-      @response = response
+      @responses = Array(response)
     end
 
     def request(req)
       @last_request = req
-      @response
+      response = @responses.shift
+      raise response if response.is_a?(Exception)
+      response
     end
   end
 
@@ -47,7 +49,7 @@ class SocialWordpressClientTest < ActiveSupport::TestCase
   end
 
   test "verifies WordPress user without using main password or redirects" do
-    fake = FakeHttp.new(FakeResponse.new("200", '{"id":12,"name":"Rédacteur"}'))
+    fake = FakeHttp.new(FakeResponse.new("200", '{"id":12,"name":"Rédacteur","capabilities":{"publish_posts":true}}'))
     client = Social::WordpressClient.new(
       site_url: "https://commerce.fr/", username: "editor",
       application_password: "app-password", resolver: FakeResolver
@@ -65,13 +67,16 @@ class SocialWordpressClientTest < ActiveSupport::TestCase
   end
 
   test "uses official POST with publish status only after explicit request" do
-    fake = FakeHttp.new(FakeResponse.new("201", '{"id":45,"status":"publish","link":"https://commerce.fr/p/45"}'))
+    fake = FakeHttp.new([
+      FakeResponse.new("200", "[]"),
+      FakeResponse.new("201", '{"id":45,"slug":"fenetre-ouverte-1-1-1","status":"publish","link":"https://commerce.fr/p/45"}')
+    ])
     client = Social::WordpressClient.new(
       site_url: "https://commerce.fr", username: "editor",
       application_password: "app-password", resolver: FakeResolver
     )
     with_stubbed_class_method(Net::HTTP, :new, ->(*_args) { fake }) do
-      result = client.publish!(title: "Marché local", html: "<p>Une annonce</p>")
+      result = client.publish!(title: "Marché local", html: "<p>Une annonce</p>", slug: "fenetre-ouverte-1-1-1")
       assert_equal 45, result.fetch("id")
     end
     assert_equal "/wp-json/wp/v2/posts", fake.last_request.path
@@ -90,12 +95,56 @@ class SocialWordpressClientTest < ActiveSupport::TestCase
       FakeResponse.new("403", "{}"),
       FakeResponse.new("201", '{"id":7,"status":"draft"}')
     ].each do |response|
-      fake = FakeHttp.new(response)
+      fake = FakeHttp.new([FakeResponse.new("200", "[]"), response])
       with_stubbed_class_method(Net::HTTP, :new, ->(*_args) { fake }) do
         assert_raises(Social::WordpressClient::Error) do
-          client.publish!(title: "Article", html: "<p>Texte</p>")
+          client.publish!(title: "Article", html: "<p>Texte</p>", slug: "fenetre-ouverte-1-1-1")
         end
       end
     end
   end
+  test "requires WordPress publish_posts capability, not merely a valid login" do
+    fake = FakeHttp.new(FakeResponse.new("200", '{"id":12,"capabilities":{"publish_posts":false}}'))
+    client = Social::WordpressClient.new(
+      site_url: "https://commerce.fr", username: "editor",
+      application_password: "app-password", resolver: FakeResolver
+    )
+    with_stubbed_class_method(Net::HTTP, :new, ->(*_args) { fake }) do
+      error = assert_raises(Social::WordpressClient::Error) { client.verify! }
+      assert_match(/droit de publier/, error.message)
+    end
+  end
+
+  test "recovers an existing published slug without sending another POST" do
+    slug = "fenetre-ouverte-1-1-1"
+    fake = FakeHttp.new(FakeResponse.new("200",
+      '[{"id":88,"slug":"fenetre-ouverte-1-1-1","status":"publish","link":"https://commerce.fr/p/88"}]'))
+    client = Social::WordpressClient.new(
+      site_url: "https://commerce.fr", username: "editor",
+      application_password: "app-password", resolver: FakeResolver
+    )
+    with_stubbed_class_method(Net::HTTP, :new, ->(*_args) { fake }) do
+      result = client.publish!(title: "Article", html: "<p>Texte</p>", slug: slug)
+      assert_equal 88, result.fetch("id")
+      assert_equal true, result.fetch("already_present")
+    end
+    assert_instance_of Net::HTTP::Get, fake.last_request
+  end
+
+  test "a server failure after POST is an uncertain delivery, never a safe automatic retry" do
+    fake = FakeHttp.new([
+      FakeResponse.new("200", "[]"),
+      FakeResponse.new("503", '{"error":"server_error"}')
+    ])
+    client = Social::WordpressClient.new(
+      site_url: "https://commerce.fr", username: "editor",
+      application_password: "app-password", resolver: FakeResolver
+    )
+    with_stubbed_class_method(Net::HTTP, :new, ->(*_args) { fake }) do
+      assert_raises(Social::WordpressClient::DeliveryUncertain) do
+        client.publish!(title: "Article", html: "Texte", slug: "fenetre-ouverte-1-1-1")
+      end
+    end
+  end
+
 end
