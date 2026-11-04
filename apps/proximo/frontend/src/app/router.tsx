@@ -20,6 +20,7 @@ export function AppRouter() {
       <Route path="connexion" element={<ProximoLoginPage/>}/>
       <Route path="espace" element={<Protected><ProximoWorkspacePage/></Protected>}/>
       <Route path="recommandations" element={<Protected><ProximoLeadsPage/></Protected>}/>
+      <Route path="annonces" element={<Protected><ProximoListingsPage/></Protected>}/>
       <Route path="dossiers/nouveau" element={<Protected><ProximoNewDossierPage/></Protected>}/>
       <Route path="*" element={<Navigate to="/" replace/>}/>
     </Routes>
