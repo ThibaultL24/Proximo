@@ -58,6 +58,26 @@ await page.route("**/api/v1/**", route => {
   if (p === "/api/v1/proximo/organizations") return send(route, organizations);
   if (p === "/api/v1/proximo/organizations/1/leads" && method === "GET") return send(route, leads);
   if (p === "/api/v1/proximo/organizations/1/client_dossiers") return send(route, dossiers);
+  if (p === "/api/v1/proximo/organizations/1/property_listings" && method === "GET") {
+    return send(route, [{
+      id:301, title:"Appartement avec terrasse (fictif)",
+      description:"Appartement lumineux à deux pas du centre, présentation de démonstration.",
+      city:"Bourg-Saint-Andéol", postal_code:"07700",
+      property_kind:"appartement", transaction_type:"sale",
+      price_cents:25900000, area_sqm:"76.00",
+      rooms:3, bedrooms:2, mandate_reference:"DEMO-001",
+      status:"ready", external_publication:false, legal_review_required:true,
+      created_at:"2026-11-04T10:00:00Z",
+    }]);
+  }
+  if (p === "/api/v1/proximo/organizations/1/property_listings/channels") {
+    return send(route, [
+      { id:"seloger", label:"SeLoger", mode:"contract", notes:"Accord commercial et flux agréé requis" },
+      { id:"logic_immo", label:"Logic-Immo", mode:"contract", notes:"Partenaire professionnel requis" },
+      { id:"diffuze", label:"Diffuze", mode:"paid_partner", notes:"Prestataire externe payant" },
+      { id:"wordpress", label:"WordPress", mode:"owner_blog", notes:"Blog contrôlé par l'agence" },
+    ]);
+  }
   if (p === "/api/v1/proximo/organizations/1/partners") return send(route, []);
   if (p === "/api/v1/proximo/organizations/1/commissions") return send(route, []);
   if (/\/leads\/\d+$/.test(p) && method === "GET") {
@@ -119,9 +139,14 @@ try {
   await page.getByText("Le suivi de la recommandation a été actualisé.").waitFor();
   await overlay(); await wait(1500); await capture("03-qualification-reelle");
 
+  await page.goto("http://127.0.0.1:5174/annonces", { waitUntil: "domcontentloaded" });
+  await page.getByRole("heading", { name: "Atelier des annonces" }).waitFor();
+  await page.getByText("Appartement avec terrasse (fictif)").first().waitFor();
+  await overlay(); await wait(1600); await capture("04-diffusion-annonces-reelle");
+
   await page.goto("http://127.0.0.1:5174/dossiers/nouveau?organization_id=1", { waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: "Nouvelle fiche client" }).waitFor();
-  await overlay(); await wait(1600); await capture("04-dossier-client-reel");
+  await overlay(); await wait(1600); await capture("05-dossier-client-reel");
 } finally {
   const video = page.video();
   await context.close();
