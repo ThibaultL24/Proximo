@@ -1,0 +1,86 @@
+name: Captures reelles pour dossiers utilisateurs PDF
+
+on:
+  pull_request:
+    paths:
+      - "apps/proximo/frontend/**"
+      - "apps/fenetre-ouverte/frontend/**"
+      - ".github/workflows/parcours-pdf-captures.yml"
+  workflow_dispatch:
+
+jobs:
+  proximo:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/proximo/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/proximo/frontend/package-lock.json
+      - name: Install and prepare Chromium
+        run: |
+          npm ci
+          npm install --no-save --package-lock=false playwright@1.57.0
+          npx playwright install --with-deps chromium
+      - name: Launch the true Vite React frontend
+        run: |
+          nohup npm run dev -- --host 127.0.0.1 > /tmp/proximo-demo.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:5174/ >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/proximo-demo.log
+          exit 1
+      - name: Capture complete professional journey
+        run: node qa/document-real-journey.mjs
+      - name: Upload real React screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proximo-dossier-real-screens
+          path: apps/proximo/frontend/qa-output/real-ui/*.png
+          if-no-files-found: warn
+          retention-days: 30
+
+  fenetre_ouverte:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/fenetre-ouverte/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/fenetre-ouverte/frontend/package-lock.json
+      - name: Install and prepare Chromium
+        run: |
+          npm ci
+          npm install --no-save --package-lock=false playwright@1.57.0
+          npx playwright install --with-deps chromium
+      - name: Launch the true Vite React frontend
+        run: |
+          nohup npm run dev -- --host 127.0.0.1 > /tmp/fo-demo.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:5173/ >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/fo-demo.log
+          exit 1
+      - name: Capture the inhabitant, merchant and admin journeys
+        run: node qa/document-real-journey.mjs
+      - name: Upload real React screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fenetre-ouverte-dossier-real-screens
+          path: apps/fenetre-ouverte/frontend/qa-output/real-ui/*.png
+          if-no-files-found: warn
+          retention-days: 30
