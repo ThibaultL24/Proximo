@@ -92,7 +92,11 @@ await page.route("**/api/v1/**", route => {
       { id:"wordpress", label:"WordPress", mode:"owner_blog", notes:"Blog contrôlé par l'agence" },
     ]);
   }
-  if (p === "/api/v1/proximo/organizations/1/partners") return send(route, []);
+  if (p === "/api/v1/proximo/organizations/1/partners" && method === "GET") return send(route, [
+    {id:11,name:"Commerce apporteur (fictif)",slug:"commerce-apporteur",status:"active",
+      contact_email:"partenaire@example.invalid"},
+    {id:12,name:"Partenaire en préparation (fictif)",slug:"partenaire-demo",status:"draft"}
+  ]);
   if (p === "/api/v1/proximo/organizations/1/commissions") return currentMembership === "member"
     ? send(route,{error:"Forbidden"},403)
     : send(route, [{id:11,lead_id:103,amount_cents:45000,platform_fee_cents:4500,status:"pending",currency:"EUR"}]);
@@ -191,6 +195,11 @@ try {
   await overlay(); await wait(650); await capture("07-apporteur-contact-transmis");
 
   currentMembership = "owner";
+  await page.goto("http://127.0.0.1:5174/gestion", { waitUntil:"domcontentloaded" });
+  await page.getByRole("heading", { name: "Administration du réseau" }).waitFor();
+  await page.getByText("Commerce apporteur (fictif)").first().waitFor();
+  await overlay(); await wait(650); await capture("09-administration-agence-et-partenaires");
+
   await page.goto("http://127.0.0.1:5174/recommandations", { waitUntil:"domcontentloaded" });
   await page.getByRole("heading", { name: /Du contact à l'opportunité/ }).waitFor();
   await page.getByRole("button", { name:"Historique" }).first().click();
