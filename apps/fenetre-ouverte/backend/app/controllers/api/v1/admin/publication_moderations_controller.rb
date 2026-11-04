@@ -20,7 +20,8 @@ module Api
             @publication.update!(reviewed_by: current_user, reviewed_at: Time.current)
           end
 
-          # An approval does not depend on third-party network uptime.
+          # On enregistre des tâches asynchrones : la modération ne publie jamais
+          # directement sur un service tiers ni ne dépend de son temps de réponse.
           if @publication.requested_syndication? && @publication.merchant.subscription_active?
             begin
               selected = @publication.requested_providers & Social::Config::V1_PROVIDERS
