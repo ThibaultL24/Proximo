@@ -1,4 +1,5 @@
 require "test_helper"
+require "minitest/mock"
 
 class SocialWordpressClientTest < ActiveSupport::TestCase
   FakeResponse = Struct.new(:code, :body)
