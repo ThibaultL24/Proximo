@@ -4,6 +4,7 @@ import { ScrollToTop } from "../components/layout/scroll-to-top";
 import { ProximoLandingPage } from "../pages/public/proximo-landing-page";
 import { ProximoLoginPage, ProximoWorkspacePage, ProximoNewDossierPage } from "../pages/public/proximo-workspace-page";
 import { ProximoLeadsPage } from "../pages/public/proximo-leads-page";
+import { ProximoListingsPage } from "../pages/public/proximo-listings-page";
 
 function Protected({children}:{children:React.ReactNode}) {
   const {user,isLoading}=useAuth();
