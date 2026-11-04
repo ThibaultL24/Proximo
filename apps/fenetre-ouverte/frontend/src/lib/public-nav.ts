@@ -10,7 +10,7 @@ export interface PublicNavItem {
   category?: FeedCategory;
 }
 
-/** Navbar publique : Fil · Commerces · Communes · Loisirs · Bien-être */
+/** Navigation principale : la Gazette est une entrée autonome ; loisirs et bien-être restent des filtres du fil. */
 export const PUBLIC_NAV: PublicNavItem[] = [
   {
     id: "fil",
@@ -31,18 +31,10 @@ export const PUBLIC_NAV: PublicNavItem[] = [
     match: (p) => p === "/communes" || p.startsWith("/communes/"),
   },
   {
-    id: "loisirs",
-    label: "Loisirs",
-    href: "/loisirs",
-    category: "loisirs",
-    match: (p) => p === "/loisirs",
-  },
-  {
-    id: "bien_etre",
-    label: "Bien-être",
-    href: "/bien-etre",
-    category: "bien_etre",
-    match: (p) => p === "/bien-etre",
+    id: "gazette",
+    label: "Gazette",
+    href: "/gazette",
+    match: (p) => p === "/gazette" || p.startsWith("/gazette/"),
   },
 ];
 
