@@ -20,8 +20,11 @@ class SocialPublishOrchestrator
 
     posts = accounts.map do |account|
       post = publication.social_posts.find_or_initialize_by(provider: account.provider)
-      next post if post.persisted? && (post.published? || post.pending? || post.processing?)
+      next post if post.persisted? && (post.published? || post.pending? || post.processing? || post.uncertain?)
 
+      # L'identité du blog est figée au moment de l'approbation : une
+      # reconnexion ultérieure ne doit pas rediriger un article vers un autre site.
+      post.destination_url = account.external_id if account.wordpress?
       post.status = :pending
       post.error_message = nil
       post.save!
