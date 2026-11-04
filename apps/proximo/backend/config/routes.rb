@@ -19,6 +19,14 @@ Rails.application.routes.draw do
           end
           resources :commissions, only: %i[index show]
           resources :client_dossiers, only: %i[index show create update]
+          resources :property_listings, only: %i[index show create update] do
+            collection { get :channels }
+            member do
+              patch :prepare
+              patch :archive
+              get :export
+            end
+          end
         end
       end
 
