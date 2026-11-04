@@ -1,7 +1,8 @@
 require "test_helper"
-require "minitest/mock"
+require_relative "../support/scoped_class_method_stub"
 
 class SocialWordpressClientTest < ActiveSupport::TestCase
+  include ScopedClassMethodStub
   FakeResponse = Struct.new(:code, :body)
   class FakeResolver
     def self.getaddresses(_host)
@@ -51,7 +52,7 @@ class SocialWordpressClientTest < ActiveSupport::TestCase
       site_url: "https://commerce.fr/", username: "editor",
       application_password: "app-password", resolver: FakeResolver
     )
-    Net::HTTP.stub(:new, fake) do
+    with_stubbed_class_method(Net::HTTP, :new, ->(*_args) { fake }) do
       verified = client.verify!
       assert_equal 12, verified.fetch("id")
     end
@@ -69,7 +70,7 @@ class SocialWordpressClientTest < ActiveSupport::TestCase
       site_url: "https://commerce.fr", username: "editor",
       application_password: "app-password", resolver: FakeResolver
     )
-    Net::HTTP.stub(:new, fake) do
+    with_stubbed_class_method(Net::HTTP, :new, ->(*_args) { fake }) do
       result = client.publish!(title: "Marché local", html: "<p>Une annonce</p>")
       assert_equal 45, result.fetch("id")
     end
@@ -90,7 +91,7 @@ class SocialWordpressClientTest < ActiveSupport::TestCase
       FakeResponse.new("201", '{"id":7,"status":"draft"}')
     ].each do |response|
       fake = FakeHttp.new(response)
-      Net::HTTP.stub(:new, fake) do
+      with_stubbed_class_method(Net::HTTP, :new, ->(*_args) { fake }) do
         assert_raises(Social::WordpressClient::Error) do
           client.publish!(title: "Article", html: "<p>Texte</p>")
         end
