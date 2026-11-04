@@ -7,7 +7,8 @@ module Social
     PROVIDER_LIMITS = {
       "facebook" => 500,
       "instagram" => 2_200,
-      "tiktok" => 2_200
+      "tiktok" => 2_200,
+      "wordpress" => 8_000
     }.freeze
 
     module_function
