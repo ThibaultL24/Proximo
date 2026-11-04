@@ -13,7 +13,7 @@ module Api
           end
 
           if params[:code].blank? || raw_state.blank?
-            Rails.logger.warn("[SocialOAuth] Callback sans code/state path=#{path_hint} params=#{params.to_unsafe_h.except('controller', 'action')}")
+            Rails.logger.warn("[SocialOAuth] Callback incomplète provider=#{path_hint} code_present=#{params[:code].present?} state_present=#{raw_state.present?}")
             return redirect_frontend(
               normalize_path_provider(path_hint) || "facebook",
               "error",
