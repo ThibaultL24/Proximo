@@ -42,6 +42,7 @@ module Social
              (uri.path.blank? || uri.path == "/") &&
              host.match?(/\A[a-z0-9-]+(?:\.[a-z0-9-]+)+\z/) &&
              host.split(".").none?(&:blank?) &&
+             host.split(".").last.match?(/\A[a-z]{2,}\z/) &&
              !RESERVED_DOMAINS.include?(host.split(".").last)
         raise Error, "Utilisez l'adresse HTTPS publique du site WordPress, sans chemin ni port personnalisé"
       end
