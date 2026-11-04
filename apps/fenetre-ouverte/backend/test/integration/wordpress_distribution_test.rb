@@ -1,7 +1,8 @@
 require "test_helper"
-require "minitest/mock"
+require_relative "../support/scoped_class_method_stub"
 
 class WordpressDistributionTest < ActionDispatch::IntegrationTest
+  include ScopedClassMethodStub
   class VerifiedWordpress
     attr_reader :site_url
 
@@ -40,7 +41,7 @@ class WordpressDistributionTest < ActionDispatch::IntegrationTest
 
   test "verified WordPress account is encrypted, private and disconnectable" do
     fake = VerifiedWordpress.new
-    Social::WordpressClient.stub(:new, fake) do
+    with_stubbed_class_method(Social::WordpressClient, :new, ->(**_args) { fake }) do
       post @url, headers: auth(@merchant_user), params: {
         wordpress: { site_url: "https://commerce.fr", username: "editor",
                      application_password: "dedicated-app-password", authorized: true }
@@ -101,7 +102,7 @@ class WordpressDistributionTest < ActionDispatch::IntegrationTest
         status: :published, external_post_id: "91", error_message: nil
       )
     end
-    Social::Adapters::Wordpress.stub(:publish, publisher) do
+    with_stubbed_class_method(Social::Adapters::Wordpress, :publish, publisher) do
       SocialPublishJob.perform_now(post.id)
       SocialPublishJob.perform_now(post.id)
     end
@@ -122,7 +123,7 @@ class WordpressDistributionTest < ActionDispatch::IntegrationTest
       raise "missing escaped text" unless html.include?("&lt;script&gt;")
       { "id" => 83, "status" => "publish" }
     end
-    Social::WordpressClient.stub(:new, fake) do
+    with_stubbed_class_method(Social::WordpressClient, :new, ->(**_args) { fake }) do
       result = Social::Adapters::Wordpress.publish(
         account: account, body: "Marché <script>alert(1)</script>", image_url: nil
       )
