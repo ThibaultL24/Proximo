@@ -472,7 +472,7 @@ export interface Product {
 }
 
 
-export type SocialProvider = "facebook" | "instagram" | "tiktok";
+export type SocialProvider = "facebook" | "instagram" | "tiktok" | "wordpress";
 
 export interface FeedMerchantSummary {
   id: number;
