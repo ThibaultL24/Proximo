@@ -83,15 +83,13 @@ module Api
 
         def provider_status
           Social::Config::V1_PROVIDERS.filter_map do |provider|
-            next unless @merchant.social_page_configured?(provider)
-
             account = @merchant.social_accounts.find_by(provider: provider)
             {
               provider: provider,
-              page_configured: true,
+              page_configured: @merchant.social_page_configured?(provider),
               page_label: @merchant.social_page_label(provider),
               oauth_configured: Social::Config.configured?(provider),
-              connected: account&.connected? || false,
+              connected: account&.connected? && !account.demo? && Social::Config.configured?(provider) || false,
               demo: account&.demo? || false,
               account_name: account&.account_name,
               status: account&.status
