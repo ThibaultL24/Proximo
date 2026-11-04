@@ -45,6 +45,28 @@ await page.route("**/api/v1/**", route => {
     merchant_name: "L'Atelier des collines (fictif)", qr_scan_count: 128,
     qr_unique_scans: 84, qr_scans_this_week: 21, qr_url: "#", qr_token: "fictif",
   });
+  if (p === "/api/v1/merchant/publications") return send(route, [{
+    id:120, body:"Nous vous retrouvons samedi au marché des artisans !",
+    category:"commerces", status:"published", syndicated:false,
+    requested_providers:[], requested_syndication:false, social_posts:[],
+    merchant:{id:12,name:"L'Atelier des collines (fictif)"},
+  }]);
+  if (p === "/api/v1/merchant/social_accounts") return send(route, {
+    providers:[
+      {provider:"facebook",page_configured:true,page_label:"Page démo",oauth_configured:false,
+        connected:false,demo:true,account_name:"Compte démo"},
+      {provider:"instagram",page_configured:false,oauth_configured:false,connected:false,demo:false},
+      {provider:"tiktok",page_configured:false,oauth_configured:false,connected:false,demo:false}
+    ], accounts:[]
+  });
+  if (p === "/api/v1/merchant/social_channels") return send(route, [
+    {id:"facebook",label:"Facebook Pages",mode:"oauth",notes:"Page autorisée requise",configured:false,connected_live:false,demo:true},
+    {id:"instagram",label:"Instagram",mode:"oauth",notes:"Compte professionnel requis",configured:false,connected_live:false,demo:false},
+    {id:"tiktok",label:"TikTok",mode:"oauth",notes:"Audit de l'application requis",configured:false,connected_live:false,demo:false},
+    {id:"linkedin",label:"LinkedIn",mode:"planned",notes:"API Posts après autorisation",configured:false,connected_live:false,demo:false},
+    {id:"wordpress",label:"WordPress",mode:"partner",notes:"Blog que vous contrôlez",configured:false,connected_live:false,demo:false},
+    {id:"x",label:"X",mode:"paid",notes:"API facturée à l'usage",configured:false,connected_live:false,demo:false}
+  ]);
   if (p === "/api/v1/merchant/leads") return send(route, []);
   if (p === "/api/v1/merchant/subscription" || p === "/api/v1/merchant/subscription/status") {
     return send(route, { active: true, status: "active", current_period_end: null });
@@ -137,6 +159,7 @@ try {
   await scene("http://127.0.0.1:5173/gazette/editions/7", /N° 7/, "03-habitant-edition-publiee");
   role = "merchant";
   await scene("http://127.0.0.1:5173/espace-commercant", /Votre vitrine locale/, "03-commercant-cockpit");
+  await scene("http://127.0.0.1:5173/espace-commercant/publier", "Atelier de diffusion", "04-commercant-distribution");
   role = "admin";
   await scene("http://127.0.0.1:5173/admin", "Piloter la vie locale", "04-admin-cockpit");
   await scene("http://127.0.0.1:5173/admin/moderation", "Centre de modération", "05-admin-moderation");
