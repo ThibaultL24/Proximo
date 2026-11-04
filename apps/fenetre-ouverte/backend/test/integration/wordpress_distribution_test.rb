@@ -1,4 +1,5 @@
 require "test_helper"
+require "minitest/mock"
 
 class WordpressDistributionTest < ActionDispatch::IntegrationTest
   class VerifiedWordpress
