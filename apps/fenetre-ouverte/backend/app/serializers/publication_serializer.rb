@@ -25,6 +25,7 @@ class PublicationSerializer < AlbaResource
         provider: post.provider,
         status: post.status,
         external_post_id: post.external_post_id,
+        external_url: post.external_url,
         error_message: post.error_message,
         published_at: post.published_at
       }
