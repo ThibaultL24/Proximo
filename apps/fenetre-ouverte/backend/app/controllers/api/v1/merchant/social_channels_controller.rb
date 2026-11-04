@@ -12,7 +12,7 @@ module Api
           render json: Social::ChannelCatalog.all.map { |channel|
             account = accounts[channel.fetch(:id)]
             channel.merge(
-              configured: Social::Config.v1_provider?(channel.fetch(:id)) &&
+              configured: Social::Config.deliverable_provider?(channel.fetch(:id)) &&
                           Social::Config.configured?(channel.fetch(:id)),
               connected_live: account&.connected? && !account.demo? &&
                               Social::Config.configured?(channel.fetch(:id)) || false,
