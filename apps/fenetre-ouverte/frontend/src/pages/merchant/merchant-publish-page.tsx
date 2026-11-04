@@ -151,11 +151,11 @@ export function MerchantPublishPage() {
       setPublications((current) => [publication, ...current]);
       setBody("");
       setImage(null);
-      const networkNote =
+      setMessage(
         selected.length > 0
-          ? ` + ${selected.length} réseau${selected.length > 1 ? "x" : ""}.`
-          : ".";
-      setMessage(`Publication envoyée à la modération. Après validation, elle apparaîtra sur Fenêtre Ouverte ; les ${networkNote === "." ? "réseaux ne sont pas sélectionnés" : "diffusions externes demandées seront traitées séparément et suivies dans l'historique"}.`);
+          ? "Publication envoyée à la modération. Après validation, les envois externes autorisés seront suivis séparément dans l'historique."
+          : "Publication envoyée à la modération. Après validation, elle apparaîtra sur Fenêtre Ouverte."
+      );
     } catch {
       setError("Publication impossible. Vérifiez votre abonnement actif.");
     } finally {
@@ -251,7 +251,7 @@ export function MerchantPublishPage() {
                           </p>
                         ) : (
                           <p className="mt-0.5 text-xs text-ink-muted">
-                            {status.oauth_configured ? "OAuth prêt — connectez pour publier" : "Mode démo disponible"}
+                            {status.demo ? "Simulation uniquement — aucun envoi réel" : !status.page_configured ? "Complétez d’abord votre fiche" : status.oauth_configured ? "OAuth à autoriser" : "Mode démo disponible"}
                           </p>
                         )}
                       </div>
@@ -266,7 +266,7 @@ export function MerchantPublishPage() {
                       ) : (
                         <button
                           type="button"
-                          disabled={connecting === provider.id}
+                          disabled={connecting === provider.id || !status.page_configured}
                           onClick={() => handleConnect(provider.id)}
                           className={linkButtonClass("outline", "text-xs")}
                         >
