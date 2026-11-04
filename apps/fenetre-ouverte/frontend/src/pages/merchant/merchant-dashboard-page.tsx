@@ -56,23 +56,43 @@ export function MerchantDashboardPage() {
   return (
     <section className="space-y-8">
       <AdminPageHeader
-        eyebrow="Espace commercant"
-        title={`Bonjour, ${user?.full_name || user?.email}`}
-        description="Transmettez simplement vos recommandations immobilieres et suivez leur avancement."
+        eyebrow="FENÊTRE OUVERTE · ESPACE COMMERÇANT"
+        title={`Votre vitrine locale · ${user?.full_name || user?.email}`}
+        description="Présentez votre activité, proposez des actualités à la rédaction et consultez les visites issues de votre QR code."
         backTo=""
         action={
           <div className="flex flex-wrap gap-3">
             <AdminPrimaryLink to="/espace-commercant/publier">Publier une actu</AdminPrimaryLink>
             <AdminPrimaryLink to="/espace-commercant/ma-fiche">Gérer ma fiche</AdminPrimaryLink>
-            <Link to="/espace-commercant/leads/nouveau" className={linkButtonClass("accent")}>
-              Transmettre un contact
-            </Link>
           </div>
         }
       />
 
-      <MerchantSubscriptionCard />
-
+      <section aria-label="Les trois actions du commerçant" className="grid gap-4 md:grid-cols-3">
+        {[
+          {
+            to:"/espace-commercant/ma-fiche", step:"01", title:"Ma fiche",
+            description:"Mettez à jour votre présentation, vos coordonnées et vos photos.",
+          },
+          {
+            to:"/espace-commercant/publier", step:"02", title:"Mes publications",
+            description:"Proposez une actualité. La rédaction la valide avant diffusion.",
+          },
+          {
+            to:"/espace-commercant", step:"03", title:"Ma visibilité",
+            description:"Retrouvez ci-dessous les statistiques QR disponibles.",
+          },
+        ].map(item => <Link key={item.step} to={item.to}
+          className="rounded-2xl border border-[#dbe5ee] bg-white p-5 shadow-sm transition hover:border-[#0b4c93] hover:shadow-md">
+          <span className="text-xs font-extrabold tracking-widest text-[#d47e18]">ÉTAPE {item.step}</span>
+          <h2 className="mt-3 font-sans text-lg font-extrabold text-[#0b4c93]">{item.title}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-ink-muted">{item.description}</p>
+        </Link>)}
+      </section>
+      <div className="rounded-2xl bg-[#0b4c93] p-5 text-white">
+        <h2 className="text-lg font-bold">Votre visibilité en un regard</h2>
+        <p className="mt-1 text-sm text-blue-100">Ces compteurs correspondent aux scans enregistrés pour votre fiche, pas à des clients garantis.</p>
+      </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {scanCount !== null && (
           <AdminStatCard
@@ -110,7 +130,10 @@ export function MerchantDashboardPage() {
         />
       </div>
 
-      <AdminPanelCard
+      <details className="rounded-2xl border border-line bg-white p-5">
+        <summary className="cursor-pointer font-semibold text-petrol">Ancien module de recommandations immobilières</summary>
+        <p className="mb-4 mt-3 text-xs text-ink-muted">Ce suivi existe encore dans la branche de refactorisation. La gestion immobilière doit à terme se concentrer dans Proximo.</p>
+        <AdminPanelCard
         title="Mes recommandations"
         icon={<IconUsers className="h-4 w-4" />}
         action={{ label: "Transmettre un contact", to: "/espace-commercant/leads/nouveau" }}
@@ -152,6 +175,12 @@ export function MerchantDashboardPage() {
           </AdminTable>
         )}
       </AdminPanelCard>
+      </details>
+      <details className="rounded-2xl border border-line bg-white p-5">
+        <summary className="cursor-pointer font-semibold text-petrol">Informations d'abonnement de la version actuelle</summary>
+        <p className="mb-4 mt-3 text-xs text-ink-muted">Les offres doivent encore être harmonisées avec le nouveau cahier des charges.</p>
+        <MerchantSubscriptionCard />
+      </details>
     </section>
   );
 }
