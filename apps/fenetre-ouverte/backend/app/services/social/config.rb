@@ -2,6 +2,7 @@
 module Social
   module Config
     V1_PROVIDERS = %w[facebook instagram tiktok].freeze
+    DELIVERY_PROVIDERS = (V1_PROVIDERS + %w[wordpress]).freeze
 
     PROVIDER_LIMITS = {
       "facebook" => 500,
@@ -15,12 +16,18 @@ module Social
       V1_PROVIDERS.include?(provider.to_s)
     end
 
+    def deliverable_provider?(provider)
+      DELIVERY_PROVIDERS.include?(provider.to_s)
+    end
+
     def configured?(provider)
       case provider.to_s
       when "facebook", "instagram"
         meta_configured?
       when "tiktok"
         tiktok_configured?
+      when "wordpress"
+        true
       else
         false
       end
