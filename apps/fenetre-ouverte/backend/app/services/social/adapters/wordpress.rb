@@ -16,8 +16,15 @@ module Social
         paragraphs = body.to_s.strip.split(/\n\s*\n/).map do |paragraph|
           "<p>#{CGI.escapeHTML(paragraph).gsub("\n", "<br>")}</p>"
         end
-        posted = client.publish!(title: title.presence || "Actualité locale", html: paragraphs.join("\n"))
-        Result.new(status: :published, external_post_id: posted.fetch("id").to_s, error_message: nil)
+        posted = client.publish!(
+          title: title.presence || "Actualité locale", html: paragraphs.join("\n"), slug: delivery_slug
+        )
+        url = posted["link"].to_s
+        url = nil unless url.start_with?("https://")
+        Result.new(status: :published, external_post_id: posted.fetch("id").to_s,
+                   external_url: url, error_message: nil)
+      rescue WordpressClient::DeliveryUncertain => e
+        Result.new(status: :uncertain, external_post_id: nil, external_url: nil, error_message: e.message)
       rescue WordpressClient::Error => e
         failed(e.message)
       end
