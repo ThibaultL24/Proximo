@@ -92,7 +92,7 @@ export function MerchantDashboardPage() {
         <h2 className="text-lg font-bold">Votre visibilité en un regard</h2>
         <p className="mt-1 text-sm text-blue-100">Ces compteurs correspondent aux scans enregistrés pour votre fiche, pas à des clients garantis.</p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {scanCount !== null && (
           <AdminStatCard
             label="Scans totaux"
@@ -120,13 +120,6 @@ export function MerchantDashboardPage() {
             accent="success"
           />
         )}
-        <AdminStatCard
-          label="Recommandations"
-          value={leads.length}
-          hint="Contacts transmis"
-          icon={<IconUsers />}
-          accent="alert"
-        />
       </div>
 
       <details className="rounded-2xl border border-line bg-white p-5">
