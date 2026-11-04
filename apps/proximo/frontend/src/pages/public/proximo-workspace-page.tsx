@@ -13,6 +13,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const navigation = [
     { to: "/espace", label: "Vue d'ensemble", symbol: "▦", end: true },
     { to: "/recommandations", label: "Recommandations", symbol: "◎", end: false },
+    { to: "/annonces", label: "Diffusion d'annonces", symbol: "▣", end: false },
     { to: "/espace#dossiers", label: "Dossiers clients", symbol: "▤", end: false },
     { to: "/dossiers/nouveau", label: "Nouvelle fiche client", symbol: "+", end: false },
   ];
