@@ -68,4 +68,5 @@ export const SOCIAL_POST_STATUS_LABELS: Record<string, string> = {
   failed: "Échec",
   skipped: "Non envoyé",
   processing: "Transmission en cours",
+  uncertain: "À vérifier sur le site",
 };
