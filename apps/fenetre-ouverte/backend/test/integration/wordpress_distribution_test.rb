@@ -112,6 +112,27 @@ class WordpressDistributionTest < ActionDispatch::IntegrationTest
     assert publication.reload.syndicated?
   end
 
+  test "WordPress article embeds only an escaped public HTTPS illustration" do
+    account = @merchant.social_accounts.create!(
+      provider: :wordpress, account_name: "editor", access_token: "app-secret",
+      external_id: "https://commerce.fr", status: :connected
+    )
+    fake = Object.new
+    def fake.publish!(title:, html:, slug:)
+      raise "expected safe image" unless html.include?('src="https://fo.example.fr/illustration.jpg?x=1&amp;y=2"')
+      raise "unsafe img attribute" if html.include?('x=1&y=2')
+      { "id" => 84, "status" => "publish", "link" => "https://commerce.fr/article" }
+    end
+    with_stubbed_class_method(Social::WordpressClient, :new, ->(**_args) { fake }) do
+      result = Social::Adapters::Wordpress.publish(
+        account: account, body: "Marché local", image_url: "https://fo.example.fr/illustration.jpg?x=1&y=2",
+        delivery_slug: "fenetre-ouverte-1-1-1"
+      )
+      assert_equal :published, result.status
+      assert_equal "https://commerce.fr/article", result.external_url
+    end
+  end
+
   test "HTML content is escaped before WordPress receives the post" do
     account = @merchant.social_accounts.create!(
       provider: :wordpress, account_name: "editor", access_token: "app-secret",
