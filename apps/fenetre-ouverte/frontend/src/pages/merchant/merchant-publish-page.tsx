@@ -30,6 +30,8 @@ const STATUS_BADGE: Record<string, "default" | "featured" | "soon" | "partner"> 
   pending: "soon",
   failed: "partner",
   skipped: "default",
+  processing: "soon",
+  uncertain: "partner",
 };
 
 export function MerchantPublishPage() {
