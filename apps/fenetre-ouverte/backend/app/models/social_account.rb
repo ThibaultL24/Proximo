@@ -5,7 +5,7 @@ class SocialAccount < ApplicationRecord
   belongs_to :merchant
 
   enum :provider, {
-    facebook: 0, instagram: 1, twitter: 2, linkedin: 3, tiktok: 4
+    facebook: 0, instagram: 1, twitter: 2, linkedin: 3, tiktok: 4, wordpress: 5
   }
   enum :status, { connected: 0, expired: 1, error: 2 }
 
