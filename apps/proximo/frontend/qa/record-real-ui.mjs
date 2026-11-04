@@ -104,7 +104,10 @@ async function overlay() {
 try {
   await page.goto("http://127.0.0.1:5174/espace", { waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: /Votre vue d'ensemble/ }).waitFor({ timeout: 30000 });
-  await page.getByText("Agence partenaire — démonstration").first().waitFor();
+  await page.waitForFunction(() => {
+    const value = document.querySelector(".proximo-stat-value")?.textContent?.trim();
+    return value !== undefined && value !== "—";
+  });
   await overlay(); await wait(1800); await capture("01-cockpit-reel");
 
   await page.getByRole("link", { name: /Voir les recommandations/ }).click();
