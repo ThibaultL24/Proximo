@@ -13,7 +13,7 @@ module Social
       { id: "bluesky", label: "Bluesky", mode: "planned", scope: "account", notes: "AT Protocol, authentification du compte à intégrer" },
       { id: "mastodon", label: "Mastodon", mode: "planned", scope: "account", notes: "OAuth par instance, périmètre write:statuses" },
       { id: "x", label: "X", mode: "paid", scope: "account", notes: "API facturée à l'utilisation, activation uniquement après accord et budget" },
-      { id: "wordpress", label: "WordPress", mode: "partner", scope: "own_blog", notes: "Publication sur un blog dont l'utilisateur possède les droits, API REST et authentification" }
+      { id: "wordpress", label: "WordPress", mode: "partner", scope: "own_blog", notes: "Connexion officielle à votre site WordPress auto-hébergé avec mot de passe d’application révocable" }
     ].freeze
 
     module_function
