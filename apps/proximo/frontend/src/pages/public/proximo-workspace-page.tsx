@@ -6,6 +6,7 @@ import "./proximo-design.css";
 
 interface Organization { id:number; name:string; slug:string; }
 interface Dossier { id:number; full_name:string; project_type:string; property_city?:string; mandate_status:string; created_at:string; }
+interface LeadSummary { id:number; status:string; contact_name:string; lead_type:string; property_city?:string; }
 export function Shell({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -81,34 +82,123 @@ export function ProximoLoginPage() {
   </div>;
 }
 export function ProximoWorkspacePage() {
-  const [organizations,setOrganizations]=useState<Organization[]>([]);
-  const [selected,setSelected]=useState<number|null>(null);
-  const [dossiers,setDossiers]=useState<Dossier[]>([]);
-  const [error,setError]=useState("");
-  useEffect(()=>{ api.get<Organization[]>("/proximo/organizations").then(({data})=>{
-    setOrganizations(data);setSelected(data[0]?.id??null);
-  }).catch(()=>setError("Impossible de charger vos organisations.")); },[]);
-  useEffect(()=>{if(!selected)return;api.get<Dossier[]>(`/proximo/organizations/${selected}/client_dossiers`).then(({data})=>{setDossiers(data);setError("");}).catch(()=>{setDossiers([]);setError("Les dossiers clients sont réservés aux responsables de l'organisation.");});},[selected]);
+  const [organizations,setOrganizations] = useState<Organization[]>([]);
+  const [selected,setSelected] = useState<number | null>(null);
+  const [dossiers,setDossiers] = useState<Dossier[] | null>(null);
+  const [leads,setLeads] = useState<LeadSummary[] | null>(null);
+  const [error,setError] = useState("");
+
+  useEffect(() => {
+    api.get<Organization[]>("/proximo/organizations")
+      .then(({data}) => { setOrganizations(data); setSelected(data[0]?.id ?? null); })
+      .catch(() => setError("Impossible de charger vos organisations."));
+  }, []);
+  useEffect(() => {
+    if (!selected) { setDossiers(null); setLeads(null); return; }
+    let active = true;
+    setDossiers(null); setLeads(null); setError("");
+    const base = "/proximo/organizations/" + selected;
+    void Promise.allSettled([
+      api.get<Dossier[]>(base + "/client_dossiers"),
+      api.get<LeadSummary[]>(base + "/leads"),
+    ]).then(([cases, recommendations]) => {
+      if (!active) return;
+      if (cases.status === "fulfilled") setDossiers(cases.value.data);
+      if (recommendations.status === "fulfilled") setLeads(recommendations.value.data);
+      if (cases.status === "rejected" && recommendations.status === "rejected") {
+        setError("Les données de cette organisation ne sont pas accessibles avec vos droits.");
+      }
+    });
+    return () => { active = false; };
+  }, [selected]);
+
+  const pending = leads?.filter(lead => lead.status === "received").length;
+  const converted = leads?.filter(lead => lead.status === "converted").length;
+
   return <Shell>
-    <p className="proximo-kicker">LE COCKPIT IMMOBILIER</p>
-    <h1 className="mt-3 text-4xl font-black tracking-tight">Votre espace professionnel</h1>
-    <p className="mt-3 text-white/55">Dossiers, clients et réseau d'apporteurs, classés par organisation.</p>
-    <div className="mt-8 flex flex-wrap items-end gap-4">
-      <label className="min-w-[240px]"><span className="proximo-form-label">Organisation</span><select className="proximo-input" value={selected??""} onChange={e=>setSelected(Number(e.target.value))}>{organizations.map(o=><option value={o.id} key={o.id}>{o.name}</option>)}</select></label>
-      {selected&&<Link to={`/dossiers/nouveau?organization_id=${selected}`} className="proximo-primary">+ Créer une fiche client</Link>}
-      <Link to="/recommandations" className="proximo-outline">Voir le réseau d'apporteurs →</Link>
+    <p className="proximo-kicker">PROXIMO · PILOTAGE IMMOBILIER</p>
+    <h1 className="mt-3 text-4xl font-black tracking-tight">Votre vue d'ensemble</h1>
+    <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/60">
+      Du premier contact au dossier client : retrouvez vos recommandations,
+      vos opportunités à qualifier et les besoins de votre organisation.
+    </p>
+    <div className="mt-8 flex flex-wrap items-end gap-3">
+      <label className="min-w-[240px]">
+        <span className="proximo-form-label">Organisation</span>
+        <select className="proximo-input" value={selected ?? ""}
+          onChange={event => setSelected(Number(event.target.value))}>
+          {organizations.length === 0 && <option value="">Aucune organisation</option>}
+          {organizations.map(org => <option value={org.id} key={org.id}>{org.name}</option>)}
+        </select>
+      </label>
+      <Link to="/recommandations" className="proximo-primary">Voir les recommandations ↗</Link>
+      {selected && <Link to={`/dossiers/nouveau?organization_id=${selected}`}
+        className="proximo-outline">+ Nouvelle fiche client</Link>}
     </div>
-    {error&&<p className="mt-5 rounded-xl border border-white/20 bg-white/10 p-4 text-sm text-white/70">{error}</p>}
+    {error && <p role="alert" className="mt-5 rounded-xl border border-red-300/30 bg-red-500/10 p-4 text-sm text-red-100">{error}</p>}
+    <div className="mt-9 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {[
+        { label:"Recommandations", value: leads?.length, description:"Contacts accessibles" },
+        { label:"À qualifier", value: pending, description:"Nouvelles recommandations" },
+        { label:"Converties", value: converted, description:"Suivi des opportunités" },
+        { label:"Dossiers clients", value: dossiers?.length, description:"Dossiers consultables" },
+      ].map(metric => <div className="proximo-stat" key={metric.label}>
+        <p className="proximo-stat-label">{metric.label}</p>
+        <strong className="proximo-stat-value">{metric.value ?? "—"}</strong>
+        <p className="mt-3 text-xs text-white/45">
+          {metric.value === undefined ? "Chargement ou accès limité" : metric.description}
+        </p>
+      </div>)}
+    </div>
     <section className="mt-10">
-      <div className="flex justify-between"><h2 className="text-2xl font-bold">Dossiers clients</h2><span className="text-sm text-white/50">{dossiers.length} dossier(s)</span></div>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="proximo-kicker">UN PARCOURS TRAÇABLE</p>
+          <h2 className="mt-2 text-2xl font-bold">De la recommandation à l'opportunité</h2>
+        </div>
+        <Link className="text-sm font-semibold text-[#eafa64]" to="/recommandations">
+          Accéder au suivi ↗
+        </Link>
+      </div>
+      <div className="proximo-workflow mt-5">
+        {[
+          ["01","Reçue","Un contact est transmis au réseau."],
+          ["02","Qualifiée","L'agence examine le projet."],
+          ["03","En cours","Le contact est pris en charge."],
+          ["04","Convertie","L'opportunité est suivie comme convertie."],
+        ].map(([index,title,description]) =>
+          <div className="proximo-workflow-step" key={index}>
+            <span className="proximo-workflow-step-index">ÉTAPE {index}</span>
+            <strong>{title}</strong>
+            <p>{description}</p>
+          </div>
+        )}
+      </div>
+      <p className="mt-3 text-xs text-white/40">
+        Le suivi des étapes existe dans le code. Une conversion ne constitue
+        ni une transaction finalisée ni une validation de commission.
+      </p>
+    </section>
+    <section id="dossiers" className="mt-12 scroll-mt-8">
+      <div className="flex flex-wrap justify-between gap-3">
+        <h2 className="text-2xl font-bold">Dossiers clients</h2>
+        <span className="text-sm text-white/50">{dossiers?.length ?? "—"} dossier(s) visible(s)</span>
+      </div>
       <div className="mt-5 grid gap-4 md:grid-cols-2">
-        {dossiers.length===0&&<p className="proximo-panel text-sm text-white/55">Aucun dossier à afficher. Commencez par une nouvelle fiche client.</p>}
-        {dossiers.map(d=><div key={d.id} className="proximo-panel">
-          <span className="proximo-kicker">{d.project_type.toUpperCase()}</span>
-          <h3 className="mt-3 text-xl font-bold">{d.full_name}</h3>
-          <p className="mt-2 text-sm text-white/50">{d.property_city||"Localisation à préciser"}</p>
-          <p className="mt-4 text-xs text-white/50">Mandat : {d.mandate_status.replaceAll("_"," ")} · Dossier #{d.id}</p>
-        </div>)}
+        {dossiers === null && <p className="proximo-panel text-sm text-white/50">
+          Chargement des dossiers ou accès réservé aux responsables.
+        </p>}
+        {dossiers?.length === 0 && <p className="proximo-panel text-sm text-white/55">
+          Aucun dossier à afficher. Vous pouvez commencer par une nouvelle fiche client.
+        </p>}
+        {dossiers?.map(dossier => <article key={dossier.id} className="proximo-panel">
+          <span className="proximo-kicker">{dossier.project_type.toUpperCase()}</span>
+          <h3 className="mt-3 text-xl font-bold">{dossier.full_name}</h3>
+          <p className="mt-2 text-sm text-white/50">{dossier.property_city || "Localisation à préciser"}</p>
+          <p className="mt-4 text-xs text-white/50">
+            Mandat : {dossier.mandate_status.replaceAll("_"," ")} · Dossier #{dossier.id}
+          </p>
+        </article>)}
       </div>
     </section>
   </Shell>;
