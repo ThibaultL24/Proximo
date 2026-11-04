@@ -82,6 +82,34 @@ class WordpressDistributionTest < ActionDispatch::IntegrationTest
     assert_equal false, publication.syndicated
   end
 
+  test "a validated WordPress post is sent once and never repeated by a duplicate job" do
+    @merchant.social_accounts.create!(
+      provider: :wordpress, account_name: "editor", access_token: "app-secret",
+      external_id: "https://commerce.fr", status: :connected
+    )
+    publication = @merchant.publications.create!(
+      agency: @agency, status: :published, category: :commerces,
+      body: "Article déjà approuvé", requested_syndication: true,
+      requested_providers: ["wordpress"]
+    )
+    post = publication.social_posts.create!(provider: :wordpress, status: :pending)
+    calls = 0
+    publisher = ->(**_args) do
+      calls += 1
+      Social::Adapters::Base::Result.new(
+        status: :published, external_post_id: "91", error_message: nil
+      )
+    end
+    Social::Adapters::Wordpress.stub(:publish, publisher) do
+      SocialPublishJob.perform_now(post.id)
+      SocialPublishJob.perform_now(post.id)
+    end
+    assert_equal 1, calls
+    assert post.reload.published?
+    assert_equal "91", post.external_post_id
+    assert publication.reload.syndicated?
+  end
+
   test "HTML content is escaped before WordPress receives the post" do
     account = @merchant.social_accounts.create!(
       provider: :wordpress, account_name: "editor", access_token: "app-secret",
