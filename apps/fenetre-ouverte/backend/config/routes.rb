@@ -51,6 +51,7 @@ Rails.application.routes.draw do
         resources :publications, only: %i[index create]
         get "social_channels", to: "social_channels#index"
         resource :wordpress_connection, only: %i[show create destroy], controller: "wordpress_connections"
+        post "social_posts/:id/verify_wordpress", to: "social_post_verifications#create"
         resources :social_accounts, only: %i[index create destroy], param: :provider do
           member do
             post :connect
