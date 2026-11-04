@@ -6,9 +6,10 @@ if [ -z "${LD_PRELOAD+x}" ]; then
 fi
 
 if [ "${RAILS_ENV:-}" = "production" ]; then
-  # SAFE: migrate the application's dedicated database only.
-  # NEVER seed test accounts, example passwords or fictional posts on boot.
-  ./bin/rails db:prepare
+  # SAFE: migrate the application's already-created dedicated database only.
+  # Rails db:prepare can run seeds on first boot: NEVER use it in production.
+  # No sample accounts, predictable passwords or fictional posts are created.
+  ./bin/rails db:migrate
 fi
 
 exec "${@}"
