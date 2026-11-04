@@ -23,7 +23,7 @@ class SocialPublisher
       return :skipped
     end
 
-    unless Social::Config.v1_provider?(social_post.provider)
+    unless Social::Config.deliverable_provider?(social_post.provider)
       social_post.update!(status: :skipped, error_message: "Réseau non supporté en V1")
       return :skipped
     end
