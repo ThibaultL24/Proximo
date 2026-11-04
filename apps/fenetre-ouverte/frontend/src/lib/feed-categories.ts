@@ -32,13 +32,6 @@ export const RUBRIQUES: FeedCategoryMeta[] = [
     href: "/loisirs",
   },
   {
-    id: "immo",
-    label: "Actu immo",
-    shortLabel: "Immo",
-    description: "Conseils, ventes, locations et projets immobiliers.",
-    href: "/immo",
-  },
-  {
     id: "bien_etre",
     label: "Bien-être",
     shortLabel: "Bien-être",
@@ -60,7 +53,7 @@ export const FEED_CATEGORY_LABELS: Record<FeedCategory, string> = {
   bien_etre: "Bien-être",
 };
 
-/** Réseaux commerçant V1 — Facebook, Instagram, TikTok */
+/** Adaptateurs actuellement câblés — l’automatisation exige un compte OAuth réel. */
 export const SOCIAL_PROVIDERS = [
   { id: "facebook", label: "Facebook", field: "facebook_page_url", placeholder: "https://facebook.com/votre-page" },
   { id: "instagram", label: "Instagram", field: "instagram_handle", placeholder: "@votre_compte" },
@@ -73,5 +66,6 @@ export const SOCIAL_POST_STATUS_LABELS: Record<string, string> = {
   pending: "En cours",
   published: "Publié",
   failed: "Échec",
-  skipped: "Ignoré",
+  skipped: "Non envoyé",
+  processing: "Transmission en cours",
 };
