@@ -26,6 +26,7 @@
 
 /* Cockpit authentique : reprend la hiérarchie de la démo, mais conserve
    exclusivement les vraies routes et les données de l'API Rails. */
+.proximo-ui h1, .proximo-ui h2, .proximo-ui h3 { font-family:Inter,"Segoe UI",system-ui,sans-serif; }
 .proximo-app-shell { display:grid; grid-template-columns:252px minmax(0,1fr); background:#0b1019; }
 .proximo-app-sidebar { position:sticky; top:0; height:100vh; min-height:0; display:flex; flex-direction:column;
   background:#080f19; border-right:1px solid #ffffff18; padding:32px 18px 24px; }
