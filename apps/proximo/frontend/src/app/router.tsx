@@ -5,6 +5,7 @@ import { ProximoLandingPage } from "../pages/public/proximo-landing-page";
 import { ProximoLoginPage, ProximoWorkspacePage, ProximoNewDossierPage } from "../pages/public/proximo-workspace-page";
 import { ProximoLeadsPage } from "../pages/public/proximo-leads-page";
 import { ProximoListingsPage } from "../pages/public/proximo-listings-page";
+import { ProximoGestionPage } from "../pages/public/proximo-gestion-page";
 
 function Protected({children}:{children:React.ReactNode}) {
   const {user,isLoading}=useAuth();
@@ -21,6 +22,7 @@ export function AppRouter() {
       <Route path="espace" element={<Protected><ProximoWorkspacePage/></Protected>}/>
       <Route path="recommandations" element={<Protected><ProximoLeadsPage/></Protected>}/>
       <Route path="annonces" element={<Protected><ProximoListingsPage/></Protected>}/>
+      <Route path="gestion" element={<Protected><ProximoGestionPage/></Protected>}/>
       <Route path="dossiers/nouveau" element={<Protected><ProximoNewDossierPage/></Protected>}/>
       <Route path="*" element={<Navigate to="/" replace/>}/>
     </Routes>
