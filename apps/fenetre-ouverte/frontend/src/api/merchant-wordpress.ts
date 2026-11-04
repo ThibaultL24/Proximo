@@ -25,6 +25,13 @@ export async function connectWordpress(input: WordpressCredentials): Promise<Wor
   return data;
 }
 
+export async function verifyWordpressDelivery(id: number): Promise<{
+  status: string; external_url: string | null; message: string;
+}> {
+  const { data } = await api.post("/merchant/social_posts/" + id + "/verify_wordpress");
+  return data;
+}
+
 export async function disconnectWordpress(): Promise<void> {
   await api.delete("/merchant/wordpress_connection");
 }
