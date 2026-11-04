@@ -49,6 +49,7 @@ Rails.application.routes.draw do
         delete "profile/photos", to: "photos#destroy"
         resources :leads, only: %i[index create]
         resources :publications, only: %i[index create]
+        get "social_channels", to: "social_channels#index"
         resources :social_accounts, only: %i[index create destroy], param: :provider do
           member do
             post :connect
